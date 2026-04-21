@@ -1,20 +1,22 @@
-import React, { useState } from 'react';
-import { navigate } from 'vike/client/router';
-import ConnectWallet from '../../components/ConnectWallet';
-import { createVault } from '../../src/utils/stellar.js';
+import React, { useState } from "react";
+import { navigate } from "vike/client/router";
+import ConnectWallet from "../../components/ConnectWallet";
+import { createVault } from "../../src/utils/stellar.js";
 
 export default function Page() {
-  const [address, setAddress] = useState<string>('');
+  const [address, setAddress] = useState<string>("");
   const [formData, setFormData] = useState({
-    seller: '',
-    amount: '',
-    description: '',
-    deadline: '7',
+    seller: "",
+    amount: "",
+    description: "",
+    deadline: "7",
   });
   const [loading, setLoading] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
@@ -23,7 +25,7 @@ export default function Page() {
 
   const handleSubmit = async () => {
     if (!address) {
-      alert('Please connect your wallet first');
+      alert("Please connect your wallet first");
       return;
     }
 
@@ -34,12 +36,12 @@ export default function Page() {
         formData.seller,
         formData.amount,
         formData.description,
-        parseInt(formData.deadline)
+        parseInt(formData.deadline),
       );
       navigate(`/vault/${vaultId}`);
     } catch (error) {
-      console.error('Error creating vault:', error);
-      alert('Failed to create vault. Please try again.');
+      console.error("Error creating vault:", error);
+      alert("Failed to create vault. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -50,7 +52,9 @@ export default function Page() {
       <div className="min-h-screen bg-gray-50 py-12">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-3xl font-bold mb-8">Create New Vault</h1>
-          <p className="text-gray-600 mb-6">Connect your wallet to create a vault</p>
+          <p className="text-gray-600 mb-6">
+            Connect your wallet to create a vault
+          </p>
           <ConnectWallet onConnect={setAddress} />
         </div>
       </div>
@@ -63,7 +67,10 @@ export default function Page() {
         <h1 className="text-3xl font-bold mb-8">Create New Vault</h1>
 
         {!showPreview ? (
-          <form className="bg-white rounded-lg shadow-md p-6 space-y-6" onSubmit={(e) => e.preventDefault()}>
+          <form
+            className="bg-white rounded-lg shadow-md p-6 space-y-6"
+            onSubmit={(e) => e.preventDefault()}
+          >
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Seller Address *
@@ -132,14 +139,16 @@ export default function Page() {
               <button
                 type="button"
                 onClick={() => setShowPreview(true)}
-                disabled={!formData.seller || !formData.amount || !formData.description}
+                disabled={
+                  !formData.seller || !formData.amount || !formData.description
+                }
                 className="flex-1 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
               >
                 Preview Vault
               </button>
               <button
                 type="button"
-                onClick={() => navigate('/dashboard')}
+                onClick={() => navigate("/dashboard")}
                 className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
               >
                 Cancel
@@ -156,7 +165,9 @@ export default function Page() {
               </div>
               <div>
                 <label className="text-sm text-gray-500">Amount</label>
-                <p className="text-2xl font-bold text-gray-900">{formData.amount} XLM</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {formData.amount} XLM
+                </p>
               </div>
               <div>
                 <label className="text-sm text-gray-500">Description</label>
@@ -173,7 +184,7 @@ export default function Page() {
                 disabled={loading}
                 className="flex-1 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
               >
-                {loading ? 'Creating...' : 'Confirm & Create'}
+                {loading ? "Creating..." : "Confirm & Create"}
               </button>
               <button
                 onClick={() => setShowPreview(false)}

@@ -4,25 +4,32 @@ export interface Vault {
   seller: string;
   amount: string;
   description: string;
-  status: 'pending' | 'funded' | 'confirmed' | 'disputed' | 'resolved' | 'cancelled' | 'expired';
+  status:
+    | "pending"
+    | "funded"
+    | "confirmed"
+    | "disputed"
+    | "resolved"
+    | "cancelled"
+    | "expired";
   createdAt: string;
   deadline: string;
   buyerConfirmed?: boolean;
   sellerConfirmed?: boolean;
   confirmedAt?: string;
   resolvedAt?: string;
-  decision?: 'buyer' | 'seller' | 'split';
+  decision?: "buyer" | "seller" | "split";
 }
 
 export interface Transaction {
   id: string;
-  type: 'create' | 'deposit' | 'confirm' | 'dispute' | 'resolve';
+  type: "create" | "deposit" | "confirm" | "dispute" | "resolve";
   vaultId: string;
   from: string;
   to?: string;
   amount?: string;
   timestamp: string;
-  status: 'pending' | 'success' | 'failed';
+  status: "pending" | "success" | "failed";
 }
 
 export interface ArbitrationCase {
@@ -33,5 +40,5 @@ export interface ArbitrationCase {
   votesSplit: number;
   totalVotes: number;
   resolved: boolean;
-  decision: 'buyer' | 'seller' | 'split' | null;
+  decision: "buyer" | "seller" | "split" | null;
 }

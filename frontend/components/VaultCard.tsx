@@ -1,21 +1,26 @@
-import React from 'react';
-import { Link } from './Link';
-import VaultStatusBadge from './VaultStatusBadge';
-import { Vault } from '../types';
+import React from "react";
+import { Link } from "./Link";
+import VaultStatusBadge from "./VaultStatusBadge";
+import { Vault } from "../types";
 
 interface VaultCardProps {
   vault: Vault;
-  role: 'buyer' | 'seller';
+  role: "buyer" | "seller";
   onConfirm?: (vaultId: string) => void;
   onDispute?: (vaultId: string) => void;
 }
 
-export default function VaultCard({ vault, role, onConfirm, onDispute }: VaultCardProps) {
-  const isBuyer = role === 'buyer';
+export default function VaultCard({
+  vault,
+  role,
+  onConfirm,
+  onDispute,
+}: VaultCardProps) {
+  const isBuyer = role === "buyer";
   const counterparty = isBuyer ? vault.seller : vault.buyer;
-  
-  const canConfirm = isBuyer && vault.status === 'funded';
-  const canDispute = vault.status === 'funded';
+
+  const canConfirm = isBuyer && vault.status === "funded";
+  const canDispute = vault.status === "funded";
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
@@ -25,7 +30,8 @@ export default function VaultCard({ vault, role, onConfirm, onDispute }: VaultCa
             Vault #{vault.id.slice(0, 8)}
           </h3>
           <p className="text-sm text-gray-500 mt-1">
-            {isBuyer ? 'Seller' : 'Buyer'}: {counterparty.slice(0, 6)}...{counterparty.slice(-4)}
+            {isBuyer ? "Seller" : "Buyer"}: {counterparty.slice(0, 6)}...
+            {counterparty.slice(-4)}
           </p>
         </div>
         <VaultStatusBadge status={vault.status} />
@@ -33,7 +39,9 @@ export default function VaultCard({ vault, role, onConfirm, onDispute }: VaultCa
 
       <div className="space-y-2 mb-4">
         <p className="text-2xl font-bold text-gray-900">{vault.amount} XLM</p>
-        <p className="text-sm text-gray-600 line-clamp-2">{vault.description}</p>
+        <p className="text-sm text-gray-600 line-clamp-2">
+          {vault.description}
+        </p>
         <div className="flex justify-between text-sm text-gray-500">
           <span>Created: {new Date(vault.createdAt).toLocaleDateString()}</span>
           <span>Deadline: {new Date(vault.deadline).toLocaleDateString()}</span>

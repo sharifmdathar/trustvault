@@ -1,8 +1,8 @@
-import React from 'react';
-import { Link } from '../../components/Link';
-import ConnectWallet from '../../components/ConnectWallet';
-import RecentTransactions from '../../components/RecentTransactions';
-import { Shield, Clock, Scale } from 'lucide-react';
+import React from "react";
+import { Link } from "../../components/Link";
+import ConnectWallet from "../../components/ConnectWallet";
+import RecentTransactions from "../../components/RecentTransactions";
+import { Shield, Clock, Scale } from "lucide-react";
 
 export default function HomePage() {
   return (
@@ -18,7 +18,7 @@ export default function HomePage() {
               </span>
             </h1>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-8">
-              Decentralized escrow service protecting both buyers and sellers 
+              Decentralized escrow service protecting both buyers and sellers
               with multi-signature security and arbitration.
             </p>
             <div className="flex justify-center space-x-4">
@@ -63,7 +63,9 @@ export default function HomePage() {
               <div className="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
                 <Scale className="w-8 h-8 text-blue-600" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">3. Release or Arbitrate</h3>
+              <h3 className="text-xl font-semibold mb-2">
+                3. Release or Arbitrate
+              </h3>
               <p className="text-gray-600">
                 Buyer confirms delivery or dispute goes to arbitration
               </p>

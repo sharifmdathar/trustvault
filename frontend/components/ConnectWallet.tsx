@@ -1,25 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import { connectWallet } from '../src/utils/stellar.js';
+import React, { useState, useEffect } from "react";
+import { connectWallet } from "../src/utils/stellar.js";
 
 interface ConnectWalletProps {
   onConnect?: (address: string) => void;
   className?: string;
 }
 
-export default function ConnectWallet({ onConnect, className = '' }: ConnectWalletProps) {
+export default function ConnectWallet({
+  onConnect,
+  className = "",
+}: ConnectWalletProps) {
   const [address, setAddress] = useState<string | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
 
   useEffect(() => {
     const checkConnection = async () => {
       try {
-        const savedAddress = localStorage.getItem('walletAddress');
+        const savedAddress = localStorage.getItem("walletAddress");
         if (savedAddress) {
           setAddress(savedAddress);
           onConnect?.(savedAddress);
         }
       } catch (error) {
-        console.error('Error checking wallet connection:', error);
+        console.error("Error checking wallet connection:", error);
       }
     };
     checkConnection();
@@ -30,11 +33,11 @@ export default function ConnectWallet({ onConnect, className = '' }: ConnectWall
     try {
       const publicKey = await connectWallet();
       setAddress(publicKey);
-      localStorage.setItem('walletAddress', publicKey);
+      localStorage.setItem("walletAddress", publicKey);
       onConnect?.(publicKey);
     } catch (error) {
-      console.error('Failed to connect wallet:', error);
-      alert('Failed to connect wallet. Please ensure Freighter is installed.');
+      console.error("Failed to connect wallet:", error);
+      alert("Failed to connect wallet. Please ensure Freighter is installed.");
     } finally {
       setIsConnecting(false);
     }
@@ -42,8 +45,8 @@ export default function ConnectWallet({ onConnect, className = '' }: ConnectWall
 
   const handleDisconnect = () => {
     setAddress(null);
-    localStorage.removeItem('walletAddress');
-    onConnect?.('');
+    localStorage.removeItem("walletAddress");
+    onConnect?.("");
   };
 
   if (address) {
@@ -68,7 +71,7 @@ export default function ConnectWallet({ onConnect, className = '' }: ConnectWall
       disabled={isConnecting}
       className={`px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 ${className}`}
     >
-      {isConnecting ? 'Connecting...' : 'Connect Wallet'}
+      {isConnecting ? "Connecting..." : "Connect Wallet"}
     </button>
   );
 }
