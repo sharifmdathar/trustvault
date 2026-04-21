@@ -1,16 +1,23 @@
 #![no_std]
 use soroban_sdk::{contract, contractimpl, contracttype, symbol_short, Address, Env, Vec};
 
-#[derive(Clone, PartialEq)]
 #[contracttype]
-pub enum ArbitrationDecision {
-    ReleaseToBuyer,
-    ReleaseToSeller,
-    SplitFiftyFifty,
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub struct ArbitrationDecision(u32);
+
+impl ArbitrationDecision {
+    pub const RELEASE_TO_BUYER: Self = Self(0);
+    pub const RELEASE_TO_SELLER: Self = Self(1);
+    pub const SPLIT_FIFTY_FIFTY: Self = Self(2);
+    pub const UNDECIDED: Self = Self(3);
+    
+    pub fn is_decided(&self) -> bool {
+        self.0 <= 2
+    }
 }
 
-#[derive(Clone)]
 #[contracttype]
+#[derive(Clone, PartialEq, Eq, Debug)]
 pub struct ArbitrationCase {
     pub vault_id: u64,
     pub arbitrators: Vec<Address>,
@@ -19,11 +26,11 @@ pub struct ArbitrationCase {
     pub votes_split: u32,
     pub total_votes: u32,
     pub resolved: bool,
-    pub decision: Option<ArbitrationDecision>,
+    pub decision: ArbitrationDecision,
 }
 
-#[derive(Clone)]
 #[contracttype]
+#[derive(Clone, PartialEq, Eq, Debug)]
 pub enum DataKey {
     Case(u64),
     Arbitrators,
@@ -58,7 +65,7 @@ impl ArbitrationContract {
             votes_split: 0,
             total_votes: 0,
             resolved: false,
-            decision: None,
+            decision: ArbitrationDecision::UNDECIDED,
         };
 
         env.storage()
@@ -69,7 +76,7 @@ impl ArbitrationContract {
             .publish((symbol_short!("case"), caller), vault_id);
     }
 
-    pub fn vote(env: Env, vault_id: u64, arbitrator: Address, decision: ArbitrationDecision) {
+    pub fn vote(env: Env, vault_id: u64, arbitrator: Address, decision: u32) {
         arbitrator.require_auth();
 
         let mut case: ArbitrationCase = env
@@ -89,9 +96,10 @@ impl ArbitrationContract {
 
         // Record vote
         match decision {
-            ArbitrationDecision::ReleaseToBuyer => case.votes_buyer += 1,
-            ArbitrationDecision::ReleaseToSeller => case.votes_seller += 1,
-            ArbitrationDecision::SplitFiftyFifty => case.votes_split += 1,
+            0 => case.votes_buyer += 1,
+            1 => case.votes_seller += 1,
+            2 => case.votes_split += 1,
+            _ => panic!("Invalid decision"),
         }
         case.total_votes += 1;
 
@@ -100,13 +108,13 @@ impl ArbitrationContract {
 
         if case.votes_buyer >= majority as u32 {
             case.resolved = true;
-            case.decision = Some(ArbitrationDecision::ReleaseToBuyer);
+            case.decision = ArbitrationDecision::RELEASE_TO_BUYER;
         } else if case.votes_seller >= majority as u32 {
             case.resolved = true;
-            case.decision = Some(ArbitrationDecision::ReleaseToSeller);
+            case.decision = ArbitrationDecision::RELEASE_TO_SELLER;
         } else if case.votes_split >= majority as u32 {
             case.resolved = true;
-            case.decision = Some(ArbitrationDecision::SplitFiftyFifty);
+            case.decision = ArbitrationDecision::SPLIT_FIFTY_FIFTY;
         }
 
         env.storage()

@@ -18,6 +18,15 @@ jobs:
           source "$HOME/.cargo/env"
           rustup target add wasm32v1-none
       
+      - name: Cache Dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
       - name: Install Soroban CLI
         run: |
           curl -fsSL https://github.com/stellar/stellar-cli/raw/main/install.sh | sh
