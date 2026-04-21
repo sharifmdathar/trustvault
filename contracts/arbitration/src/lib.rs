@@ -1,8 +1,5 @@
 #![no_std]
-use soroban_sdk::{
-    contract, contractimpl, contracttype,
-    Address, Env, Vec, symbol_short
-};
+use soroban_sdk::{contract, contractimpl, contracttype, symbol_short, Address, Env, Vec};
 
 #[derive(Clone, PartialEq)]
 #[contracttype]
@@ -38,22 +35,20 @@ pub struct ArbitrationContract;
 
 #[contractimpl]
 impl ArbitrationContract {
-    pub fn initialize(
-        env: Env,
-        escrow_contract: Address,
-        arbitrators: Vec<Address>
-    ) {
-        env.storage().instance()
+    pub fn initialize(env: Env, escrow_contract: Address, arbitrators: Vec<Address>) {
+        env.storage()
+            .instance()
             .set(&DataKey::EscrowContract, &escrow_contract);
-        env.storage().instance()
+        env.storage()
+            .instance()
             .set(&DataKey::Arbitrators, &arbitrators);
     }
 
     pub fn open_case(env: Env, vault_id: u64, caller: Address) {
         caller.require_auth();
 
-        let arbitrators: Vec<Address> = env.storage().instance()
-            .get(&DataKey::Arbitrators).unwrap();
+        let arbitrators: Vec<Address> =
+            env.storage().instance().get(&DataKey::Arbitrators).unwrap();
 
         let case = ArbitrationCase {
             vault_id,
@@ -66,23 +61,20 @@ impl ArbitrationContract {
             decision: None,
         };
 
-        env.storage().instance().set(&DataKey::Case(vault_id), &case);
+        env.storage()
+            .instance()
+            .set(&DataKey::Case(vault_id), &case);
 
-        env.events().publish(
-            (symbol_short!("case"), caller),
-            vault_id
-        );
+        env.events()
+            .publish((symbol_short!("case"), caller), vault_id);
     }
 
-    pub fn vote(
-        env: Env,
-        vault_id: u64,
-        arbitrator: Address,
-        decision: ArbitrationDecision
-    ) {
+    pub fn vote(env: Env, vault_id: u64, arbitrator: Address, decision: ArbitrationDecision) {
         arbitrator.require_auth();
 
-        let mut case: ArbitrationCase = env.storage().instance()
+        let mut case: ArbitrationCase = env
+            .storage()
+            .instance()
             .get(&DataKey::Case(vault_id))
             .expect("Case not found");
 
@@ -117,18 +109,21 @@ impl ArbitrationContract {
             case.decision = Some(ArbitrationDecision::SplitFiftyFifty);
         }
 
-        env.storage().instance().set(&DataKey::Case(vault_id), &case);
+        env.storage()
+            .instance()
+            .set(&DataKey::Case(vault_id), &case);
 
         if case.resolved {
             env.events().publish(
                 (symbol_short!("resolved"), arbitrator),
-                (vault_id, case.total_votes)
+                (vault_id, case.total_votes),
             );
         }
     }
 
     pub fn get_case(env: Env, vault_id: u64) -> ArbitrationCase {
-        env.storage().instance()
+        env.storage()
+            .instance()
             .get(&DataKey::Case(vault_id))
             .expect("Case not found")
     }

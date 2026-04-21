@@ -1,11 +1,7 @@
-
 #![no_std]
-use soroban_sdk::{
-    contract, contractimpl, contracttype,
-    Address, Env, Symbol, symbol_short
-};
+use soroban_sdk::{contract, contractimpl, contracttype, symbol_short, Address, Env, Symbol};
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Debug)]
 #[contracttype]
 pub enum VaultStatus {
     Pending,
@@ -36,6 +32,7 @@ pub enum DataKey {
     Vault(u64),
     VaultCount,
     ArbitrationContract,
+    TokenContract,
 }
 
 #[contract]
@@ -43,11 +40,14 @@ pub struct EscrowContract;
 
 #[contractimpl]
 impl EscrowContract {
-    pub fn initialize(env: Env, arbitration_contract: Address) {
-        env.storage().instance()
+    pub fn initialize(env: Env, arbitration_contract: Address, token_contract: Address) {
+        env.storage()
+            .instance()
             .set(&DataKey::ArbitrationContract, &arbitration_contract);
-        env.storage().instance()
-            .set(&DataKey::VaultCount, &0u64);
+        env.storage()
+            .instance()
+            .set(&DataKey::TokenContract, &token_contract);
+        env.storage().instance().set(&DataKey::VaultCount, &0u64);
     }
 
     pub fn create_vault(
@@ -60,8 +60,11 @@ impl EscrowContract {
     ) -> u64 {
         buyer.require_auth();
 
-        let mut count: u64 = env.storage().instance()
-            .get(&DataKey::VaultCount).unwrap_or(0);
+        let mut count: u64 = env
+            .storage()
+            .instance()
+            .get(&DataKey::VaultCount)
+            .unwrap_or(0);
         count += 1;
 
         let deadline = env.ledger().timestamp() + (deadline_days * 86400);
@@ -81,10 +84,8 @@ impl EscrowContract {
         env.storage().instance().set(&DataKey::Vault(count), &vault);
         env.storage().instance().set(&DataKey::VaultCount, &count);
 
-        env.events().publish(
-            (symbol_short!("created"), buyer),
-            (count, seller, amount)
-        );
+        env.events()
+            .publish((symbol_short!("created"), buyer), (count, seller, amount));
 
         count
     }
@@ -92,7 +93,9 @@ impl EscrowContract {
     pub fn deposit(env: Env, vault_id: u64, buyer: Address) {
         buyer.require_auth();
 
-        let mut vault: Vault = env.storage().instance()
+        let mut vault: Vault = env
+            .storage()
+            .instance()
             .get(&DataKey::Vault(vault_id))
             .expect("Vault not found");
 
@@ -104,26 +107,30 @@ impl EscrowContract {
             panic!("Only buyer can deposit");
         }
 
-        // Transfer XLM to contract
-        let token_client = soroban_sdk::token::Client::new(
-            &env,
-            &env.current_contract_address()
-        );
+        let token_contract: Address = env
+            .storage()
+            .instance()
+            .get(&DataKey::TokenContract)
+            .expect("Token contract not initialized");
+
+        let token_client = soroban_sdk::token::Client::new(&env, &token_contract);
         token_client.transfer(&buyer, &env.current_contract_address(), &vault.amount);
 
         vault.status = VaultStatus::Active;
-        env.storage().instance().set(&DataKey::Vault(vault_id), &vault);
+        env.storage()
+            .instance()
+            .set(&DataKey::Vault(vault_id), &vault);
 
-        env.events().publish(
-            (symbol_short!("deposit"), buyer),
-            (vault_id, vault.amount)
-        );
+        env.events()
+            .publish((symbol_short!("deposit"), buyer), (vault_id, vault.amount));
     }
 
     pub fn confirm(env: Env, vault_id: u64, caller: Address) {
         caller.require_auth();
 
-        let mut vault: Vault = env.storage().instance()
+        let mut vault: Vault = env
+            .storage()
+            .instance()
             .get(&DataKey::Vault(vault_id))
             .expect("Vault not found");
 
@@ -142,31 +149,37 @@ impl EscrowContract {
         // Auto-release if both confirmed
         if vault.buyer_confirmed && vault.seller_confirmed {
             vault.status = VaultStatus::Confirmed;
-            
-            // Release funds to seller
-            let token_client = soroban_sdk::token::Client::new(
-                &env,
-                &env.current_contract_address()
-            );
+
+            let token_contract: Address = env
+                .storage()
+                .instance()
+                .get(&DataKey::TokenContract)
+                .expect("Token contract not initialized");
+
+            let token_client = soroban_sdk::token::Client::new(&env, &token_contract);
             token_client.transfer(
                 &env.current_contract_address(),
                 &vault.seller,
-                &vault.amount
+                &vault.amount,
             );
 
             env.events().publish(
                 (symbol_short!("released"), vault.seller.clone()),
-                (vault_id, vault.amount)
+                (vault_id, vault.amount),
             );
         }
 
-        env.storage().instance().set(&DataKey::Vault(vault_id), &vault);
+        env.storage()
+            .instance()
+            .set(&DataKey::Vault(vault_id), &vault);
     }
 
     pub fn flag_dispute(env: Env, vault_id: u64, caller: Address) {
         caller.require_auth();
 
-        let mut vault: Vault = env.storage().instance()
+        let mut vault: Vault = env
+            .storage()
+            .instance()
             .get(&DataKey::Vault(vault_id))
             .expect("Vault not found");
 
@@ -179,22 +192,24 @@ impl EscrowContract {
         }
 
         vault.status = VaultStatus::Disputed;
-        env.storage().instance().set(&DataKey::Vault(vault_id), &vault);
+        env.storage()
+            .instance()
+            .set(&DataKey::Vault(vault_id), &vault);
 
-        env.events().publish(
-            (symbol_short!("disputed"), caller),
-            vault_id
-        );
+        env.events()
+            .publish((symbol_short!("disputed"), caller), vault_id);
     }
 
     pub fn get_vault(env: Env, vault_id: u64) -> Vault {
-        env.storage().instance()
+        env.storage()
+            .instance()
             .get(&DataKey::Vault(vault_id))
             .expect("Vault not found")
     }
 
     pub fn get_vault_count(env: Env) -> u64 {
-        env.storage().instance()
+        env.storage()
+            .instance()
             .get(&DataKey::VaultCount)
             .unwrap_or(0)
     }

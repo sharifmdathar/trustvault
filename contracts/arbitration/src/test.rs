@@ -1,9 +1,6 @@
 #![cfg(test)]
 use super::*;
-use soroban_sdk::{
-    testutils::Address as _,
-    Address, Env, vec
-};
+use soroban_sdk::{testutils::Address as _, vec, Address, Env};
 
 #[test]
 fn test_arbitration_majority_vote() {

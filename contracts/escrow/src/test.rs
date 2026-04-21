@@ -1,9 +1,6 @@
 #![cfg(test)]
 use super::*;
-use soroban_sdk::{
-    testutils::{Address as _, Ledger},
-    Address, Env, Symbol, symbol_short
-};
+use soroban_sdk::{symbol_short, testutils::Address as _, token::StellarAssetClient, Address, Env};
 
 #[test]
 fn test_create_vault() {
@@ -13,19 +10,21 @@ fn test_create_vault() {
     let contract_id = env.register_contract(None, EscrowContract);
     let client = EscrowContractClient::new(&env, &contract_id);
 
+    // Create and initialize a mock token
+    let token = env.register_stellar_asset_contract_v2(Address::generate(&env));
+    let token_address = token.address();
+    let token_client = StellarAssetClient::new(&env, &token_address);
+
     let arbitration = Address::generate(&env);
     let buyer = Address::generate(&env);
     let seller = Address::generate(&env);
 
-    client.initialize(&arbitration);
+    // Fund the buyer with tokens
+    token_client.mint(&buyer, &1000i128);
 
-    let vault_id = client.create_vault(
-        &buyer,
-        &seller,
-        &1000i128,
-        &symbol_short!("laptop"),
-        &7u64,
-    );
+    client.initialize(&arbitration, &token_address);
+
+    let vault_id = client.create_vault(&buyer, &seller, &1000i128, &symbol_short!("laptop"), &7u64);
 
     assert_eq!(vault_id, 1);
 
@@ -44,21 +43,24 @@ fn test_vault_confirmation_flow() {
     let contract_id = env.register_contract(None, EscrowContract);
     let client = EscrowContractClient::new(&env, &contract_id);
 
+    // Create and initialize a mock token
+    let token = env.register_stellar_asset_contract_v2(Address::generate(&env));
+    let token_address = token.address();
+    let token_client = StellarAssetClient::new(&env, &token_address);
+
     let arbitration = Address::generate(&env);
     let buyer = Address::generate(&env);
     let seller = Address::generate(&env);
 
-    client.initialize(&arbitration);
+    // Fund the buyer with tokens
+    token_client.mint(&buyer, &1000i128);
 
-    let vault_id = client.create_vault(
-        &buyer,
-        &seller,
-        &1000i128,
-        &symbol_short!("service"),
-        &7u64,
-    );
+    client.initialize(&arbitration, &token_address);
 
-    // Simulate deposit
+    let vault_id =
+        client.create_vault(&buyer, &seller, &1000i128, &symbol_short!("service"), &7u64);
+
+    // Simulate deposit - now the token transfer will work
     client.deposit(&vault_id, &buyer);
     let vault = client.get_vault(&vault_id);
     assert_eq!(vault.status, VaultStatus::Active);
@@ -83,19 +85,21 @@ fn test_dispute_flagging() {
     let contract_id = env.register_contract(None, EscrowContract);
     let client = EscrowContractClient::new(&env, &contract_id);
 
+    // Create and initialize a mock token
+    let token = env.register_stellar_asset_contract_v2(Address::generate(&env));
+    let token_address = token.address();
+    let token_client = StellarAssetClient::new(&env, &token_address);
+
     let arbitration = Address::generate(&env);
     let buyer = Address::generate(&env);
     let seller = Address::generate(&env);
 
-    client.initialize(&arbitration);
+    // Fund the buyer with tokens
+    token_client.mint(&buyer, &1000i128);
 
-    let vault_id = client.create_vault(
-        &buyer,
-        &seller,
-        &1000i128,
-        &symbol_short!("item"),
-        &7u64,
-    );
+    client.initialize(&arbitration, &token_address);
+
+    let vault_id = client.create_vault(&buyer, &seller, &1000i128, &symbol_short!("item"), &7u64);
 
     client.deposit(&vault_id, &buyer);
     client.flag_dispute(&vault_id, &buyer);
@@ -105,6 +109,7 @@ fn test_dispute_flagging() {
 }
 
 #[test]
+#[should_panic(expected = "Can only dispute active vaults")]
 fn test_invalid_dispute_on_pending() {
     let env = Env::default();
     env.mock_all_auths();
@@ -112,24 +117,22 @@ fn test_invalid_dispute_on_pending() {
     let contract_id = env.register_contract(None, EscrowContract);
     let client = EscrowContractClient::new(&env, &contract_id);
 
+    // Create and initialize a mock token
+    let token = env.register_stellar_asset_contract_v2(Address::generate(&env));
+    let token_address = token.address();
+    let token_client = StellarAssetClient::new(&env, &token_address);
+
     let arbitration = Address::generate(&env);
     let buyer = Address::generate(&env);
     let seller = Address::generate(&env);
 
-    client.initialize(&arbitration);
+    // Fund the buyer with tokens
+    token_client.mint(&buyer, &1000i128);
 
-    let vault_id = client.create_vault(
-        &buyer,
-        &seller,
-        &1000i128,
-        &symbol_short!("item"),
-        &7u64,
-    );
+    client.initialize(&arbitration, &token_address);
 
-    // Should panic - can't dispute pending vault
-    let result = std::panic::catch_unwind(|| {
-        client.flag_dispute(&vault_id, &buyer);
-    });
+    let vault_id = client.create_vault(&buyer, &seller, &1000i128, &symbol_short!("item"), &7u64);
 
-    assert!(result.is_err());
+    // This should panic because vault is still Pending
+    client.flag_dispute(&vault_id, &buyer);
 }
