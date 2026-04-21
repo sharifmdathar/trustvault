@@ -10,18 +10,15 @@ jobs:
   contracts:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6.0.2
       - name: Install Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          target: wasm32-unknown-unknown
+        run: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs -y | sh && rustup target add wasm32v1-none
       - name: Install Soroban CLI
-        run: cargo install --locked soroban-cli
+        run: curl -fsSL https://github.com/stellar/stellar-cli/raw/main/install.sh | sh
       - name: Build Contracts
         run: |
-          cd contracts/escrow && soroban contract build
-          cd ../arbitration && soroban contract build
+          cd contracts/escrow && stellar contract build
+          cd ../arbitration && stellar contract build
       - name: Run Tests
         run: |
           cd contracts/escrow && cargo test
@@ -30,13 +27,11 @@ jobs:
   frontend:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
+      - uses: actions/checkout@v6.0.2
+      - name: Install bun
+        run: curl -fsSL https://bun.com/install | bash
       - name: Install & Build
         run: |
           cd frontend
-          npm install
-          npm run build
+          ~/.bun/bin/bun install
+          ~/.bun/bin/bun run build
