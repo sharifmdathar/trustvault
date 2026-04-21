@@ -11,17 +11,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6.0.2
+      
+      - name: Install Rust
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+          source "$HOME/.cargo/env"
+          rustup target add wasm32v1-none
+      
       - name: Install Soroban CLI
-        run: curl -fsSL https://github.com/stellar/stellar-cli/raw/main/install.sh | sh
+        run: |
+          curl -fsSL https://github.com/stellar/stellar-cli/raw/main/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+      
       - name: Build Contracts
         run: |
           cd contracts/escrow && stellar contract build
           cd ../arbitration && stellar contract build
+      
       - name: Run Tests
         run: |
           cd contracts/escrow && cargo test
           cd ../arbitration && cargo test
-
   frontend:
     runs-on: ubuntu-latest
     steps:
