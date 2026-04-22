@@ -1,0 +1,170 @@
+import React, { useState } from 'react';
+import { navigate } from 'vike/client/router';
+import LoadingSpinner from '../ui/LoadingSpinner';
+
+export default function CreateVault({ onSubmit }) {
+  const [formData, setFormData] = useState({
+    seller: '',
+    amount: '',
+    description: '',
+    deadline: '7',
+  });
+  const [loading, setLoading] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+
+  const handleInputChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async () => {
+    setLoading(true);
+    try {
+      const vaultId = await onSubmit(formData);
+      navigate(`/vault/${vaultId}`);
+    } catch (error) {
+      console.error('Error creating vault:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) return <LoadingSpinner fullScreen />;
+
+  return (
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      {!showPreview ? (
+        <form className="bg-white rounded-lg shadow-md p-4 sm:p-6 space-y-6" onSubmit={(e) => e.preventDefault()}>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Seller Address *
+            </label>
+            <input
+              type="text"
+              name="seller"
+              value={formData.seller}
+              onChange={handleInputChange}
+              placeholder="G..."
+              className="w-full px-3 py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              style={{ fontSize: '16px' }}
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Amount (XLM) *
+            </label>
+            <input
+              type="number"
+              name="amount"
+              value={formData.amount}
+              onChange={handleInputChange}
+              placeholder="100"
+              className="w-full px-3 py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              style={{ fontSize: '16px' }}
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Description *
+            </label>
+            <textarea
+              name="description"
+              value={formData.description}
+              onChange={handleInputChange}
+              rows={4}
+              placeholder="Describe the goods or services..."
+              className="w-full px-3 py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              style={{ fontSize: '16px' }}
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Deadline (days) *
+            </label>
+            <input
+              type="number"
+              name="deadline"
+              value={formData.deadline}
+              onChange={handleInputChange}
+              min="1"
+              max="30"
+              className="w-full px-3 py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              style={{ fontSize: '16px' }}
+              required
+            />
+            <p className="text-sm text-gray-500 mt-1">
+              Seller must deliver within this timeframe
+            </p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-4 pt-4">
+            <button
+              type="button"
+              onClick={() => setShowPreview(true)}
+              disabled={!formData.seller || !formData.amount || !formData.description}
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+              style={{ minHeight: '44px' }}
+            >
+              Preview Vault
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate('/dashboard')}
+              className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+              style={{ minHeight: '44px' }}
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      ) : (
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+          <h2 className="text-xl sm:text-2xl font-bold mb-4">Preview Vault</h2>
+          <div className="space-y-4 mb-6">
+            <div>
+              <label className="text-sm text-gray-500">Seller</label>
+              <p className="font-mono text-sm break-all">{formData.seller}</p>
+            </div>
+            <div>
+              <label className="text-sm text-gray-500">Amount</label>
+              <p className="text-2xl font-bold text-gray-900">{formData.amount} XLM</p>
+            </div>
+            <div>
+              <label className="text-sm text-gray-500">Description</label>
+              <p className="text-gray-700">{formData.description}</p>
+            </div>
+            <div>
+              <label className="text-sm text-gray-500">Deadline</label>
+              <p className="text-gray-700">{formData.deadline} days</p>
+            </div>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <button
+              onClick={handleSubmit}
+              className="flex-1 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              style={{ minHeight: '44px' }}
+            >
+              Confirm & Create
+            </button>
+            <button
+              onClick={() => setShowPreview(false)}
+              className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+              style={{ minHeight: '44px' }}
+            >
+              Edit
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

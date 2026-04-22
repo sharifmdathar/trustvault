@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import VaultCard from "../../components/VaultCard";
+import VaultCard from "../../components/vault/VaultCard";
 import ConnectWallet from "../../components/ConnectWallet";
 import { Vault } from "../../types";
 import {
