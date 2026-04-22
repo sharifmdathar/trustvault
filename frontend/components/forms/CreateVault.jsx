@@ -23,7 +23,9 @@ export default function CreateVault({ onSubmit }) {
     setLoading(true);
     try {
       const vaultId = await onSubmit(formData);
-      navigate(`/vault/${vaultId}`);
+      if (vaultId) {
+        navigate(`/vault/${vaultId}`);
+      }
     } catch (error) {
       console.error('Error creating vault:', error);
     } finally {

@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import StatusBadge from '../ui/StatusBadge';
 import LoadingSpinner from '../ui/LoadingSpinner';
 import CopyableAddress from '../ui/CopyableAddress';
+import TransactionStatus from '../ui/TransactionStatus';
 import DisputePanel from './DisputePanel';
 
-export default function VaultDetail({ vault, address, onDeposit, onConfirm, onDispute, onArbitrationVote, loading }) {
+export default function VaultDetail({ vault, address, onDeposit, onConfirm, onDispute, onArbitrationVote, loading, txStatus }) {
   const [actionLoading, setActionLoading] = useState(false);
 
   const isBuyer = address === vault?.buyer;
@@ -124,6 +125,11 @@ export default function VaultDetail({ vault, address, onDeposit, onConfirm, onDi
               </button>
             )}
           </div>
+          {txStatus?.status && (
+            <div className="mt-4">
+              <TransactionStatus status={txStatus.status} hash={txStatus.hash} error={txStatus.error} />
+            </div>
+          )}
         </div>
       )}
 

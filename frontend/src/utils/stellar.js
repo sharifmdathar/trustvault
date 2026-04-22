@@ -143,6 +143,15 @@ function contract(contractId) {
 }
 
 function addressArg(address) {
+  if (!address || typeof address !== 'string') {
+    throw new Error(`Invalid address: ${address}`);
+  }
+  if (address.includes('friendbot') || address.includes('http')) {
+    throw new Error(`Invalid address - looks like a URL: ${address}`);
+  }
+  if (!address.startsWith('G')) {
+    throw new Error(`Invalid Stellar address - must start with G: ${address}`);
+  }
   return new Address(address).toScVal();
 }
 
@@ -363,7 +372,22 @@ async function submitContractCall(
     throw new Error("RPC is busy. Please try again later.");
   }
 
-  return waitForTransaction(server, submitted.hash);
+  const result = await waitForTransaction(server, submitted.hash);
+  
+  // Extract return value
+  let returnValue = null;
+  if (result && result.resultMetaXdr) {
+    try {
+      const meta = result.resultMetaXdr.v4();
+      if (meta && meta.sorobanMeta && meta.sorobanMeta.returnValue) {
+        returnValue = scValToNative(meta.sorobanMeta.returnValue);
+      }
+    } catch (e) {
+      console.warn("Could not parse return value:", e);
+    }
+  }
+  
+  return { ...result, returnValue };
 }
 
 export async function connectWallet() {
@@ -379,7 +403,9 @@ export async function createVault(
 ) {
   const normalizedDescription = normalizeDescriptionSymbol(description);
   const rawAmount = xlmToContractAmount(amount);
-  const tx = await submitContractCall(
+  
+  // Use sponsored transaction
+  const tx = await submitSponsoredContractCall(
     buyerAddress,
     requireContractId("VITE_ESCROW_CONTRACT_ID"),
     "create_vault",
@@ -392,9 +418,7 @@ export async function createVault(
     ],
   );
 
-  const vaultId = tx.returnValue
-    ? scValToNative(tx.returnValue).toString()
-    : "";
+  const vaultId = tx.returnValue ? String(tx.returnValue) : "";
   if (!vaultId)
     throw new Error("Vault was created but no vault ID was returned.");
 
@@ -414,7 +438,7 @@ export async function createVault(
 }
 
 export async function depositToVault(vaultId, buyerAddress) {
-  await submitContractCall(
+  await submitSponsoredContractCall(
     buyerAddress,
     requireContractId("VITE_ESCROW_CONTRACT_ID"),
     "deposit",
@@ -434,7 +458,7 @@ export async function depositToVault(vaultId, buyerAddress) {
 }
 
 export async function confirmVault(vaultId, callerAddress) {
-  await submitContractCall(
+  await submitSponsoredContractCall(
     callerAddress,
     requireContractId("VITE_ESCROW_CONTRACT_ID"),
     "confirm",
@@ -454,7 +478,7 @@ export async function confirmVault(vaultId, callerAddress) {
 }
 
 export async function flagDispute(vaultId, callerAddress) {
-  await submitContractCall(
+  await submitSponsoredContractCall(
     callerAddress,
     requireContractId("VITE_ESCROW_CONTRACT_ID"),
     "flag_dispute",
@@ -465,7 +489,7 @@ export async function flagDispute(vaultId, callerAddress) {
     "VITE_ARBITRATION_CONTRACT_ID",
   );
   if (arbitrationContractId) {
-    await submitContractCall(
+    await submitSponsoredContractCall(
       callerAddress,
       arbitrationContractId,
       "open_case",
@@ -486,10 +510,17 @@ export async function getVault(vaultId) {
   if (!hasEscrowContract()) return null;
 
   try {
+    // Handle potentially invalid vaultId from route params
+    if (!vaultId || vaultId === 'undefined' || vaultId === 'null') {
+
+      return null;
+    }
+
+    const vaultIdBigInt = BigInt(String(vaultId));
     const nativeVault = await readContract(
       requireContractId("VITE_ESCROW_CONTRACT_ID"),
       "get_vault",
-      [numberArg(BigInt(vaultId), "u64")],
+      [numberArg(vaultIdBigInt, "u64")],
     );
     return nativeVaultToUiVault(nativeVault);
   } catch (error) {
@@ -532,13 +563,196 @@ export async function getArbitrationCase(vaultId) {
   );
   if (!arbitrationContractId) return null;
 
+  if (!vaultId || vaultId === 'undefined' || vaultId === 'null') {
+    return null;
+  }
+
   try {
     const nativeCase = await readContract(arbitrationContractId, "get_case", [
-      numberArg(BigInt(vaultId), "u64"),
+      numberArg(BigInt(String(vaultId)), "u64"),
     ]);
     return nativeCaseToUiCase(nativeCase, vaultId);
   } catch (error) {
     console.error("Error getting arbitration case:", error);
     return null;
   }
+}
+
+// Sponsored transaction helpers
+let SPONSOR_KEYPAIR = null;
+
+export function setSponsorKeypair(keypair) {
+  SPONSOR_KEYPAIR = keypair;
+}
+
+export function getSponsorKeypair() {
+  return SPONSOR_KEYPAIR;
+}
+
+export async function fundSponsorAccount() {
+  if (!SPONSOR_KEYPAIR) return null;
+
+  try {
+    const sponsorAddress = SPONSOR_KEYPAIR.publicKey();
+    const isTestnet = getNetworkPassphrase() === Networks.TESTNET;
+    
+    if (!isTestnet) {
+      throw new Error("Automatic funding is only available on Testnet.");
+    }
+
+    const response = await fetch(`https://friendbot.stellar.org?addr=${sponsorAddress}`);
+    
+    if (!response.ok) {
+      throw new Error("Friendbot request failed.");
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Error funding sponsor account:", error);
+    return false;
+  }
+}
+
+export async function checkSponsorBalance() {
+  if (!SPONSOR_KEYPAIR) return null;
+
+  try {
+    const sponsorAddress = SPONSOR_KEYPAIR.publicKey();
+    const isTestnet = getNetworkPassphrase() === Networks.TESTNET;
+    const horizonUrl = isTestnet
+      ? 'https://horizon-testnet.stellar.org'
+      : 'https://horizon.stellar.org';
+
+    // Always fetch from Horizon for balances, as Soroban RPC getAccount doesn't return them
+    const response = await fetch(`${horizonUrl}/accounts/${sponsorAddress}`);
+    if (!response.ok) {
+      return {
+        address: sponsorAddress,
+        balance: 0,
+        sufficient: false,
+        exists: false
+      };
+    }
+
+    const horizonAccount = await response.json();
+    const balance = horizonAccount.balances?.find((b) => b.asset_type === "native");
+    const balanceAmount = balance ? parseFloat(balance.balance) : 0;
+
+    return {
+      address: sponsorAddress,
+      balance: balanceAmount,
+      sufficient: balanceAmount >= 10,
+      exists: true
+    };
+  } catch (error) {
+    console.error("Error checking sponsor balance:", error);
+    return {
+      address: SPONSOR_KEYPAIR?.publicKey(),
+      balance: 0,
+      sufficient: false,
+      exists: false,
+      error: error.message
+    };
+  }
+}
+
+export async function submitSponsoredContractCall(
+  sourceAddress,
+  contractId,
+  method,
+  args = [],
+) {
+  assertBrowser();
+
+  const networkPassphrase = getNetworkPassphrase();
+  const sourceAccount = await getServer().getAccount(sourceAddress);
+
+  const txBuilder = new TransactionBuilder(sourceAccount, {
+    fee: BASE_FEE,
+    networkPassphrase,
+  })
+    .addOperation(contract(contractId).call(method, ...args))
+    .setTimeout(30);
+
+  const result = await submitSponsoredTransaction(txBuilder, sourceAddress);
+
+  let returnValue = null;
+  if (result && result.resultMetaXdr) {
+    try {
+      const meta = result.resultMetaXdr.v4();
+      const sMeta = typeof meta.sorobanMeta === 'function' ? meta.sorobanMeta() : meta.sorobanMeta;
+      if (sMeta) {
+        const rv = typeof sMeta.returnValue === 'function' ? sMeta.returnValue() : sMeta.returnValue;
+        if (rv) {
+          returnValue = scValToNative(rv);
+        }
+      }
+    } catch (e) {
+      console.warn("Could not parse return value:", e);
+    }
+  }
+
+  return { ...result, returnValue };
+}
+
+export async function submitSponsoredTransaction(txBuilder, userPublicKey) {
+  const rpcServer = getServer();
+  const NETWORK = getNetworkPassphrase();
+  const sponsorKeypair = getSponsorKeypair();
+
+  if (!sponsorKeypair) {
+    throw new Error("Sponsor keypair not configured.");
+  }
+
+  // 1. Build and Prepare the transaction
+  // This automatically handles fees and Soroban footprint
+  const builtTx = txBuilder.build();
+  const preparedTx = await rpcServer.prepareTransaction(builtTx);
+  
+  // 2. Get user's signature via Freighter
+  // We sign the prepared transaction which has the correct fees and footprint
+  const signedXdr = await signTransaction(preparedTx.toXDR(), {
+    networkPassphrase: NETWORK,
+  });
+  
+  if (signedXdr.error) throw new Error(signedXdr.error.message);
+  if (!signedXdr.signedTxXdr) {
+    throw new Error("Freighter did not return a signed transaction.");
+  }
+  
+  const signedInnerTx = TransactionBuilder.fromXDR(
+    signedXdr.signedTxXdr,
+    NETWORK
+  );
+  
+  // 3. Build fee-bump transaction
+  // The sponsor pays the fee for the entire transaction
+  const feeBumpTransaction = TransactionBuilder.buildFeeBumpTransaction(
+    sponsorKeypair,
+    BASE_FEE,
+    signedInnerTx,
+    NETWORK
+  );
+  
+  // 4. Sign with sponsor
+  feeBumpTransaction.sign(sponsorKeypair);
+  
+  // 5. Submit
+  const response = await rpcServer.sendTransaction(feeBumpTransaction);
+  
+  if (response.status !== "PENDING") {
+    throw new Error(`Transaction rejected by RPC: ${JSON.stringify(response)}`);
+  }
+  
+  // 6. Poll for completion
+  const result = await rpcServer.pollTransaction(response.hash, {
+    sleepStrategy: StellarSdk.rpc.LinearSleepStrategy,
+    attempts: 30,
+  });
+  
+  if (result.status !== "SUCCESS") {
+    throw new Error(`Transaction failed with status: ${result.status}`);
+  }
+  
+  return result;
 }

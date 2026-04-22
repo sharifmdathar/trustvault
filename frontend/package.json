@@ -2,7 +2,8 @@
   "scripts": {
     "dev": "vike dev",
     "build": "vike build --prerender",
-    "preview": "vike build && vike preview"
+    "preview": "vike build && vike preview",
+    "setup-sponsor": "node scripts/setupSponsor.js"
   },
   "dependencies": {
     "@stellar/freighter-api": "^6.0.1",
