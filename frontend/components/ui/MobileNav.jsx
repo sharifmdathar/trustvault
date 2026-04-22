@@ -9,10 +9,11 @@ export default function MobileNav() {
     { href: '/', label: 'Home' },
     { href: '/dashboard', label: 'Dashboard' },
     { href: '/create', label: 'Create Vault' },
+    { href: '/metrics', label: 'Metrics' },
   ];
 
   return (
-    <div className="md:hidden">
+    <div className="md:hidden relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="p-2 rounded-md text-gray-600 hover:text-gray-900 focus:outline-none"
@@ -22,7 +23,7 @@ export default function MobileNav() {
       </button>
 
       {isOpen && (
-        <div className="absolute top-16 left-0 right-0 bg-white shadow-lg z-50">
+        <div className="absolute top-full right-0 w-48 mt-1 bg-white shadow-lg rounded-md border border-gray-100 z-50">
           <div className="flex flex-col py-2">
             {navItems.map((item) => (
               <Link

@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import { Link } from "../components/Link";
 import MobileNav from "../components/ui/MobileNav";
-import GaslessBanner from "../components/ui/GaslessBanner";
 import StellarSdk from "@stellar/stellar-sdk";
 import { setSponsorKeypair, checkSponsorBalance, fundSponsorAccount } from "../src/utils/stellar";
 
@@ -48,16 +47,27 @@ useEffect(() => {
       <nav className="bg-white shadow-md sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <Link href="/" className="text-xl font-bold text-gray-900">
-              TrustVault
+            <Link href="/" className="flex items-center gap-2 group">
+              <div className="w-8 h-8 rounded-md overflow-hidden bg-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm">
+                <img src="/assets/logo.png" alt="TrustVault" className="w-full h-full object-cover" />
+              </div>
+              <span className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+                TrustVault
+              </span>
             </Link>
 
             <div className="hidden md:flex space-x-8">
+              <Link href="/" className="text-gray-600 hover:text-blue-600">
+                Home
+              </Link>
               <Link href="/dashboard" className="text-gray-600 hover:text-blue-600">
                 Dashboard
               </Link>
               <Link href="/create" className="text-gray-600 hover:text-blue-600">
                 Create Vault
+              </Link>
+              <Link href="/metrics" className="text-gray-600 hover:text-blue-600">
+                Metrics
               </Link>
             </div>
 
@@ -65,9 +75,6 @@ useEffect(() => {
           </div>
         </div>
       </nav>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
-        <GaslessBanner />
-      </div>
       <main>{children}</main>
     </div>
   );

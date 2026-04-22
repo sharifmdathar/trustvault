@@ -11,6 +11,7 @@ const {
   scValToNative,
   rpc,
 } = StellarSdk;
+export { scValToNative };
 const { getAddress, isConnected, requestAccess, signTransaction } =
   freighterApi;
 
@@ -115,11 +116,11 @@ function getRpcUrl() {
   return getEnv("VITE_SOROBAN_URL") || "https://soroban-testnet.stellar.org";
 }
 
-function getServer() {
+export function getServer() {
   return new rpc.Server(getRpcUrl());
 }
 
-function requireContractId(name) {
+export function requireContractId(name) {
   const value = getEnv(name);
   if (isPlaceholder(value)) {
     throw new Error(
@@ -137,6 +138,14 @@ function getOptionalContractId(name) {
 function hasEscrowContract() {
   return Boolean(getOptionalContractId("VITE_ESCROW_CONTRACT_ID"));
 }
+
+export const horizonServer = new StellarSdk.Horizon.Server(
+  getNetworkPassphrase() === Networks.PUBLIC 
+    ? 'https://horizon.stellar.org' 
+    : 'https://horizon-testnet.stellar.org'
+);
+
+export const ESCROW_ID = getOptionalContractId("VITE_ESCROW_CONTRACT_ID");
 
 function contract(contractId) {
   return new Contract(contractId);
@@ -549,6 +558,28 @@ export async function getUserVaults(address) {
     );
   } catch (error) {
     console.error("Error getting user vaults:", error);
+    return [];
+  }
+}
+
+export async function getAllVaults() {
+  if (!hasEscrowContract()) return [];
+
+  try {
+    const count = await readContract(
+      requireContractId("VITE_ESCROW_CONTRACT_ID"),
+      "get_vault_count",
+    );
+    const vaultIds = Array.from({ length: toNumber(count) }, (_, index) =>
+      String(index + 1),
+    );
+    const vaults = await Promise.all(
+      vaultIds.map((vaultId) => getVault(vaultId)),
+    );
+
+    return vaults.filter(Boolean);
+  } catch (error) {
+    console.error("Error getting all vaults:", error);
     return [];
   }
 }
