@@ -6,80 +6,250 @@ import { Shield, Clock, Scale } from "lucide-react";
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+    <div className="bg-surface text-on-surface antialiased">
       {/* Hero Section */}
-      <div className="relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-          <div className="text-center">
-            <h1 className="text-5xl font-bold text-gray-900 mb-6">
-              TrustVault
-              <span className="block text-3xl text-blue-600 mt-2">
-                Secure Escrow on Stellar
-              </span>
+      <section className="relative overflow-hidden pt-32 pb-32 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
+          <div className="z-10">
+            <span className="inline-block py-2 px-4 bg-teal-50 text-teal-600 text-[10px] font-bold rounded-full mb-10 uppercase tracking-widest border border-outline-variant shadow-sm">
+              Powered by Stellar Network
+            </span>
+            <h1 className="text-5xl md:text-6xl font-bold text-slate-900 mb-6 leading-tight tracking-tight">
+              Institutional Grade{" "}
+              <span className="text-teal-600">Secure Escrow</span>
             </h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-8">
-              Decentralized escrow service protecting both buyers and sellers
-              with multi-signature security and arbitration.
+            <p className="text-lg text-slate-500 mb-10 max-w-lg leading-relaxed">
+              The gold standard for peer-to-peer transactions. Protect your
+              capital with transparent, automated workflows and decentralized
+              dispute resolution.
             </p>
-            <div className="flex justify-center space-x-4">
+            <div className="flex flex-wrap gap-4">
               <Link
                 href="/create"
-                className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                className="bg-teal-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-teal-700 transition-all shadow-lg shadow-teal-600/20 active:scale-[0.98] flex items-center gap-2"
               >
-                Create Vault
+                Get Started
+                <span className="material-symbols-outlined text-sm">
+                  arrow_forward
+                </span>
               </Link>
-              <ConnectWallet className="px-8 py-3" />
+              <Link
+                href="/dashboard"
+                className="bg-white border border-slate-200 text-slate-600 px-8 py-4 rounded-xl font-bold text-lg hover:bg-slate-50 transition-all active:scale-[0.98]"
+              >
+                Launch Dashboard
+              </Link>
+            </div>
+          </div>
+          <div className="relative">
+            <div className="absolute -top-20 -right-20 w-96 h-96 bg-teal-500/10 opacity-20 blur-[100px] rounded-full"></div>
+            <div className="relative bg-white p-6 rounded-huge border border-slate-100 shadow-2xl">
+              <div className="bg-slate-50 rounded-2xl p-8 aspect-video flex items-center justify-center">
+                <div className="text-center space-y-4">
+                  <div className="w-20 h-20 bg-white rounded-2xl shadow-sm flex items-center justify-center mx-auto text-teal-600">
+                    <span className="material-symbols-outlined text-4xl">
+                      shield
+                    </span>
+                  </div>
+                  <p className="text-slate-400 font-mono text-xs">
+                    Transaction Protected by TrustVault Protocol
+                  </p>
+                </div>
+              </div>
+              <div className="absolute -bottom-6 -left-6 bg-white p-4 rounded-xl shadow-xl border border-slate-100 flex items-center gap-4">
+                <div className="w-12 h-12 bg-teal-50 rounded-full flex items-center justify-center text-teal-600">
+                  <span
+                    className="material-symbols-outlined"
+                    style={{ fontVariationSettings: "'FILL' 1" }}
+                  >
+                    verified_user
+                  </span>
+                </div>
+                <div>
+                  <p className="font-bold text-slate-900 text-sm">
+                    Vault Secured
+                  </p>
+                  <p className="text-[10px] text-slate-500 font-mono">
+                    TX: 832...f91
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* How it Works */}
-      <div className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
-            How TrustVault Works
+      {/* Stats Section */}
+      <section className="bg-slate-50 py-20 border-y border-slate-100 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-12 text-center">
+          <div>
+            <h2 className="text-4xl font-bold text-slate-900 mb-1">$250M+</h2>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+              Volume Secured
+            </p>
+          </div>
+          <div>
+            <h2 className="text-4xl font-bold text-slate-900 mb-1">0.01%</h2>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+              Dispute Rate
+            </p>
+          </div>
+          <div>
+            <h2 className="text-4xl font-bold text-slate-900 mb-1">15k+</h2>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+              Active Vaults
+            </p>
+          </div>
+          <div>
+            <h2 className="text-4xl font-bold text-slate-900 mb-1">&lt;2s</h2>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+              Finality Speed
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Workflow Section */}
+      <section className="py-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="text-center mb-20">
+          <h2 className="text-4xl font-bold text-slate-900 mb-4 tracking-tight">
+            Transparent Workflow
           </h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <Shield className="w-8 h-8 text-blue-600" />
-              </div>
-              <h3 className="text-xl font-semibold mb-2">1. Create Vault</h3>
-              <p className="text-gray-600">
-                Buyer creates a vault, specifying seller, amount, and terms
+          <p className="text-slate-500 text-lg max-w-2xl mx-auto">
+            A three-step security protocol designed to eliminate counterparty
+            risk and ensure fulfillment of obligations.
+          </p>
+        </div>
+        <div className="grid md:grid-cols-3 gap-8">
+          <WorkflowCard
+            step="01"
+            icon="add_box"
+            title="Create Vault"
+            description="Define terms, milestones, and release conditions in a few clicks. Our smart contracts handle the complexity behind the scenes."
+          />
+          <WorkflowCard
+            step="02"
+            icon="account_balance_wallet"
+            title="Fund & Deliver"
+            description="Assets are locked on the Stellar network. The seller delivers the product or service while the funds are visible but immutable."
+          />
+          <WorkflowCard
+            step="03"
+            icon="lock_open"
+            title="Secure Release"
+            description="Once milestones are verified, funds are released instantly. In case of disagreement, our arbitration layer kicks in."
+          />
+        </div>
+      </section>
+
+      {/* Features Grid */}
+      <section className="py-32 px-4 sm:px-6 lg:px-8 bg-slate-900 text-white rounded-massive mx-4 mb-32 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto relative z-10">
+          <div className="grid lg:grid-cols-12 gap-12">
+            <div className="lg:col-span-5 flex flex-col justify-center">
+              <h2 className="text-4xl font-bold mb-6 leading-tight">
+                Built for Institutional Resilience
+              </h2>
+              <p className="text-slate-400 text-lg mb-8 leading-relaxed">
+                TrustVault leverages the speed and low cost of the Stellar
+                network with the safety and compliance of traditional finance.
               </p>
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <span className="material-symbols-outlined text-teal-400">
+                    check_circle
+                  </span>
+                  <span className="font-bold">
+                    SOC2 Type II Compliant Infrastructure
+                  </span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="material-symbols-outlined text-teal-400">
+                    check_circle
+                  </span>
+                  <span className="font-bold">Multi-signature Controls</span>
+                </div>
+              </div>
             </div>
-            <div className="text-center">
-              <div className="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <Clock className="w-8 h-8 text-blue-600" />
-              </div>
-              <h3 className="text-xl font-semibold mb-2">2. Fund & Deliver</h3>
-              <p className="text-gray-600">
-                Buyer deposits funds, seller delivers goods/service
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <Scale className="w-8 h-8 text-blue-600" />
-              </div>
-              <h3 className="text-xl font-semibold mb-2">
-                3. Release or Arbitrate
-              </h3>
-              <p className="text-gray-600">
-                Buyer confirms delivery or dispute goes to arbitration
-              </p>
+            <div className="lg:col-span-7 grid sm:grid-cols-2 gap-6">
+              <FeatureItem
+                icon="shield_lock"
+                title="Secure Escrow"
+                description="Non-custodial infrastructure where only your keys or the contract logic can move assets."
+              />
+              <FeatureItem
+                icon="visibility"
+                title="Transparency"
+                description="Audit every step on-chain. Real-time notifications for both parties throughout the lifecycle."
+              />
+              <FeatureItem
+                icon="gavel"
+                title="Arbitration"
+                description="Access to decentralized arbitration or trusted third-party mediators to settle conflicts fairly."
+              />
+              <FeatureItem
+                icon="bolt"
+                title="Gasless UX"
+                description="We abstract network fees. Experience seamless transactions without managing native tokens."
+              />
             </div>
           </div>
         </div>
-      </div>
+        <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-teal-500/10 to-transparent pointer-events-none"></div>
+      </section>
 
-      {/* Recent Transactions */}
-      <div className="py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <RecentTransactions />
+      {/* Final CTA */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto text-center mb-20">
+        <div className="bg-teal-600 rounded-gigantic p-12 md:p-20 text-center relative overflow-hidden shadow-2xl">
+          <h2 className="text-3xl md:text-5xl font-bold text-white mb-8 relative z-10 tracking-tight">
+            Ready to secure your next transaction?
+          </h2>
+          <p className="text-teal-50 text-xl mb-12 max-w-xl mx-auto relative z-10 opacity-90">
+            Join thousands of businesses already using TrustVault for
+            high-stakes settlements.
+          </p>
+          <div className="flex flex-wrap justify-center gap-4 relative z-10">
+            <Link
+              href="/create"
+              className="bg-white text-teal-600 px-10 py-5 rounded-2xl font-bold text-lg hover:bg-teal-50 transition-all shadow-xl active:scale-[0.98]"
+            >
+              Open Your First Vault
+            </Link>
+            <button className="bg-teal-700/50 text-white border border-teal-400/30 px-10 py-5 rounded-2xl font-bold text-lg hover:bg-teal-700 transition-all active:scale-[0.98]">
+              Contact Sales
+            </button>
+          </div>
         </div>
+      </section>
+    </div>
+  );
+}
+
+function WorkflowCard({ step, icon, title, description }) {
+  return (
+    <div className="group bg-white p-10 rounded-huge border border-slate-100 transition-all hover:shadow-2xl hover:-translate-y-1 shadow-sm">
+      <div className="flex justify-between items-start mb-8">
+        <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center text-teal-600 group-hover:bg-teal-600 group-hover:text-white transition-all duration-300">
+          <span className="material-symbols-outlined text-3xl">{icon}</span>
+        </div>
+        <span className="text-4xl font-black text-slate-50 group-hover:text-teal-50 transition-colors">
+          {step}
+        </span>
       </div>
+      <h3 className="text-2xl font-bold text-slate-900 mb-4">{title}</h3>
+      <p className="text-slate-500 leading-relaxed">{description}</p>
+    </div>
+  );
+}
+
+function FeatureItem({ icon, title, description }) {
+  return (
+    <div className="bg-white/5 border border-white/10 p-8 rounded-huge hover:bg-white/10 transition-colors">
+      <span className="material-symbols-outlined text-teal-400 mb-4 text-3xl">
+        {icon}
+      </span>
+      <h4 className="text-lg font-bold mb-2 text-white">{title}</h4>
+      <p className="text-slate-400 text-sm leading-relaxed">{description}</p>
     </div>
   );
 }

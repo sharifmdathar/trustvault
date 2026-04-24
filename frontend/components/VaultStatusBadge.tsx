@@ -10,13 +10,13 @@ export default function VaultStatusBadge({
   className = "",
 }: VaultStatusBadgeProps) {
   const statusConfig = {
-    pending: { label: "Pending", color: "bg-yellow-100 text-yellow-800" },
-    funded: { label: "Funded", color: "bg-blue-100 text-blue-800" },
-    confirmed: { label: "Completed", color: "bg-green-100 text-green-800" },
-    disputed: { label: "Disputed", color: "bg-red-100 text-red-800" },
-    resolved: { label: "Resolved", color: "bg-purple-100 text-purple-800" },
-    cancelled: { label: "Cancelled", color: "bg-gray-100 text-gray-800" },
-    expired: { label: "Expired", color: "bg-orange-100 text-orange-800" },
+    pending: { label: "Pending", color: "badge-pending" },
+    funded: { label: "Active", color: "badge-active" },
+    confirmed: { label: "Confirmed", color: "badge-confirmed" },
+    disputed: { label: "Disputed", color: "badge-disputed" },
+    resolved: { label: "Resolved", color: "badge-confirmed" },
+    cancelled: { label: "Cancelled", color: "badge-cancelled" },
+    expired: { label: "Expired", color: "badge-cancelled" },
   };
 
   const config =

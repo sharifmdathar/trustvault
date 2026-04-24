@@ -51,13 +51,16 @@ export default function ConnectWallet({
 
   if (address) {
     return (
-      <div className={`flex items-center space-x-4 ${className}`}>
-        <span className="text-sm text-gray-600">
-          {address.slice(0, 6)}...{address.slice(-4)}
-        </span>
+      <div className={`flex items-center gap-4 ${className}`}>
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 border border-slate-100 rounded-lg">
+          <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+          <span className="text-xs font-bold text-slate-600 font-mono">
+            {address.slice(0, 6)}...{address.slice(-4)}
+          </span>
+        </div>
         <button
           onClick={handleDisconnect}
-          className="px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700"
+          className="text-xs font-bold text-slate-400 hover:text-red-500 transition-colors uppercase tracking-tight"
         >
           Disconnect
         </button>
@@ -69,9 +72,23 @@ export default function ConnectWallet({
     <button
       onClick={handleConnect}
       disabled={isConnecting}
-      className={`px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 ${className}`}
+      className={`px-8 py-3 bg-teal-600 text-white rounded-xl font-bold hover:bg-teal-700 transition-all shadow-lg shadow-teal-600/20 active:scale-[0.98] disabled:opacity-50 disabled:shadow-none ${className}`}
     >
-      {isConnecting ? "Connecting..." : "Connect Wallet"}
+      <div className="flex items-center justify-center gap-2">
+        {isConnecting ? (
+          <>
+            <span className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
+            <span>Securing...</span>
+          </>
+        ) : (
+          <>
+            <span className="material-symbols-outlined text-sm">
+              account_balance_wallet
+            </span>
+            <span>Connect Wallet</span>
+          </>
+        )}
+      </div>
     </button>
   );
 }

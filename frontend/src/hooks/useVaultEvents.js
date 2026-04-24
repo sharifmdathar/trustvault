@@ -1,5 +1,10 @@
-import { useEffect, useState } from 'react';
-import { getServer, requireContractId, ESCROW_ID, scValToNative } from '../utils/stellar';
+import { useEffect, useState } from "react";
+import {
+  getServer,
+  requireContractId,
+  ESCROW_ID,
+  scValToNative,
+} from "../utils/stellar";
 
 export function useVaultEvents(vaultId) {
   const [liveEvents, setLiveEvents] = useState([]);
@@ -23,7 +28,9 @@ export function useVaultEvents(vaultId) {
         });
 
         if (isSubscribed && response.events) {
-          const parsed = response.events.map(parseRpcEvent).sort((a, b) => b.ledger - a.ledger);
+          const parsed = response.events
+            .map(parseRpcEvent)
+            .sort((a, b) => b.ledger - a.ledger);
           setHistoricalEvents(parsed);
         }
       } catch (e) {
@@ -43,9 +50,9 @@ export function useVaultEvents(vaultId) {
 
         if (isSubscribed && response.events && response.events.length > 0) {
           const parsed = response.events.map(parseRpcEvent);
-          setLiveEvents(prev => {
-            const existingIds = new Set(prev.map(e => e.id));
-            const unique = parsed.filter(e => !existingIds.has(e.id));
+          setLiveEvents((prev) => {
+            const existingIds = new Set(prev.map((e) => e.id));
+            const unique = parsed.filter((e) => !existingIds.has(e.id));
             if (unique.length === 0) return prev;
             return [...unique, ...prev].slice(0, 20);
           });
@@ -68,17 +75,21 @@ export function useVaultEvents(vaultId) {
 }
 
 function parseRpcEvent(event) {
-  const topics = event.topic.map(t => {
-    try { return String(scValToNative(t)); } catch(e) { return ""; }
+  const topics = event.topic.map((t) => {
+    try {
+      return String(scValToNative(t));
+    } catch (e) {
+      return "";
+    }
   });
-  
+
   return {
     id: event.id,
     hash: event.txHash,
     timestamp: new Date().toISOString(),
-    type: topics[0] || 'event',
-    details: topics.slice(1).join(' ') || 'Contract action',
-    ledger: event.ledger
+    type: topics[0] || "event",
+    details: topics.slice(1).join(" ") || "Contract action",
+    ledger: event.ledger,
   };
 }
 

@@ -140,9 +140,9 @@ function hasEscrowContract() {
 }
 
 export const horizonServer = new StellarSdk.Horizon.Server(
-  getNetworkPassphrase() === Networks.PUBLIC 
-    ? 'https://horizon.stellar.org' 
-    : 'https://horizon-testnet.stellar.org'
+  getNetworkPassphrase() === Networks.PUBLIC
+    ? "https://horizon.stellar.org"
+    : "https://horizon-testnet.stellar.org",
 );
 
 export const ESCROW_ID = getOptionalContractId("VITE_ESCROW_CONTRACT_ID");
@@ -152,13 +152,13 @@ function contract(contractId) {
 }
 
 function addressArg(address) {
-  if (!address || typeof address !== 'string') {
+  if (!address || typeof address !== "string") {
     throw new Error(`Invalid address: ${address}`);
   }
-  if (address.includes('friendbot') || address.includes('http')) {
+  if (address.includes("friendbot") || address.includes("http")) {
     throw new Error(`Invalid address - looks like a URL: ${address}`);
   }
-  if (!address.startsWith('G')) {
+  if (!address.startsWith("G")) {
     throw new Error(`Invalid Stellar address - must start with G: ${address}`);
   }
   return new Address(address).toScVal();
@@ -382,7 +382,7 @@ async function submitContractCall(
   }
 
   const result = await waitForTransaction(server, submitted.hash);
-  
+
   // Extract return value
   let returnValue = null;
   if (result && result.resultMetaXdr) {
@@ -395,7 +395,7 @@ async function submitContractCall(
       console.warn("Could not parse return value:", e);
     }
   }
-  
+
   return { ...result, returnValue };
 }
 
@@ -412,7 +412,7 @@ export async function createVault(
 ) {
   const normalizedDescription = normalizeDescriptionSymbol(description);
   const rawAmount = xlmToContractAmount(amount);
-  
+
   // Use sponsored transaction
   const tx = await submitSponsoredContractCall(
     buyerAddress,
@@ -520,8 +520,7 @@ export async function getVault(vaultId) {
 
   try {
     // Handle potentially invalid vaultId from route params
-    if (!vaultId || vaultId === 'undefined' || vaultId === 'null') {
-
+    if (!vaultId || vaultId === "undefined" || vaultId === "null") {
       return null;
     }
 
@@ -594,7 +593,7 @@ export async function getArbitrationCase(vaultId) {
   );
   if (!arbitrationContractId) return null;
 
-  if (!vaultId || vaultId === 'undefined' || vaultId === 'null') {
+  if (!vaultId || vaultId === "undefined" || vaultId === "null") {
     return null;
   }
 
@@ -626,13 +625,15 @@ export async function fundSponsorAccount() {
   try {
     const sponsorAddress = SPONSOR_KEYPAIR.publicKey();
     const isTestnet = getNetworkPassphrase() === Networks.TESTNET;
-    
+
     if (!isTestnet) {
       throw new Error("Automatic funding is only available on Testnet.");
     }
 
-    const response = await fetch(`https://friendbot.stellar.org?addr=${sponsorAddress}`);
-    
+    const response = await fetch(
+      `https://friendbot.stellar.org?addr=${sponsorAddress}`,
+    );
+
     if (!response.ok) {
       throw new Error("Friendbot request failed.");
     }
@@ -651,8 +652,8 @@ export async function checkSponsorBalance() {
     const sponsorAddress = SPONSOR_KEYPAIR.publicKey();
     const isTestnet = getNetworkPassphrase() === Networks.TESTNET;
     const horizonUrl = isTestnet
-      ? 'https://horizon-testnet.stellar.org'
-      : 'https://horizon.stellar.org';
+      ? "https://horizon-testnet.stellar.org"
+      : "https://horizon.stellar.org";
 
     // Always fetch from Horizon for balances, as Soroban RPC getAccount doesn't return them
     const response = await fetch(`${horizonUrl}/accounts/${sponsorAddress}`);
@@ -661,19 +662,21 @@ export async function checkSponsorBalance() {
         address: sponsorAddress,
         balance: 0,
         sufficient: false,
-        exists: false
+        exists: false,
       };
     }
 
     const horizonAccount = await response.json();
-    const balance = horizonAccount.balances?.find((b) => b.asset_type === "native");
+    const balance = horizonAccount.balances?.find(
+      (b) => b.asset_type === "native",
+    );
     const balanceAmount = balance ? parseFloat(balance.balance) : 0;
 
     return {
       address: sponsorAddress,
       balance: balanceAmount,
       sufficient: balanceAmount >= 10,
-      exists: true
+      exists: true,
     };
   } catch (error) {
     console.error("Error checking sponsor balance:", error);
@@ -682,7 +685,7 @@ export async function checkSponsorBalance() {
       balance: 0,
       sufficient: false,
       exists: false,
-      error: error.message
+      error: error.message,
     };
   }
 }
@@ -711,9 +714,15 @@ export async function submitSponsoredContractCall(
   if (result && result.resultMetaXdr) {
     try {
       const meta = result.resultMetaXdr.v4();
-      const sMeta = typeof meta.sorobanMeta === 'function' ? meta.sorobanMeta() : meta.sorobanMeta;
+      const sMeta =
+        typeof meta.sorobanMeta === "function"
+          ? meta.sorobanMeta()
+          : meta.sorobanMeta;
       if (sMeta) {
-        const rv = typeof sMeta.returnValue === 'function' ? sMeta.returnValue() : sMeta.returnValue;
+        const rv =
+          typeof sMeta.returnValue === "function"
+            ? sMeta.returnValue()
+            : sMeta.returnValue;
         if (rv) {
           returnValue = scValToNative(rv);
         }
@@ -739,51 +748,51 @@ export async function submitSponsoredTransaction(txBuilder, userPublicKey) {
   // This automatically handles fees and Soroban footprint
   const builtTx = txBuilder.build();
   const preparedTx = await rpcServer.prepareTransaction(builtTx);
-  
+
   // 2. Get user's signature via Freighter
   // We sign the prepared transaction which has the correct fees and footprint
   const signedXdr = await signTransaction(preparedTx.toXDR(), {
     networkPassphrase: NETWORK,
   });
-  
+
   if (signedXdr.error) throw new Error(signedXdr.error.message);
   if (!signedXdr.signedTxXdr) {
     throw new Error("Freighter did not return a signed transaction.");
   }
-  
+
   const signedInnerTx = TransactionBuilder.fromXDR(
     signedXdr.signedTxXdr,
-    NETWORK
+    NETWORK,
   );
-  
+
   // 3. Build fee-bump transaction
   // The sponsor pays the fee for the entire transaction
   const feeBumpTransaction = TransactionBuilder.buildFeeBumpTransaction(
     sponsorKeypair,
     BASE_FEE,
     signedInnerTx,
-    NETWORK
+    NETWORK,
   );
-  
+
   // 4. Sign with sponsor
   feeBumpTransaction.sign(sponsorKeypair);
-  
+
   // 5. Submit
   const response = await rpcServer.sendTransaction(feeBumpTransaction);
-  
+
   if (response.status !== "PENDING") {
     throw new Error(`Transaction rejected by RPC: ${JSON.stringify(response)}`);
   }
-  
+
   // 6. Poll for completion
   const result = await rpcServer.pollTransaction(response.hash, {
     sleepStrategy: StellarSdk.rpc.LinearSleepStrategy,
     attempts: 30,
   });
-  
+
   if (result.status !== "SUCCESS") {
     throw new Error(`Transaction failed with status: ${result.status}`);
   }
-  
+
   return result;
 }

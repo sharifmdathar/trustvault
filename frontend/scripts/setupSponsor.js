@@ -17,9 +17,7 @@ async function setupSponsor() {
   console.log(
     `   https://friendbot.stellar.org?addr=${sponsorKeypair.publicKey()}`,
   );
-  console.log(
-    "2. Add the secret key to your .env file as VITE_SPONSOR_SECRET",
-  );
+  console.log("2. Add the secret key to your .env file as VITE_SPONSOR_SECRET");
   console.log("3. Keep this secret key secure! Never commit it to git.");
 
   let envContent = "";
@@ -28,12 +26,13 @@ async function setupSponsor() {
   }
 
   if (!envContent.includes("VITE_SPONSOR_SECRET")) {
-    fs.appendFileSync(envPath, `\nVITE_SPONSOR_SECRET=${sponsorKeypair.secret()}\n`);
+    fs.appendFileSync(
+      envPath,
+      `\nVITE_SPONSOR_SECRET=${sponsorKeypair.secret()}\n`,
+    );
     console.log("\n✓ Added sponsor secret to .env file");
   } else {
-    console.log(
-      "\n⚠️  VITE_SPONSOR_SECRET already exists in .env. Skipping.",
-    );
+    console.log("\n⚠️  VITE_SPONSOR_SECRET already exists in .env. Skipping.");
   }
 }
 

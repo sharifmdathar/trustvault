@@ -8,8 +8,8 @@ export default function Page() {
   const [address, setAddress] = useState<string>("");
 
   const handleCreateVault = async (formData) => {
-    if (!formData.seller || formData.seller === '') {
-      alert('Please enter a valid seller address');
+    if (!formData.seller || formData.seller === "") {
+      alert("Please enter a valid seller address");
       return;
     }
     const vaultId = await createVault(

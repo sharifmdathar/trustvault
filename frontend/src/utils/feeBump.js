@@ -1,16 +1,8 @@
 import StellarSdk from "@stellar/stellar-sdk";
 
-const {
-  BASE_FEE,
-  Keypair,
-  Networks,
-  TransactionBuilder,
-} = StellarSdk;
+const { BASE_FEE, Keypair, Networks, TransactionBuilder } = StellarSdk;
 
-const {
-  VITE_SPONSOR_SECRET,
-  VITE_SOROBAN_URL,
-} = import.meta.env;
+const { VITE_SPONSOR_SECRET, VITE_SOROBAN_URL } = import.meta.env;
 
 const SPONSOR_KEYPAIR = VITE_SPONSOR_SECRET
   ? Keypair.fromSecret(VITE_SPONSOR_SECRET)

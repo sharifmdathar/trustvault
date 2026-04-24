@@ -1,18 +1,27 @@
-import React, { useState } from 'react';
-import StatusBadge from '../ui/StatusBadge';
-import LoadingSpinner from '../ui/LoadingSpinner';
-import CopyableAddress from '../ui/CopyableAddress';
-import TransactionStatus from '../ui/TransactionStatus';
-import DisputePanel from './DisputePanel';
+import React, { useState } from "react";
+import StatusBadge from "../ui/StatusBadge";
+import LoadingSpinner from "../ui/LoadingSpinner";
+import CopyableAddress from "../ui/CopyableAddress";
+import TransactionStatus from "../ui/TransactionStatus";
+import DisputePanel from "./DisputePanel";
 
-export default function VaultDetail({ vault, address, onDeposit, onConfirm, onDispute, onArbitrationVote, loading, txStatus }) {
+export default function VaultDetail({
+  vault,
+  address,
+  onDeposit,
+  onConfirm,
+  onDispute,
+  onArbitrationVote,
+  loading,
+  txStatus,
+}) {
   const [actionLoading, setActionLoading] = useState(false);
 
   const isBuyer = address === vault?.buyer;
   const isSeller = address === vault?.seller;
-  const canDeposit = vault?.status === 'pending' && isBuyer;
-  const canConfirm = vault?.status === 'funded' && isBuyer;
-  const canDispute = vault?.status === 'funded';
+  const canDeposit = vault?.status === "pending" && isBuyer;
+  const canConfirm = vault?.status === "funded" && isBuyer;
+  const canDispute = vault?.status === "funded";
 
   const handleAction = async (action, handler) => {
     setActionLoading(true);
@@ -26,121 +35,298 @@ export default function VaultDetail({ vault, address, onDeposit, onConfirm, onDi
   if (loading) return <LoadingSpinner fullScreen />;
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-            Vault #{vault?.id?.slice(0, 8)}
+    <div className="max-w-4xl mx-auto py-12">
+      <div className="bg-white rounded-huge border border-slate-100 shadow-xl p-8 sm:p-10 mb-12 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative overflow-hidden">
+        <div className="relative z-10">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 bg-teal-50 text-teal-600 rounded-2xl flex items-center justify-center shadow-sm">
+              <span className="material-symbols-outlined text-2xl">
+                shield_lock
+              </span>
+            </div>
+            <span className="text-xs font-bold text-on-surface-variant uppercase tracking-widest opacity-60">
+              Protocol Secured Vault
+            </span>
+          </div>
+          <h1 className="text-4xl md:text-5xl font-bold text-on-surface tracking-tight mb-2">
+            Vault{" "}
+            <span className="text-teal-600">#{vault?.id?.slice(0, 8)}</span>
           </h1>
-          <p className="text-gray-500 mt-1">
-            Created {new Date(vault?.createdAt).toLocaleDateString()}
+          <p className="text-on-surface-variant flex items-center gap-2 opacity-80 font-medium">
+            <span className="material-symbols-outlined text-sm">
+              calendar_today
+            </span>
+            Agreement deployed on{" "}
+            {new Date(vault?.createdAt).toLocaleDateString()}
           </p>
         </div>
-        <StatusBadge status={vault?.status} />
-      </div>
-
-      <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <div>
-            <label className="text-sm text-gray-500">Amount</label>
-            <p className="text-3xl font-bold text-gray-900">{vault?.amount} XLM</p>
-          </div>
-          <div>
-            <label className="text-sm text-gray-500">Deadline</label>
-            <p className="text-gray-900">{new Date(vault?.deadline).toLocaleDateString()}</p>
-          </div>
-          <CopyableAddress address={vault?.buyer} label="Buyer" startChars={8} endChars={6} />
-          <CopyableAddress address={vault?.seller} label="Seller" startChars={8} endChars={6} />
+        <div className="flex flex-col items-end gap-3 relative z-10">
+          <StatusBadge
+            status={vault?.status}
+            className="scale-125 origin-right"
+          />
+          <p className="text-[10px] font-mono text-on-surface-variant opacity-50 uppercase tracking-tighter">
+            Verified on Stellar Ledger
+          </p>
+        </div>
+        <div className="absolute -right-10 -top-10 opacity-5 pointer-events-none">
+          <span className="material-symbols-outlined text-[15rem]">
+            verified
+          </span>
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-6">
-        <h2 className="text-xl font-semibold mb-3">Description</h2>
-        <p className="text-gray-700">{vault?.description}</p>
-      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 space-y-8">
+          {/* Main Info Card */}
+          <div className="bg-white rounded-huge border border-slate-100 shadow-xl p-8 sm:p-10">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-10 mb-10">
+              <div>
+                <p className="text-[10px] uppercase font-bold text-on-surface-variant mb-2 tracking-wider opacity-60">
+                  Escrowed Amount
+                </p>
+                <p className="text-4xl font-bold text-teal-600">
+                  {vault?.amount}{" "}
+                  <span className="text-sm text-on-surface-variant font-medium">
+                    XLM
+                  </span>
+                </p>
+              </div>
+              <div>
+                <p className="text-[10px] uppercase font-bold text-on-surface-variant mb-2 tracking-wider opacity-60">
+                  Settlement Deadline
+                </p>
+                <p className="text-xl font-bold text-on-surface">
+                  {new Date(vault?.deadline).toLocaleDateString()}
+                </p>
+                <p className="text-xs text-on-surface-variant mt-1 opacity-80">
+                  Automatic arbitration after this date
+                </p>
+              </div>
+            </div>
 
-      <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-6">
-        <h2 className="text-xl font-semibold mb-4">Timeline</h2>
-        <div className="space-y-4">
-          <div className="flex items-start">
-            <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-sm shrink-0">1</div>
-            <div className="ml-4 flex-1">
-              <p className="font-medium">Vault Created</p>
-              <p className="text-sm text-gray-500">{new Date(vault?.createdAt).toLocaleString()}</p>
+            <div className="space-y-6 pt-10 border-t border-slate-50">
+              <div className="flex items-center justify-between">
+                <CopyableAddress
+                  address={vault?.buyer}
+                  label="Origin (Buyer)"
+                  startChars={8}
+                  endChars={6}
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <CopyableAddress
+                  address={vault?.seller}
+                  label="Destination (Seller)"
+                  startChars={8}
+                  endChars={6}
+                />
+              </div>
             </div>
           </div>
-          {vault?.status !== 'pending' && (
-            <div className="flex items-start">
-              <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-sm shrink-0">2</div>
-              <div className="ml-4 flex-1">
-                <p className="font-medium">Funds Deposited</p>
-                <p className="text-sm text-gray-500">Buyer deposited {vault?.amount} XLM</p>
+
+          {/* Description */}
+          <div className="bg-white rounded-huge border border-slate-100 shadow-xl p-8 sm:p-10">
+            <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+              <span className="material-symbols-outlined text-slate-400">
+                subject
+              </span>
+              Agreement Terms
+            </h2>
+            <p className="text-slate-700 leading-relaxed bg-slate-50 p-6 rounded-2xl border border-slate-100 italic">
+              "
+              {vault?.description ||
+                "No specific terms provided for this escrow agreement."}
+              "
+            </p>
+          </div>
+
+          {/* Timeline */}
+          <div className="bg-white rounded-huge border border-slate-100 shadow-xl p-8 sm:p-10">
+            <h2 className="text-xl font-bold text-slate-900 mb-8 flex items-center gap-2">
+              <span className="material-symbols-outlined text-slate-400">
+                history
+              </span>
+              Transaction Lifecycle
+            </h2>
+            <div className="space-y-8 relative before:absolute before:left-4 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-100">
+              <div className="flex items-start relative z-10">
+                <div className="w-8 h-8 bg-teal-600 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0 shadow-lg shadow-teal-600/30">
+                  1
+                </div>
+                <div className="ml-6 flex-1 bg-slate-50 p-4 rounded-xl border border-slate-100">
+                  <p className="font-bold text-slate-900 text-sm">
+                    Vault Deployed
+                  </p>
+                  <p className="text-xs text-slate-500">
+                    {new Date(vault?.createdAt).toLocaleString()}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start relative z-10">
+                <div
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${vault?.status !== "pending" ? "bg-teal-600 text-white shadow-lg shadow-teal-600/30" : "bg-slate-100 text-slate-400"}`}
+                >
+                  2
+                </div>
+                <div
+                  className={`ml-6 flex-1 p-4 rounded-xl border ${vault?.status !== "pending" ? "bg-slate-50 border-slate-100" : "border-dashed border-slate-200"}`}
+                >
+                  <p
+                    className={`font-bold text-sm ${vault?.status !== "pending" ? "text-slate-900" : "text-slate-400"}`}
+                  >
+                    Capital Secured
+                  </p>
+                  {vault?.status !== "pending" ? (
+                    <p className="text-xs text-slate-500">
+                      Assets locked on Stellar Ledger
+                    </p>
+                  ) : (
+                    <p className="text-xs text-slate-400 italic">
+                      Awaiting deposit from buyer
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex items-start relative z-10">
+                <div
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${vault?.status === "confirmed" ? "bg-teal-600 text-white shadow-lg shadow-teal-600/30" : "bg-slate-100 text-slate-400"}`}
+                >
+                  3
+                </div>
+                <div
+                  className={`ml-6 flex-1 p-4 rounded-xl border ${vault?.status === "confirmed" ? "bg-slate-50 border-slate-100" : "border-dashed border-slate-200"}`}
+                >
+                  <p
+                    className={`font-bold text-sm ${vault?.status === "confirmed" ? "text-slate-900" : "text-slate-400"}`}
+                  >
+                    Settlement Finalized
+                  </p>
+                  {vault?.status === "confirmed" ? (
+                    <p className="text-xs text-slate-500">
+                      Funds released to seller account
+                    </p>
+                  ) : (
+                    <p className="text-xs text-slate-400 italic">
+                      Transaction in progress
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="lg:col-span-1 space-y-8 h-fit lg:sticky lg:top-24">
+          {/* Actions Card */}
+          {canDeposit || canConfirm || canDispute ? (
+            <div className="bg-white rounded-huge border border-slate-100 shadow-2xl p-8 sm:p-10 relative overflow-hidden">
+              <div className="relative z-10">
+                <h2 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-teal-600">
+                    bolt
+                  </span>
+                  Active Actions
+                </h2>
+                <div className="space-y-4">
+                  {canDeposit && (
+                    <button
+                      onClick={() => handleAction("deposit", onDeposit)}
+                      disabled={actionLoading}
+                      className="w-full bg-teal-600 text-white px-6 py-4 rounded-xl font-bold text-lg hover:bg-teal-700 transition-all shadow-lg shadow-teal-600/20 active:scale-[0.98] disabled:opacity-50"
+                    >
+                      {actionLoading ? (
+                        <LoadingSpinner size="sm" />
+                      ) : (
+                        `Deposit XLM`
+                      )}
+                    </button>
+                  )}
+                  {canConfirm && (
+                    <button
+                      onClick={() => handleAction("confirm", onConfirm)}
+                      disabled={actionLoading}
+                      className="w-full bg-emerald-600 text-white px-6 py-4 rounded-xl font-bold text-lg hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20 active:scale-[0.98] disabled:opacity-50"
+                    >
+                      {actionLoading ? (
+                        <LoadingSpinner size="sm" />
+                      ) : (
+                        "Confirm & Release"
+                      )}
+                    </button>
+                  )}
+                  {canDispute && (
+                    <button
+                      onClick={() => handleAction("dispute", onDispute)}
+                      disabled={actionLoading}
+                      className="w-full bg-surface-low border border-outline-variant text-on-surface-variant px-6 py-4 rounded-xl font-bold text-lg hover:bg-surface-high transition-all active:scale-[0.98] disabled:opacity-50"
+                    >
+                      {actionLoading ? (
+                        <LoadingSpinner size="sm" />
+                      ) : (
+                        "Open Dispute"
+                      )}
+                    </button>
+                  )}
+                </div>
+                {txStatus?.status && (
+                  <div className="mt-6 p-4 bg-slate-50 rounded-xl border border-slate-100">
+                    <TransactionStatus
+                      status={txStatus.status}
+                      hash={txStatus.hash}
+                      error={txStatus.error}
+                    />
+                  </div>
+                )}
+              </div>
+              <div className="absolute -right-10 -bottom-10 opacity-5">
+                <span className="material-symbols-outlined text-[12rem]">
+                  flash_on
+                </span>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-slate-900 text-white rounded-huge p-8 sm:p-10 shadow-xl">
+              <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                <span className="material-symbols-outlined text-teal-400">
+                  verified
+                </span>
+                Governance Active
+              </h3>
+              <p className="text-slate-400 text-sm leading-relaxed mb-6">
+                This vault is currently being managed by the protocol logic. No
+                manual actions are available at this stage.
+              </p>
+              <div className="p-4 bg-white/5 rounded-xl border border-white/10 text-xs font-mono text-teal-400 truncate">
+                Status: {vault?.status?.toUpperCase()}
               </div>
             </div>
           )}
-          {vault?.status === 'confirmed' && (
-            <div className="flex items-start">
-              <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-sm shrink-0">3</div>
-              <div className="ml-4 flex-1">
-                <p className="font-medium">Transaction Completed</p>
-                <p className="text-sm text-gray-500">Funds released to seller</p>
-              </div>
-            </div>
+
+          {/* Dispute Info */}
+          {vault?.status === "disputed" && vault?.arbitration && (
+            <DisputePanel
+              arbitration={vault.arbitration}
+              onVote={onArbitrationVote}
+              isArbitrator={vault.arbitration?.arbitrators?.includes(address)}
+              loading={loading}
+            />
           )}
+
+          <div className="bg-teal-50 border border-teal-100 rounded-2xl p-6">
+            <h4 className="text-teal-900 font-bold mb-2 flex items-center gap-2 text-sm">
+              <span className="material-symbols-outlined text-sm">info</span>
+              Security Protocol
+            </h4>
+            <p className="text-teal-700 text-[10px] leading-relaxed">
+              Once funds are released, they cannot be clawed back by TrustVault.
+              Ensure the delivery is verified before confirming.
+            </p>
+          </div>
         </div>
       </div>
-
-      {(canDeposit || canConfirm || canDispute) && (
-        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-6">
-          <h2 className="text-xl font-semibold mb-4">Actions</h2>
-          <div className="space-y-3">
-            {canDeposit && (
-              <button
-                onClick={() => handleAction('deposit', onDeposit)}
-                disabled={actionLoading}
-                className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
-                style={{ minHeight: '44px' }}
-              >
-                {actionLoading ? <LoadingSpinner size="sm" /> : `Deposit ${vault?.amount} XLM`}
-              </button>
-            )}
-            {canConfirm && (
-              <button
-                onClick={() => handleAction('confirm', onConfirm)}
-                disabled={actionLoading}
-                className="w-full px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
-                style={{ minHeight: '44px' }}
-              >
-                {actionLoading ? <LoadingSpinner size="sm" /> : 'Confirm Delivery & Release Funds'}
-              </button>
-            )}
-            {canDispute && (
-              <button
-                onClick={() => handleAction('dispute', onDispute)}
-                disabled={actionLoading}
-                className="w-full px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
-                style={{ minHeight: '44px' }}
-              >
-                {actionLoading ? <LoadingSpinner size="sm" /> : 'File Dispute'}
-              </button>
-            )}
-          </div>
-          {txStatus?.status && (
-            <div className="mt-4">
-              <TransactionStatus status={txStatus.status} hash={txStatus.hash} error={txStatus.error} />
-            </div>
-          )}
-        </div>
-      )}
-
-      {vault?.status === 'disputed' && vault?.arbitration && (
-        <DisputePanel
-          arbitration={vault.arbitration}
-          onVote={onArbitrationVote}
-          isArbitrator={vault.arbitration?.arbitrators?.includes(address)}
-          loading={loading}
-        />
-      )}
     </div>
   );
 }

@@ -62,105 +62,193 @@ export default function MetricsPage() {
     totalVaults > 0 ? (confirmedVaults / totalVaults) * 100 : 0;
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-4 pb-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-baseline mb-6">
-          <h1 className="text-3xl font-bold">Protocol Metrics</h1>
-          <div className="text-sm text-gray-500 mb-1">
+    <div className="space-y-12 pb-20">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <h1 className="text-4xl font-bold text-on-surface mb-2 tracking-tight">
+            Protocol Analytics
+          </h1>
+          <p className="text-on-surface-variant">
+            Real-time network visibility and escrow efficiency metrics.
+          </p>
+        </div>
+        <div className="flex items-center gap-3 px-4 py-2 bg-surface-low rounded-xl border border-outline-variant shadow-sm">
+          <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+          <span className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">
             Last update: <span className="font-mono">{secondsAgo}s</span> ago
+          </span>
+        </div>
+      </div>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <StatCard
+          title="Total Ecosystem Vaults"
+          value={totalVaults}
+          icon="account_balance"
+          subtitle="All time created"
+        />
+        <StatCard
+          title="Total Value Locked"
+          value={`${totalXlmEscrowed.toLocaleString()} XLM`}
+          icon="lock"
+          subtitle="Currently in escrow"
+        />
+        <StatCard
+          title="Fulfillment Rate"
+          value={`${successRate.toFixed(1)}%`}
+          icon="verified"
+          subtitle="Successful releases"
+        />
+        <StatCard
+          title="Live Network Events"
+          value={liveEvents.length}
+          highlight
+          icon="sensors"
+          subtitle="Current session"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {/* Live Activity Feed */}
+        <div className="lg:col-span-4 bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+          <div className="p-6 border-b border-outline-variant bg-surface-low/50 flex justify-between items-center">
+            <h2 className="text-lg font-bold text-on-surface flex items-center">
+              <span className="w-2 h-2 bg-red-500 rounded-full mr-3 animate-pulse"></span>
+              Live Ledger Activity
+            </h2>
+            <div className="px-2 py-0.5 bg-red-50 text-red-600 text-[10px] font-bold rounded uppercase">
+              Live
+            </div>
+          </div>
+          <div
+            className="p-6 space-y-4 custom-scrollbar"
+            style={{
+              maxHeight: "65vh",
+              overflowY: "auto",
+              overscrollBehavior: "contain",
+            }}
+          >
+            {liveEvents.length === 0 ? (
+              <div className="text-center py-12">
+                <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-300 mx-auto mb-4">
+                  <span className="material-symbols-outlined animate-spin">
+                    refresh
+                  </span>
+                </div>
+                <p className="text-slate-400 text-sm font-medium italic">
+                  Listening for Stellar ledger events...
+                </p>
+              </div>
+            ) : (
+              liveEvents.map((event: any, i) => (
+                <EventItem key={event.id || i} event={event} isLive />
+              ))
+            )}
           </div>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <StatCard title="Total Vaults" value={totalVaults} />
-          <StatCard title="XLM in Escrow" value={totalXlmEscrowed.toFixed(2)} />
-          <StatCard title="Success Rate" value={`${successRate.toFixed(1)}%`} />
-          <StatCard title="Live Events" value={liveEvents.length} highlight />
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-          {/* Live Activity Feed */}
-          <div className="bg-white rounded-lg shadow-md p-6 h-fit">
-            <h2 className="text-xl font-bold mb-4 flex items-center">
-              <span className="w-2 h-2 bg-red-500 rounded-full mr-2 animate-pulse"></span>
-              Live Feed
+        {/* Historical Events */}
+        <div className="lg:col-span-5 bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+          <div className="p-6 border-b border-outline-variant bg-surface-low/50 flex justify-between items-center">
+            <h2 className="text-lg font-bold text-on-surface flex items-center">
+              <span className="material-symbols-outlined text-on-surface-variant mr-2">
+                history
+              </span>
+              Event History
             </h2>
+            <div className="px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-bold rounded uppercase">
+              Sync
+            </div>
+          </div>
+
+          {showHistory && (
             <div
-              className="space-y-4 pr-2 custom-scrollbar"
+              className="p-6 space-y-3 custom-scrollbar"
               style={{
-                maxHeight: "60vh",
+                maxHeight: "65vh",
                 overflowY: "auto",
                 overscrollBehavior: "contain",
               }}
             >
-              {liveEvents.length === 0 ? (
-                <p className="text-gray-500 italic">
-                  Waiting for new events...
+              {historicalEvents.length === 0 ? (
+                <p className="text-slate-400 italic text-sm text-center py-12">
+                  No historical data found for this session.
                 </p>
               ) : (
-                liveEvents.map((event: any, i) => (
-                  <EventItem key={event.id || i} event={event} isLive />
+                historicalEvents.map((event: any, i) => (
+                  <EventItem key={event.id || i} event={event} />
                 ))
               )}
             </div>
-          </div>
+          )}
+        </div>
 
-          {/* Network Status */}
-          <div className="bg-white rounded-lg shadow-md p-6 h-fit sticky top-24">
-            <h2 className="text-xl font-bold mb-4">Network Status</h2>
-            <div className="space-y-4">
-              <div className="flex justify-between py-2 border-b">
-                <span className="text-gray-600">Network</span>
-                <span className="font-medium text-green-600">Testnet</span>
-              </div>
-              <div className="flex justify-between py-2 border-b">
-                <span className="text-gray-600">Status</span>
-                <span className="font-medium text-green-600">Operational</span>
-              </div>
-              <div className="pt-4">
+        {/* Network Infrastructure */}
+        <div className="lg:col-span-3 space-y-6">
+          <div className="bg-surface-high rounded-2xl p-6 border border-outline-variant shadow-lg relative overflow-hidden group">
+            <div className="relative z-10">
+              <h3 className="text-lg font-bold mb-6 flex items-center gap-2 text-on-surface">
+                <span className="material-symbols-outlined text-teal-600">
+                  hub
+                </span>
+                Network Status
+              </h3>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center py-3 border-b border-outline-variant">
+                  <span className="text-on-surface-variant text-sm font-medium">
+                    Environment
+                  </span>
+                  <span className="px-2 py-0.5 bg-teal-500/10 text-teal-600 rounded text-[10px] font-bold uppercase border border-teal-500/20">
+                    Testnet
+                  </span>
+                </div>
+                <div className="flex justify-between items-center py-3 border-b border-outline-variant">
+                  <span className="text-on-surface-variant text-sm font-medium">
+                    Status
+                  </span>
+                  <span className="text-sm font-bold flex items-center gap-1.5 text-emerald-600">
+                    <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                    Operational
+                  </span>
+                </div>
+                <div className="flex justify-between items-center py-3 border-b border-outline-variant">
+                  <span className="text-on-surface-variant text-sm font-medium">
+                    Ledger
+                  </span>
+                  <span className="text-sm font-mono text-teal-600 font-bold">
+                    Horizon 2.0
+                  </span>
+                </div>
                 <button
                   onClick={() => loadData()}
-                  className="w-full py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors text-sm font-medium"
+                  className="w-full mt-6 py-3 bg-teal-600 text-white rounded-xl hover:bg-teal-700 transition-all text-sm font-bold shadow-lg shadow-teal-600/20 active:scale-[0.98] flex items-center justify-center gap-2"
                 >
-                  Refresh Metrics
+                  <span className="material-symbols-outlined text-sm">
+                    sync
+                  </span>
+                  Manual Refresh
                 </button>
               </div>
             </div>
+            <div className="absolute -right-4 -bottom-4 opacity-[0.03] dark:opacity-[0.07] group-hover:scale-110 transition-transform duration-700">
+              <span className="material-symbols-outlined text-[10rem] text-on-surface">
+                settings_input_antenna
+              </span>
+            </div>
           </div>
 
-          {/* History Section */}
-          <div className="bg-white rounded-lg shadow-md p-6 h-fit">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-bold">Event History</h2>
-              <button
-                onClick={() => setShowHistory(!showHistory)}
-                className="text-xs text-blue-600 hover:underline font-medium"
-              >
-                {showHistory ? "Hide" : "Show"}
-              </button>
-            </div>
-
-            {showHistory && (
-              <div
-                className="space-y-3 mt-4 border-t pt-4 pr-2 custom-scrollbar"
-                style={{
-                  maxHeight: "60vh",
-                  overflowY: "auto",
-                  overscrollBehavior: "contain",
-                }}
-              >
-                {historicalEvents.length === 0 ? (
-                  <p className="text-gray-500 italic text-xs text-center py-4">
-                    No history.
-                  </p>
-                ) : (
-                  historicalEvents.map((event: any, i) => (
-                    <EventItem key={event.id || i} event={event} />
-                  ))
-                )}
-              </div>
-            )}
+          <div className="bg-primary-container/10 border border-teal-600/20 rounded-2xl p-6">
+            <h4 className="text-teal-600 font-bold mb-3 flex items-center gap-2">
+              <span className="material-symbols-outlined text-sm">
+                security_update_good
+              </span>
+              Security Protocol
+            </h4>
+            <p className="text-on-surface-variant text-xs leading-relaxed opacity-80">
+              Real-time monitoring of Stellar network consensus. All trustvault
+              transactions are secured by multi-sig escrow logic.
+            </p>
           </div>
         </div>
       </div>
@@ -174,7 +262,6 @@ function truncateId(id: string, start = 6, end = 4) {
 }
 
 function formatDetails(details: string) {
-  // Truncate Stellar addresses (G... or C...) in text
   return details
     .split(" ")
     .map((word) => {
@@ -189,37 +276,64 @@ function formatDetails(details: string) {
 function EventItem({ event, isLive = false }) {
   return (
     <div
-      className={`border-l-4 ${isLive ? "border-red-500 bg-red-50" : "border-gray-300 bg-gray-50"} pl-4 py-2 rounded-r-md transition-all mb-2`}
+      className={`border-l-4 ${isLive ? "border-teal-500 bg-teal-50/30" : "border-outline bg-surface-low/50"} pl-4 py-4 rounded-r-xl transition-all mb-3 hover:shadow-sm`}
     >
-      <div className="flex justify-between items-start">
+      <div className="flex justify-between items-start mb-2">
         <span
-          className={`font-bold uppercase text-[10px] tracking-wider ${isLive ? "text-red-700" : "text-gray-600"}`}
+          className={`font-bold uppercase text-[10px] tracking-widest ${isLive ? "text-teal-700" : "text-on-surface-variant"}`}
         >
           {event.type}
         </span>
-        <span className="text-[10px] text-gray-500 font-mono">
-          #{event.ledger}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] text-on-surface-variant font-mono opacity-60">
+            Ledger #{event.ledger}
+          </span>
+        </div>
       </div>
-      <p className="text-sm text-gray-800 font-medium leading-tight my-1 break-all">
+      <p className="text-sm text-on-surface font-medium leading-relaxed mb-3 break-all">
         {formatDetails(event.details)}
       </p>
-      <p className="text-[10px] text-gray-400 font-mono" title={event.hash}>
-        TX: {truncateId(event.hash, 8, 8)}
-      </p>
+      <div className="flex items-center justify-between mt-2 pt-2 border-t border-outline-variant">
+        <p
+          className="text-[10px] text-on-surface-variant font-mono opacity-60"
+          title={event.hash}
+        >
+          TX: {truncateId(event.hash, 8, 8)}
+        </p>
+        <span className="material-symbols-outlined text-on-surface-variant text-sm opacity-40">
+          open_in_new
+        </span>
+      </div>
     </div>
   );
 }
 
-function StatCard({ title, value, highlight = false }) {
+function StatCard({ title, value, highlight = false, icon, subtitle }) {
   return (
     <div
-      className={`bg-white px-3 py-1.5 rounded-md shadow-sm border ${highlight ? "border-blue-500 bg-blue-50" : "border-gray-200"} flex items-center justify-between`}
+      className={`bg-white p-8 rounded-2xl border ${highlight ? "border-teal-600/30 shadow-md" : "border-slate-100 shadow-sm"} flex flex-col gap-4 group hover:border-teal-600/30 transition-all`}
     >
-      <span className="text-[10px] text-gray-500 uppercase tracking-tighter font-bold">
-        {title}
-      </span>
-      <span className="text-sm font-bold text-gray-900">{value}</span>
+      <div className="flex justify-between items-start">
+        <div
+          className={`p-3 rounded-xl ${highlight ? "bg-teal-600 text-white" : "bg-teal-50 text-teal-600"}`}
+        >
+          <span className="material-symbols-outlined">{icon}</span>
+        </div>
+        {highlight && (
+          <div className="px-2 py-0.5 bg-teal-50 text-teal-600 text-[10px] font-bold rounded uppercase">
+            Active
+          </div>
+        )}
+      </div>
+      <div>
+        <p className="text-[10px] font-bold text-on-surface-variant mb-1 uppercase tracking-wider opacity-60">
+          {title}
+        </p>
+        <h2 className="text-2xl font-bold text-on-surface">{value}</h2>
+        <p className="text-xs text-on-surface-variant mt-1 opacity-60">
+          {subtitle}
+        </p>
+      </div>
     </div>
   );
 }

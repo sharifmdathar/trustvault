@@ -1,12 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { Copy, Check } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { Copy, Check } from "lucide-react";
 
-export default function CopyableAddress({ address, label, startChars = 6, endChars = 4 }) {
+export default function CopyableAddress({
+  address,
+  label,
+  startChars = 6,
+  endChars = 4,
+}) {
   const [copied, setCopied] = useState(false);
-  const [truncatedAddress, setTruncatedAddress] = useState('');
+  const [truncatedAddress, setTruncatedAddress] = useState("");
 
   const truncateAddress = (addr, start, end) => {
-    if (!addr) return '';
+    if (!addr) return "";
     if (addr.length <= start + end) return addr;
     return `${addr.slice(0, start)}...${addr.slice(-end)}`;
   };
@@ -21,13 +26,13 @@ export default function CopyableAddress({ address, label, startChars = 6, endCha
     };
 
     updateTruncation();
-    window.addEventListener('resize', updateTruncation);
-    return () => window.removeEventListener('resize', updateTruncation);
+    window.addEventListener("resize", updateTruncation);
+    return () => window.removeEventListener("resize", updateTruncation);
   }, [address, startChars, endChars]);
 
   const handleCopy = async () => {
-    if (typeof window === 'undefined' || !navigator.clipboard) {
-      console.error('Clipboard not available');
+    if (typeof window === "undefined" || !navigator.clipboard) {
+      console.error("Clipboard not available");
       return;
     }
     try {
@@ -35,7 +40,7 @@ export default function CopyableAddress({ address, label, startChars = 6, endCha
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error('Failed to copy:', err);
+      console.error("Failed to copy:", err);
     }
   };
 
@@ -50,9 +55,13 @@ export default function CopyableAddress({ address, label, startChars = 6, endCha
           onClick={handleCopy}
           className="p-2 hover:bg-gray-100 rounded transition-colors flex-shrink-0"
           title="Copy full address"
-          style={{ minWidth: '44px', minHeight: '44px' }}
+          style={{ minWidth: "44px", minHeight: "44px" }}
         >
-          {copied ? <Check size={18} className="text-green-600" /> : <Copy size={18} className="text-gray-500" />}
+          {copied ? (
+            <Check size={18} className="text-green-600" />
+          ) : (
+            <Copy size={18} className="text-gray-500" />
+          )}
         </button>
       </div>
     </div>

@@ -1,8 +1,13 @@
-import React, { useState } from 'react';
-import { Scale, ThumbsUp, ThumbsDown, Minus } from 'lucide-react';
-import LoadingSpinner from '../ui/LoadingSpinner';
+import React, { useState } from "react";
+import { Scale, ThumbsUp, ThumbsDown, Minus } from "lucide-react";
+import LoadingSpinner from "../ui/LoadingSpinner";
 
-export default function DisputePanel({ arbitration, onVote, isArbitrator, loading }) {
+export default function DisputePanel({
+  arbitration,
+  onVote,
+  isArbitrator,
+  loading,
+}) {
   const [voting, setVoting] = useState(false);
 
   const handleVote = async (decision) => {
@@ -20,71 +25,110 @@ export default function DisputePanel({ arbitration, onVote, isArbitrator, loadin
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-        <Scale className="w-5 h-5" />
-        Arbitration Status
+    <div className="bg-white rounded-[2rem] border border-slate-100 shadow-2xl p-8 sm:p-10 relative overflow-hidden">
+      <h2 className="text-xl font-bold text-on-surface mb-8 flex items-center gap-2">
+        <span className="material-symbols-outlined text-amber-600">gavel</span>
+        Arbitration Governance
       </h2>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        <div className="p-4 bg-gray-50 rounded-lg text-center">
-          <ThumbsUp className="w-6 h-6 text-green-600 mx-auto mb-2" />
-          <p className="text-sm text-gray-500">Release to Buyer</p>
-          <p className="text-2xl font-bold">{arbitration?.votesBuyer || 0}</p>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+        <div className="p-6 bg-emerald-50 rounded-2xl text-center border border-emerald-100">
+          <span className="material-symbols-outlined text-emerald-600 text-3xl mb-2">
+            person
+          </span>
+          <p className="text-[10px] font-bold text-emerald-800 uppercase tracking-widest mb-1 opacity-60">
+            To Buyer
+          </p>
+          <p className="text-3xl font-black text-emerald-900">
+            {arbitration?.votesBuyer || 0}
+          </p>
         </div>
-        <div className="p-4 bg-gray-50 rounded-lg text-center">
-          <ThumbsDown className="w-6 h-6 text-red-600 mx-auto mb-2" />
-          <p className="text-sm text-gray-500">Release to Seller</p>
-          <p className="text-2xl font-bold">{arbitration?.votesSeller || 0}</p>
+        <div className="p-6 bg-red-50 rounded-2xl text-center border border-red-100">
+          <span className="material-symbols-outlined text-red-600 text-3xl mb-2">
+            storefront
+          </span>
+          <p className="text-[10px] font-bold text-red-800 uppercase tracking-widest mb-1 opacity-60">
+            To Seller
+          </p>
+          <p className="text-3xl font-black text-red-900">
+            {arbitration?.votesSeller || 0}
+          </p>
         </div>
-        <div className="p-4 bg-gray-50 rounded-lg text-center">
-          <Minus className="w-6 h-6 text-purple-600 mx-auto mb-2" />
-          <p className="text-sm text-gray-500">Split 50/50</p>
-          <p className="text-2xl font-bold">{arbitration?.votesSplit || 0}</p>
+        <div className="p-6 bg-surface-low rounded-2xl text-center border border-outline-variant">
+          <span className="material-symbols-outlined text-on-surface-variant text-3xl mb-2">
+            balance
+          </span>
+          <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1 opacity-60">
+            Split 50/50
+          </p>
+          <p className="text-3xl font-black text-on-surface">
+            {arbitration?.votesSplit || 0}
+          </p>
         </div>
       </div>
 
-      <p className="text-sm text-gray-500 text-center mb-4">
-        Total Votes: {arbitration?.totalVotes || 0} / {arbitration?.arbitrators?.length || 0}
-      </p>
+      <div className="flex items-center justify-between mb-8 px-2">
+        <div className="flex items-center gap-2">
+          <div className="flex -space-x-2">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="w-6 h-6 rounded-full border-2 border-surface bg-surface-low"
+              ></div>
+            ))}
+          </div>
+          <p className="text-xs text-on-surface-variant font-bold uppercase tracking-tight opacity-60">
+            {arbitration?.totalVotes || 0} /{" "}
+            {arbitration?.arbitrators?.length || 0} Arbitrators Voted
+          </p>
+        </div>
+      </div>
 
       {isArbitrator && !arbitration?.resolved && (
-        <div className="border-t pt-4">
-          <h3 className="font-medium mb-3">Cast Your Vote</h3>
-          <div className="flex flex-col sm:flex-row gap-3">
+        <div className="bg-slate-900 rounded-[1.5rem] p-6 text-white">
+          <h3 className="text-sm font-bold mb-4 uppercase tracking-widest text-teal-400">
+            Cast Your Verdict
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <button
-              onClick={() => handleVote('buyer')}
+              onClick={() => handleVote("buyer")}
               disabled={voting}
-              className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-              style={{ minHeight: '44px' }}
+              className="px-4 py-3 bg-emerald-600 text-white rounded-xl font-bold text-sm hover:bg-emerald-700 transition-all active:scale-[0.98] disabled:opacity-50"
             >
-              {voting ? <LoadingSpinner size="sm" /> : 'Release to Buyer'}
+              {voting ? <LoadingSpinner size="sm" /> : "Buyer"}
             </button>
             <button
-              onClick={() => handleVote('seller')}
+              onClick={() => handleVote("seller")}
               disabled={voting}
-              className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-              style={{ minHeight: '44px' }}
+              className="px-4 py-3 bg-red-600 text-white rounded-xl font-bold text-sm hover:bg-red-700 transition-all active:scale-[0.98] disabled:opacity-50"
             >
-              {voting ? <LoadingSpinner size="sm" /> : 'Release to Seller'}
+              {voting ? <LoadingSpinner size="sm" /> : "Seller"}
             </button>
             <button
-              onClick={() => handleVote('split')}
+              onClick={() => handleVote("split")}
               disabled={voting}
-              className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-              style={{ minHeight: '44px' }}
+              className="px-4 py-3 bg-slate-700 text-white rounded-xl font-bold text-sm hover:bg-slate-600 transition-all active:scale-[0.98] disabled:opacity-50"
             >
-              {voting ? <LoadingSpinner size="sm" /> : 'Split 50/50'}
+              {voting ? <LoadingSpinner size="sm" /> : "Split"}
             </button>
           </div>
         </div>
       )}
 
       {arbitration?.resolved && arbitration?.decision && (
-        <div className="mt-4 p-4 bg-purple-50 rounded-lg">
-          <p className="text-center font-semibold text-purple-900">
-            Resolution: Funds will be released to {arbitration.decision}
-          </p>
+        <div className="mt-6 p-6 bg-teal-50 rounded-2xl border border-teal-100 flex items-center gap-4">
+          <div className="w-12 h-12 bg-teal-600 rounded-xl flex items-center justify-center text-white">
+            <span className="material-symbols-outlined">check_circle</span>
+          </div>
+          <div>
+            <p className="text-[10px] font-bold text-teal-600 uppercase tracking-widest mb-1">
+              Final Resolution
+            </p>
+            <p className="text-lg font-bold text-teal-900">
+              Funds released to{" "}
+              <span className="capitalize">{arbitration.decision}</span>
+            </p>
+          </div>
         </div>
       )}
     </div>

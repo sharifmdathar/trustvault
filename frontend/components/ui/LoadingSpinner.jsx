@@ -1,10 +1,10 @@
-import React from 'react';
+import React from "react";
 
-export default function LoadingSpinner({ size = 'md', fullScreen = false }) {
+export default function LoadingSpinner({ size = "md", fullScreen = false }) {
   const sizes = {
-    sm: 'w-5 h-5',
-    md: 'w-8 h-8',
-    lg: 'w-12 h-12',
+    sm: "w-5 h-5",
+    md: "w-8 h-8",
+    lg: "w-12 h-12",
   };
 
   const spinner = (

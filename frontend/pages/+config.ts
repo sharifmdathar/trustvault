@@ -8,7 +8,6 @@ const config: Config = {
   // https://vike.dev/head-tags
   title: "TrustVault",
   description: "Secure escrow on Stellar",
-  favicon: "/assets/logo.png",
 
   extends: [vikeReact],
 };

@@ -23,50 +23,75 @@ export default function VaultCard({
   const canDispute = vault.status === "funded";
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
-      <div className="flex justify-between items-start mb-4">
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900">
-            Vault #{vault.id.slice(0, 8)}
-          </h3>
-          <p className="text-sm text-gray-500 mt-1">
-            {isBuyer ? "Seller" : "Buyer"}: {counterparty.slice(0, 6)}...
-            {counterparty.slice(-4)}
-          </p>
+    <div className="bg-white rounded-2xl border border-slate-100 p-8 hover:shadow-lg transition-all group flex flex-col gap-6 shadow-sm">
+      <div className="flex justify-between items-start">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-xl bg-teal-50 flex items-center justify-center text-teal-600">
+            <span className="material-symbols-outlined">shield_lock</span>
+          </div>
+          <div>
+            <h3 className="font-bold text-on-surface">
+              Vault #{vault.id.slice(0, 8)}
+            </h3>
+            <p className="text-xs text-on-surface-variant font-mono">
+              VAULT-{vault.id.slice(0, 4).toUpperCase()}
+            </p>
+          </div>
         </div>
         <VaultStatusBadge status={vault.status} />
       </div>
 
-      <div className="space-y-2 mb-4">
-        <p className="text-2xl font-bold text-gray-900">{vault.amount} XLM</p>
-        <p className="text-sm text-gray-600 line-clamp-2">
-          {vault.description}
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <p className="text-[10px] uppercase tracking-wider text-on-surface-variant font-bold mb-1 opacity-60">
+            Counterparty
+          </p>
+          <div className="flex items-center gap-2">
+            <div className="w-5 h-5 rounded-full bg-slate-200"></div>
+            <p className="text-sm font-medium text-on-surface">
+              {counterparty.slice(0, 6)}...{counterparty.slice(-4)}
+            </p>
+          </div>
+        </div>
+        <div>
+          <p className="text-[10px] uppercase tracking-wider text-on-surface-variant font-bold mb-1 opacity-60">
+            Amount
+          </p>
+          <p className="text-sm font-bold text-on-surface">
+            {vault.amount} XLM
+          </p>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <p className="text-sm text-on-surface-variant line-clamp-2">
+          {vault.description || "Secure escrow transaction on Stellar."}
         </p>
-        <div className="flex justify-between text-sm text-gray-500">
+        <div className="flex justify-between text-[10px] text-on-surface-variant font-bold uppercase tracking-tight opacity-60">
           <span>Created: {new Date(vault.createdAt).toLocaleDateString()}</span>
           <span>Deadline: {new Date(vault.deadline).toLocaleDateString()}</span>
         </div>
       </div>
 
-      <div className="flex space-x-3">
+      <div className="flex items-center gap-3 pt-6 border-t border-slate-100">
         <Link
           href={`/vault/${vault.id}`}
-          className="flex-1 text-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+          className="px-4 py-2 text-sm font-bold text-on-surface-variant hover:bg-slate-50 rounded-xl transition-colors"
         >
-          View Details
+          Details
         </Link>
         {canConfirm && onConfirm && (
           <button
             onClick={() => onConfirm(vault.id)}
-            className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+            className="flex-1 px-4 py-2 text-sm font-bold text-teal-600 hover:bg-teal-50 rounded-xl transition-colors"
           >
-            Confirm Delivery
+            Release Funds
           </button>
         )}
         {canDispute && onDispute && (
           <button
             onClick={() => onDispute(vault.id)}
-            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+            className="px-4 py-2 text-sm font-bold text-red-600 hover:bg-red-50 rounded-xl transition-colors"
           >
             Dispute
           </button>

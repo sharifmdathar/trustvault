@@ -27,54 +27,103 @@ export default function RecentTransactions() {
   }
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">
-        Recent Transactions
-      </h2>
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="divide-y divide-gray-200">
+    <div className="space-y-8">
+      <div className="flex items-center justify-between">
+        <h2 className="text-3xl font-bold text-slate-900 tracking-tight">
+          Recent Activity
+        </h2>
+        <button
+          onClick={loadTransactions}
+          className="text-teal-600 hover:text-teal-700 font-bold text-sm flex items-center gap-2"
+        >
+          <span className="material-symbols-outlined text-sm">refresh</span>
+          Refresh Feed
+        </button>
+      </div>
+      <div className="bg-white rounded-[2rem] border border-slate-100 shadow-xl overflow-hidden">
+        <div className="divide-y divide-slate-50">
           {transactions.length === 0 ? (
-            <p className="text-center text-gray-500 py-8">
-              No transactions yet
-            </p>
+            <div className="text-center py-20 px-4">
+              <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center text-slate-300 mx-auto mb-4">
+                <span className="material-symbols-outlined text-3xl">
+                  history
+                </span>
+              </div>
+              <p className="text-slate-900 font-bold mb-1">
+                No transaction history
+              </p>
+              <p className="text-slate-500 text-sm">
+                Active transactions will appear here in real-time.
+              </p>
+            </div>
           ) : (
             transactions.map((tx) => (
-              <div key={tx.id} className="p-4 hover:bg-gray-50">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">
-                      {tx.type.toUpperCase()} -
-                      <Link
-                        href={`/vault/${tx.vaultId}`}
-                        className="text-blue-600 hover:underline ml-1"
-                      >
-                        Vault #{tx.vaultId.slice(0, 8)}
-                      </Link>
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      From: {tx.from.slice(0, 6)}...{tx.from.slice(-4)}
-                    </p>
-                    {tx.amount && (
-                      <p className="text-sm text-gray-500">
-                        Amount: {tx.amount} XLM
+              <div
+                key={tx.id}
+                className="p-6 hover:bg-slate-50 transition-colors group"
+              >
+                <div className="flex items-center justify-between gap-6">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-teal-50 group-hover:text-teal-600 transition-all">
+                      <span className="material-symbols-outlined">
+                        {tx.type === "create"
+                          ? "add_box"
+                          : tx.type === "fund"
+                            ? "payments"
+                            : "done_all"}
+                      </span>
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-sm font-bold text-slate-900 uppercase tracking-tight">
+                          {tx.type.replace("_", " ")}
+                        </span>
+                        <span className="text-slate-300">•</span>
+                        <Link
+                          href={`/vault/${tx.vaultId}`}
+                          className="text-teal-600 hover:underline text-sm font-bold"
+                        >
+                          Vault #{tx.vaultId.slice(0, 8)}
+                        </Link>
+                      </div>
+                      <p className="text-xs text-slate-400 font-mono flex items-center gap-1">
+                        <span className="material-symbols-outlined text-[10px]">
+                          person
+                        </span>
+                        {tx.from.slice(0, 8)}...{tx.from.slice(-6)}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="text-right">
+                    {tx.amount ? (
+                      <p className="text-base font-bold text-slate-900 mb-1">
+                        {tx.amount} XLM
+                      </p>
+                    ) : (
+                      <p className="text-xs text-slate-400 mb-1">
+                        Status Update
                       </p>
                     )}
-                  </div>
-                  <div className="text-right">
-                    <p className="text-xs text-gray-500">
-                      {new Date(tx.timestamp).toLocaleString()}
-                    </p>
-                    <span
-                      className={`text-xs px-2 py-1 rounded ${
-                        tx.status === "success"
-                          ? "bg-green-100 text-green-800"
-                          : tx.status === "failed"
-                            ? "bg-red-100 text-red-800"
-                            : "bg-yellow-100 text-yellow-800"
-                      }`}
-                    >
-                      {tx.status}
-                    </span>
+                    <div className="flex items-center justify-end gap-3">
+                      <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+                        {new Date(tx.timestamp).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </span>
+                      <span
+                        className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase tracking-tighter ${
+                          tx.status === "success"
+                            ? "bg-emerald-50 text-emerald-600"
+                            : tx.status === "failed"
+                              ? "bg-red-50 text-red-600"
+                              : "bg-amber-50 text-amber-600"
+                        }`}
+                      >
+                        {tx.status}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
