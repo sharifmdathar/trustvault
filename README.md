@@ -44,7 +44,7 @@ graph TD
     B & S -->|3. Confirm| EC
     EC -->|4. Release Funds| S
 
-    B | S -->|Alternative: Dispute| EC
+    B & S -->|Alternative: Dispute| EC
     EC -->|Open Case| AC
     A -->|Vote| AC
     AC -->|Resolve| EC
