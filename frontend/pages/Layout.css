@@ -644,6 +644,9 @@ body.page-transition #page-content {
 .bg-red-600 {
   background-color: #dc2626;
 }
+.bg-slate-900 {
+  background-color: #0f172a;
+}
 .bg-amber-600 {
   background-color: #d97706;
 }

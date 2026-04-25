@@ -5,8 +5,15 @@ import StatusBadge from "../ui/StatusBadge";
 export default function VaultCard({ vault, role, onConfirm, onDispute }) {
   const isBuyer = role === "buyer";
   const counterparty = isBuyer ? vault.seller : vault.buyer;
-  const canConfirm = isBuyer && vault.status === "funded";
-  const canDispute = vault.status === "funded";
+
+  // Both parties can confirm when vault is funded (Active)
+  const isActive = vault.status === "funded";
+  const alreadyConfirmed = isBuyer ? vault.buyerConfirmed : vault.sellerConfirmed;
+  const canConfirm = isActive && !alreadyConfirmed;
+  const canDispute = isActive;
+
+  // Completed states where no actions should appear
+  const isFinalized = ["confirmed", "disputed", "cancelled", "expired"].includes(vault.status);
 
   return (
     <div className="bg-white rounded-2xl border border-slate-100 shadow-xl p-6 sm:p-8 hover:shadow-2xl transition-all group relative overflow-hidden">
@@ -37,6 +44,28 @@ export default function VaultCard({ vault, role, onConfirm, onDispute }) {
           "{vault.description || "No specific terms provided."}"
         </p>
 
+        {/* Confirmation Progress */}
+        {isActive && (
+          <div className="flex gap-3 text-xs font-bold">
+            <span className={`flex items-center gap-1 px-2.5 py-1 rounded-lg ${vault.buyerConfirmed ? 'bg-teal-50 text-teal-700' : 'bg-slate-50 text-slate-400'}`}>
+              <span className="material-symbols-outlined text-sm">{vault.buyerConfirmed ? 'check_circle' : 'pending'}</span>
+              Buyer {vault.buyerConfirmed ? '✓' : '…'}
+            </span>
+            <span className={`flex items-center gap-1 px-2.5 py-1 rounded-lg ${vault.sellerConfirmed ? 'bg-teal-50 text-teal-700' : 'bg-slate-50 text-slate-400'}`}>
+              <span className="material-symbols-outlined text-sm">{vault.sellerConfirmed ? 'check_circle' : 'pending'}</span>
+              Seller {vault.sellerConfirmed ? '✓' : '…'}
+            </span>
+          </div>
+        )}
+
+        {/* Finalized message */}
+        {vault.status === "confirmed" && (
+          <div className="flex items-center gap-2 text-sm font-bold text-teal-600 bg-teal-50 px-4 py-2.5 rounded-xl">
+            <span className="material-symbols-outlined text-base">verified</span>
+            Funds released to seller
+          </div>
+        )}
+
         <div className="grid grid-cols-2 gap-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest pt-2">
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-sm opacity-60">calendar_add_on</span>
@@ -62,11 +91,16 @@ export default function VaultCard({ vault, role, onConfirm, onDispute }) {
               onClick={() => onConfirm(vault.id)}
               className="flex-[1.5] px-4 py-3 bg-teal-600 text-white rounded-xl font-bold text-sm hover:bg-teal-700 transition-all shadow-lg shadow-teal-600/20 active:scale-[0.98]"
             >
-              Confirm Delivery
+              {isBuyer ? "Confirm & Release" : "Confirm Delivery"}
             </button>
           )}
+          {isActive && alreadyConfirmed && (
+            <div className="flex-[1.5] px-4 py-3 bg-teal-50 text-teal-600 rounded-xl font-bold text-sm text-center border border-teal-100">
+              ✓ You Confirmed
+            </div>
+          )}
         </div>
-        {canDispute && onDispute && (
+        {canDispute && !isFinalized && onDispute && (
           <button
             onClick={() => onDispute(vault.id)}
             className="w-full px-4 py-3 bg-white border border-red-100 text-red-600 rounded-xl font-bold text-sm hover:bg-red-50 transition-all active:scale-[0.98]"

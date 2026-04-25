@@ -357,68 +357,6 @@ async function waitForTransaction(server, hash) {
   throw new Error(`Timed out waiting for transaction ${hash}`);
 }
 
-async function submitContractCall(
-  sourceAddress,
-  contractId,
-  method,
-  args = [],
-) {
-  assertBrowser();
-
-  const server = getServer();
-  const networkPassphrase = getNetworkPassphrase();
-  const sourceAccount = await server.getAccount(sourceAddress);
-  const transaction = new TransactionBuilder(sourceAccount, {
-    fee: BASE_FEE,
-    networkPassphrase,
-  })
-    .addOperation(contract(contractId).call(method, ...args))
-    .setTimeout(30)
-    .build();
-
-  const preparedTransaction = await server.prepareTransaction(transaction);
-  const signed = await signTransaction(preparedTransaction.toXDR(), {
-    address: sourceAddress,
-    networkPassphrase,
-  });
-
-  if (signed.error) {
-    const errorMsg = typeof signed.error === "string" ? signed.error : (signed.error.message || JSON.stringify(signed.error));
-    throw new Error(errorMsg);
-  }
-  if (!signed.signedTxXdr)
-    throw new Error("Freighter did not return a signed transaction.");
-
-  const signedTransaction = TransactionBuilder.fromXDR(
-    signed.signedTxXdr,
-    networkPassphrase,
-  );
-  const submitted = await server.sendTransaction(signedTransaction);
-
-  if (submitted.status === "ERROR") {
-    throw new Error(`Transaction rejected by RPC: ${submitted.hash}`);
-  }
-  if (submitted.status === "TRY_AGAIN_LATER") {
-    throw new Error("RPC is busy. Please try again later.");
-  }
-
-  const result = await waitForTransaction(server, submitted.hash);
-
-  // Extract return value
-  let returnValue = null;
-  if (result && result.resultMetaXdr) {
-    try {
-      const meta = result.resultMetaXdr.v4();
-      if (meta && meta.sorobanMeta && meta.sorobanMeta.returnValue) {
-        returnValue = scValToNative(meta.sorobanMeta.returnValue);
-      }
-    } catch (e) {
-      console.warn("Could not parse return value:", e);
-    }
-  }
-
-  return { ...result, returnValue };
-}
 
 export async function connectWallet() {
   return getConnectedAddress();
@@ -436,7 +374,6 @@ export async function createVault(
 
   // Use sponsored transaction
   const tx = await submitSponsoredContractCall(
-    buyerAddress,
     requireContractId("VITE_ESCROW_CONTRACT_ID"),
     "create_vault",
     [
@@ -469,7 +406,6 @@ export async function createVault(
 
 export async function depositToVault(vaultId, buyerAddress) {
   await submitSponsoredContractCall(
-    buyerAddress,
     requireContractId("VITE_ESCROW_CONTRACT_ID"),
     "deposit",
     [numberArg(BigInt(vaultId), "u64"), addressArg(buyerAddress)],
@@ -489,7 +425,6 @@ export async function depositToVault(vaultId, buyerAddress) {
 
 export async function confirmVault(vaultId, callerAddress) {
   await submitSponsoredContractCall(
-    callerAddress,
     requireContractId("VITE_ESCROW_CONTRACT_ID"),
     "confirm",
     [numberArg(BigInt(vaultId), "u64"), addressArg(callerAddress)],
@@ -509,7 +444,6 @@ export async function confirmVault(vaultId, callerAddress) {
 
 export async function flagDispute(vaultId, callerAddress) {
   await submitSponsoredContractCall(
-    callerAddress,
     requireContractId("VITE_ESCROW_CONTRACT_ID"),
     "flag_dispute",
     [numberArg(BigInt(vaultId), "u64"), addressArg(callerAddress)],
@@ -520,7 +454,6 @@ export async function flagDispute(vaultId, callerAddress) {
   );
   if (arbitrationContractId) {
     await submitSponsoredContractCall(
-      callerAddress,
       arbitrationContractId,
       "open_case",
       [numberArg(BigInt(vaultId), "u64"), addressArg(callerAddress)],
@@ -712,25 +645,101 @@ export async function checkSponsorBalance() {
 }
 
 export async function submitSponsoredContractCall(
-  sourceAddress,
   contractId,
   method,
   args = [],
 ) {
-  assertBrowser();
+  const sponsorKeypair = getSponsorKeypair();
+  const rpcServer = getServer();
+  const NETWORK = getNetworkPassphrase();
+  const userAddress = await getConnectedAddress();
 
-  const networkPassphrase = getNetworkPassphrase();
-  const sourceAccount = await getServer().getAccount(sourceAddress);
+  if (!userAddress) throw new Error("Wallet not connected");
+  if (!sponsorKeypair) throw new Error("Sponsor keypair not configured");
 
-  const txBuilder = new TransactionBuilder(sourceAccount, {
+  const userAccount = await rpcServer.getAccount(userAddress);
+
+  // 1. Build the inner transaction with the USER as the source
+  const txBuilder = new TransactionBuilder(userAccount, {
     fee: BASE_FEE,
-    networkPassphrase,
+    networkPassphrase: NETWORK,
   })
     .addOperation(contract(contractId).call(method, ...args))
     .setTimeout(30);
 
-  const result = await submitSponsoredTransaction(txBuilder, sourceAddress);
+  // 2. Simulate to get resource requirements
+  const builtTx = txBuilder.build();
+  const simulation = await rpcServer.simulateTransaction(builtTx);
 
+  if (rpc.Api.isSimulationError(simulation)) {
+    throw new Error(`Simulation failed: ${JSON.stringify(simulation.error)}`);
+  }
+
+  // 3. Assemble the transaction with Soroban data (correct auth + resources)
+  const assembledTx = rpc.assembleTransaction(builtTx, simulation).build();
+
+  // 4. FORCE the inner transaction fee to BASE_FEE (100 stroops = 0.00001 XLM)
+  // The SDK's assembleTransaction hardcodes fee = baseFee + minResourceFee and
+  // ignores baseFee overrides. We must directly patch the XDR fee field so that
+  // Freighter displays ~0 XLM. The sponsor's fee-bump covers the real cost.
+  const xdrEnvelope = assembledTx.toEnvelope();
+  xdrEnvelope.v1().tx().fee(100); // 100 stroops = 0.00001 XLM
+  const preparedInnerTx = TransactionBuilder.fromXDR(
+    xdrEnvelope.toXDR("base64"),
+    NETWORK,
+  );
+
+  // 5. Get user's signature via Freighter (will now show ~0 XLM fee)
+  const signedXdr = await signTransaction(preparedInnerTx.toXDR(), {
+    networkPassphrase: NETWORK,
+  });
+
+  if (signedXdr.error) {
+    const errorMsg =
+      typeof signedXdr.error === "string"
+        ? signedXdr.error
+        : signedXdr.error.message || JSON.stringify(signedXdr.error);
+    throw new Error(errorMsg);
+  }
+  if (!signedXdr.signedTxXdr) {
+    throw new Error("Freighter did not return a signed transaction.");
+  }
+
+  const signedInnerTx = TransactionBuilder.fromXDR(
+    signedXdr.signedTxXdr,
+    NETWORK,
+  );
+
+  // 6. Wrap in Fee-Bump
+  const resourceFee = parseInt(simulation.minResourceFee || "0");
+  const totalSponsorFee = resourceFee + BASE_FEE * 2;
+
+  const feeBumpTx = TransactionBuilder.buildFeeBumpTransaction(
+    sponsorKeypair,
+    totalSponsorFee.toString(),
+    signedInnerTx,
+    NETWORK,
+  );
+
+  // 7. Sign and submit
+  feeBumpTx.sign(sponsorKeypair);
+  const response = await rpcServer.sendTransaction(feeBumpTx);
+
+  if (response.status !== "PENDING") {
+    throw new Error(`Transaction rejected by RPC: ${JSON.stringify(response)}`);
+  }
+
+  // 8. Poll for completion
+  const result = await rpcServer.pollTransaction(response.hash, {
+    sleepStrategy: StellarSdk.rpc.LinearSleepStrategy,
+    attempts: 30,
+  });
+
+  if (result.status !== "SUCCESS") {
+    throw new Error(`Transaction failed with status: ${result.status}`);
+  }
+
+  // 9. Extract return value
   let returnValue = null;
   if (result && result.resultMetaXdr) {
     try {
@@ -754,69 +763,4 @@ export async function submitSponsoredContractCall(
   }
 
   return { ...result, returnValue };
-}
-
-export async function submitSponsoredTransaction(txBuilder, userPublicKey) {
-  const rpcServer = getServer();
-  const NETWORK = getNetworkPassphrase();
-  const sponsorKeypair = getSponsorKeypair();
-
-  if (!sponsorKeypair) {
-    throw new Error("Sponsor keypair not configured.");
-  }
-
-  // 1. Build and Prepare the transaction
-  // This automatically handles fees and Soroban footprint
-  const builtTx = txBuilder.build();
-  const preparedTx = await rpcServer.prepareTransaction(builtTx);
-
-  // 2. Get user's signature via Freighter
-  // We sign the prepared transaction which has the correct fees and footprint
-  const signedXdr = await signTransaction(preparedTx.toXDR(), {
-    networkPassphrase: NETWORK,
-  });
-
-  if (signedXdr.error) {
-    const errorMsg = typeof signedXdr.error === "string" ? signedXdr.error : (signedXdr.error.message || JSON.stringify(signedXdr.error));
-    throw new Error(errorMsg);
-  }
-  if (!signedXdr.signedTxXdr) {
-    throw new Error("Freighter did not return a signed transaction.");
-  }
-
-  const signedInnerTx = TransactionBuilder.fromXDR(
-    signedXdr.signedTxXdr,
-    NETWORK,
-  );
-
-  // 3. Build fee-bump transaction
-  // The sponsor pays the fee for the entire transaction
-  const feeBumpTransaction = TransactionBuilder.buildFeeBumpTransaction(
-    sponsorKeypair,
-    BASE_FEE,
-    signedInnerTx,
-    NETWORK,
-  );
-
-  // 4. Sign with sponsor
-  feeBumpTransaction.sign(sponsorKeypair);
-
-  // 5. Submit
-  const response = await rpcServer.sendTransaction(feeBumpTransaction);
-
-  if (response.status !== "PENDING") {
-    throw new Error(`Transaction rejected by RPC: ${JSON.stringify(response)}`);
-  }
-
-  // 6. Poll for completion
-  const result = await rpcServer.pollTransaction(response.hash, {
-    sleepStrategy: StellarSdk.rpc.LinearSleepStrategy,
-    attempts: 30,
-  });
-
-  if (result.status !== "SUCCESS") {
-    throw new Error(`Transaction failed with status: ${result.status}`);
-  }
-
-  return result;
 }

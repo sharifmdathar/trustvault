@@ -275,6 +275,7 @@ export default function Page() {
                     key={vault.id}
                     vault={vault}
                     role="seller"
+                    onConfirm={handleConfirm}
                     onDispute={handleDispute}
                   />
                 ))}
