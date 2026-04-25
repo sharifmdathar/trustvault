@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "../Link";
 import { Menu, X } from "lucide-react";
+import ConnectWallet from "../ConnectWallet";
 
 export default function MobileNav() {
   const [isOpen, setIsOpen] = useState(false);
@@ -40,12 +41,7 @@ export default function MobileNav() {
               </Link>
             ))}
             <div className="px-6 py-4 border-t border-outline-variant mt-2 bg-surface-high/50">
-              <button className="w-full bg-teal-600 text-white px-4 py-4 rounded-xl font-bold text-sm shadow-lg shadow-teal-600/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
-                <span className="material-symbols-outlined text-sm">
-                  account_balance_wallet
-                </span>
-                Connect Wallet
-              </button>
+              <ConnectWallet className="w-full" />
             </div>
           </div>
         </div>

@@ -9,55 +9,69 @@ export default function VaultCard({ vault, role, onConfirm, onDispute }) {
   const canDispute = vault.status === "funded";
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 hover:shadow-lg transition-shadow">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+    <div className="bg-white rounded-2xl border border-slate-100 shadow-xl p-6 sm:p-8 hover:shadow-2xl transition-all group relative overflow-hidden">
+      <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+        <span className="material-symbols-outlined text-4xl">shield</span>
+      </div>
+      
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 relative z-10">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">
+          <h3 className="text-xl font-bold text-slate-900 mb-1">
             Vault #{vault.id?.slice(0, 8)}
           </h3>
-          <p className="text-sm text-gray-500 mt-1">
-            {isBuyer ? "Seller" : "Buyer"}: {counterparty?.slice(0, 6)}...
-            {counterparty?.slice(-4)}
+          <p className="text-xs font-medium text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 bg-slate-300 rounded-full"></span>
+            {isBuyer ? "Seller" : "Buyer"}: <span className="font-mono text-slate-600">{counterparty?.slice(0, 6)}...{counterparty?.slice(-4)}</span>
           </p>
         </div>
-        <StatusBadge status={vault.status} />
+        <StatusBadge status={vault.status} className="scale-110" />
       </div>
 
-      <div className="space-y-2 mb-4">
-        <p className="text-2xl font-bold text-gray-900">{vault.amount} XLM</p>
-        <p className="text-sm text-gray-600 line-clamp-2">
-          {vault.description}
+      <div className="space-y-4 mb-8 relative z-10">
+        <div className="flex items-baseline gap-2">
+          <span className="text-3xl font-extrabold text-teal-600">{vault.amount}</span>
+          <span className="text-sm font-bold text-slate-400 uppercase tracking-widest">XLM</span>
+        </div>
+        
+        <p className="text-sm text-slate-600 line-clamp-2 leading-relaxed bg-slate-50/50 p-4 rounded-xl border border-slate-50 italic">
+          "{vault.description || "No specific terms provided."}"
         </p>
-        <div className="flex flex-col sm:flex-row justify-between text-sm text-gray-500 gap-2">
-          <span>Created: {new Date(vault.createdAt).toLocaleDateString()}</span>
-          <span>Deadline: {new Date(vault.deadline).toLocaleDateString()}</span>
+
+        <div className="grid grid-cols-2 gap-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest pt-2">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-sm opacity-60">calendar_add_on</span>
+            {new Date(vault.createdAt).toLocaleDateString()}
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-sm opacity-60">event_busy</span>
+            {new Date(vault.deadline).toLocaleDateString()}
+          </div>
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-3">
-        <Link
-          href={`/vault/${vault.id}`}
-          className="flex-1 text-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
-          style={{ minHeight: "44px" }}
-        >
-          View Details
-        </Link>
-        {canConfirm && onConfirm && (
-          <button
-            onClick={() => onConfirm(vault.id)}
-            className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-            style={{ minHeight: "44px" }}
+      <div className="flex flex-col gap-3 relative z-10">
+        <div className="flex gap-3">
+          <Link
+            href={`/vault/${vault.id}`}
+            className="flex-1 text-center px-4 py-3 bg-slate-100 text-slate-700 rounded-xl font-bold text-sm hover:bg-slate-200 transition-all active:scale-[0.98]"
           >
-            Confirm Delivery
-          </button>
-        )}
+            View Details
+          </Link>
+          {canConfirm && onConfirm && (
+            <button
+              onClick={() => onConfirm(vault.id)}
+              className="flex-[1.5] px-4 py-3 bg-teal-600 text-white rounded-xl font-bold text-sm hover:bg-teal-700 transition-all shadow-lg shadow-teal-600/20 active:scale-[0.98]"
+            >
+              Confirm Delivery
+            </button>
+          )}
+        </div>
         {canDispute && onDispute && (
           <button
             onClick={() => onDispute(vault.id)}
-            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-            style={{ minHeight: "44px" }}
+            className="w-full px-4 py-3 bg-white border border-red-100 text-red-600 rounded-xl font-bold text-sm hover:bg-red-50 transition-all active:scale-[0.98]"
           >
-            Dispute
+            Open Dispute
           </button>
         )}
       </div>

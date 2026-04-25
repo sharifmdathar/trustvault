@@ -635,6 +635,18 @@ body.page-transition #page-content {
 .bg-red-100 {
   background-color: #fee2e2;
 }
+.bg-green-600 {
+  background-color: #16a34a;
+}
+.bg-emerald-600 {
+  background-color: #059669;
+}
+.bg-red-600 {
+  background-color: #dc2626;
+}
+.bg-amber-600 {
+  background-color: #d97706;
+}
 .bg-amber-50 {
   background-color: var(--color-surface-low);
 }
@@ -767,6 +779,15 @@ textarea {
 }
 .hover\:bg-red-700:hover {
   background-color: #b91c1c;
+}
+.hover\:bg-green-700:hover {
+  background-color: #15803d;
+}
+.hover\:bg-emerald-700:hover {
+  background-color: #047857;
+}
+.hover\:bg-amber-700:hover {
+  background-color: #b45309;
 }
 .hover\:text-blue-600:hover {
   color: #2563eb;

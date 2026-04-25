@@ -35,7 +35,7 @@ export default function VaultDetail({
   if (loading) return <LoadingSpinner fullScreen />;
 
   return (
-    <div className="max-w-4xl mx-auto py-12">
+    <div className="max-w-6xl mx-auto py-12 px-4">
       <div className="bg-white rounded-huge border border-slate-100 shadow-xl p-8 sm:p-10 mb-12 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative overflow-hidden">
         <div className="relative z-10">
           <div className="flex items-center gap-3 mb-4">
@@ -125,98 +125,6 @@ export default function VaultDetail({
             </div>
           </div>
 
-          {/* Description */}
-          <div className="bg-white rounded-huge border border-slate-100 shadow-xl p-8 sm:p-10">
-            <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
-              <span className="material-symbols-outlined text-slate-400">
-                subject
-              </span>
-              Agreement Terms
-            </h2>
-            <p className="text-slate-700 leading-relaxed bg-slate-50 p-6 rounded-2xl border border-slate-100 italic">
-              "
-              {vault?.description ||
-                "No specific terms provided for this escrow agreement."}
-              "
-            </p>
-          </div>
-
-          {/* Timeline */}
-          <div className="bg-white rounded-huge border border-slate-100 shadow-xl p-8 sm:p-10">
-            <h2 className="text-xl font-bold text-slate-900 mb-8 flex items-center gap-2">
-              <span className="material-symbols-outlined text-slate-400">
-                history
-              </span>
-              Transaction Lifecycle
-            </h2>
-            <div className="space-y-8 relative before:absolute before:left-4 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-100">
-              <div className="flex items-start relative z-10">
-                <div className="w-8 h-8 bg-teal-600 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0 shadow-lg shadow-teal-600/30">
-                  1
-                </div>
-                <div className="ml-6 flex-1 bg-slate-50 p-4 rounded-xl border border-slate-100">
-                  <p className="font-bold text-slate-900 text-sm">
-                    Vault Deployed
-                  </p>
-                  <p className="text-xs text-slate-500">
-                    {new Date(vault?.createdAt).toLocaleString()}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start relative z-10">
-                <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${vault?.status !== "pending" ? "bg-teal-600 text-white shadow-lg shadow-teal-600/30" : "bg-slate-100 text-slate-400"}`}
-                >
-                  2
-                </div>
-                <div
-                  className={`ml-6 flex-1 p-4 rounded-xl border ${vault?.status !== "pending" ? "bg-slate-50 border-slate-100" : "border-dashed border-slate-200"}`}
-                >
-                  <p
-                    className={`font-bold text-sm ${vault?.status !== "pending" ? "text-slate-900" : "text-slate-400"}`}
-                  >
-                    Capital Secured
-                  </p>
-                  {vault?.status !== "pending" ? (
-                    <p className="text-xs text-slate-500">
-                      Assets locked on Stellar Ledger
-                    </p>
-                  ) : (
-                    <p className="text-xs text-slate-400 italic">
-                      Awaiting deposit from buyer
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex items-start relative z-10">
-                <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${vault?.status === "confirmed" ? "bg-teal-600 text-white shadow-lg shadow-teal-600/30" : "bg-slate-100 text-slate-400"}`}
-                >
-                  3
-                </div>
-                <div
-                  className={`ml-6 flex-1 p-4 rounded-xl border ${vault?.status === "confirmed" ? "bg-slate-50 border-slate-100" : "border-dashed border-slate-200"}`}
-                >
-                  <p
-                    className={`font-bold text-sm ${vault?.status === "confirmed" ? "text-slate-900" : "text-slate-400"}`}
-                  >
-                    Settlement Finalized
-                  </p>
-                  {vault?.status === "confirmed" ? (
-                    <p className="text-xs text-slate-500">
-                      Funds released to seller account
-                    </p>
-                  ) : (
-                    <p className="text-xs text-slate-400 italic">
-                      Transaction in progress
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
 
         <div className="lg:col-span-1 space-y-8 h-fit lg:sticky lg:top-24">
@@ -248,7 +156,7 @@ export default function VaultDetail({
                     <button
                       onClick={() => handleAction("confirm", onConfirm)}
                       disabled={actionLoading}
-                      className="w-full bg-emerald-600 text-white px-6 py-4 rounded-xl font-bold text-lg hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20 active:scale-[0.98] disabled:opacity-50"
+                      className="w-full bg-teal-600 text-white px-6 py-4 rounded-xl font-bold text-lg hover:bg-teal-700 transition-all shadow-lg shadow-teal-600/20 active:scale-[0.98] disabled:opacity-50"
                     >
                       {actionLoading ? (
                         <LoadingSpinner size="sm" />
@@ -314,6 +222,77 @@ export default function VaultDetail({
               loading={loading}
             />
           )}
+
+          {/* Timeline */}
+          <div className="bg-white rounded-huge border border-slate-100 shadow-xl p-8">
+            <h2 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
+              <span className="material-symbols-outlined text-slate-400">
+                history
+              </span>
+              Lifecycle
+            </h2>
+            <div className="space-y-6 relative before:absolute before:left-3 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-100">
+              <div className="flex items-start relative z-10">
+                <div className="w-6 h-6 bg-teal-600 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0 shadow-lg shadow-teal-600/30">
+                  1
+                </div>
+                <div className="ml-4 flex-1">
+                  <p className="font-bold text-slate-900 text-xs">
+                    Vault Deployed
+                  </p>
+                  <p className="text-[10px] text-slate-500">
+                    {new Date(vault?.createdAt).toLocaleDateString()}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start relative z-10">
+                <div
+                  className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${vault?.status !== "pending" ? "bg-teal-600 text-white shadow-lg shadow-teal-600/30" : "bg-slate-100 text-slate-400"}`}
+                >
+                  2
+                </div>
+                <div className="ml-4 flex-1">
+                  <p
+                    className={`font-bold text-xs ${vault?.status !== "pending" ? "text-slate-900" : "text-slate-400"}`}
+                  >
+                    Capital Secured
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start relative z-10">
+                <div
+                  className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${vault?.status === "confirmed" ? "bg-teal-600 text-white shadow-lg shadow-teal-600/30" : "bg-slate-100 text-slate-400"}`}
+                >
+                  3
+                </div>
+                <div className="ml-4 flex-1">
+                  <p
+                    className={`font-bold text-xs ${vault?.status === "confirmed" ? "text-slate-900" : "text-slate-400"}`}
+                  >
+                    Finalized
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Description */}
+          <div className="bg-white rounded-huge border border-slate-100 shadow-xl p-8">
+            <h2 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+              <span className="material-symbols-outlined text-slate-400">
+                subject
+              </span>
+              Agreement Terms
+            </h2>
+            <p className="text-slate-700 text-sm leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100 italic">
+              "
+              {vault?.description ||
+                "No specific terms provided."}
+              "
+            </p>
+          </div>
 
           <div className="bg-teal-50 border border-teal-100 rounded-2xl p-6">
             <h4 className="text-teal-900 font-bold mb-2 flex items-center gap-2 text-sm">

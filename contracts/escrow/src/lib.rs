@@ -41,13 +41,20 @@ pub struct EscrowContract;
 #[contractimpl]
 impl EscrowContract {
     pub fn initialize(env: Env, arbitration_contract: Address, token_contract: Address) {
+        if token_contract == env.current_contract_address() {
+            panic!("Token contract cannot be the same as the escrow contract");
+        }
+
         env.storage()
             .instance()
             .set(&DataKey::ArbitrationContract, &arbitration_contract);
         env.storage()
             .instance()
             .set(&DataKey::TokenContract, &token_contract);
-        env.storage().instance().set(&DataKey::VaultCount, &0u64);
+
+        if !env.storage().instance().has(&DataKey::VaultCount) {
+            env.storage().instance().set(&DataKey::VaultCount, &0u64);
+        }
     }
 
     pub fn create_vault(
@@ -212,6 +219,20 @@ impl EscrowContract {
             .instance()
             .get(&DataKey::VaultCount)
             .unwrap_or(0)
+    }
+
+    pub fn get_token_contract(env: Env) -> Address {
+        env.storage()
+            .instance()
+            .get(&DataKey::TokenContract)
+            .expect("Token contract not initialized")
+    }
+
+    pub fn get_arbitration_contract(env: Env) -> Address {
+        env.storage()
+            .instance()
+            .get(&DataKey::ArbitrationContract)
+            .expect("Arbitration contract not initialized")
     }
 }
 

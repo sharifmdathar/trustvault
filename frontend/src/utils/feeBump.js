@@ -1,4 +1,4 @@
-import StellarSdk from "@stellar/stellar-sdk";
+import * as StellarSdk from "@stellar/stellar-sdk";
 
 const { BASE_FEE, Keypair, Networks, TransactionBuilder } = StellarSdk;
 

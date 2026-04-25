@@ -4,6 +4,7 @@ import MobileNav from "../components/ui/MobileNav";
 import ThemeToggle from "../components/ThemeToggle";
 import StellarSdk from "@stellar/stellar-sdk";
 import logoUrl from "../assets/logo.png";
+import ConnectWallet from "../components/ConnectWallet";
 import {
   setSponsorKeypair,
   checkSponsorBalance,
@@ -104,9 +105,7 @@ export default function LayoutDefault({
 
               <div className="flex items-center gap-4">
                 <ThemeToggle />
-                <button className="bg-primary-container text-white px-5 py-2 rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity shadow-sm">
-                  Connect Wallet
-                </button>
+                <ConnectWallet />
               </div>
             </div>
 

@@ -1,5 +1,5 @@
-import StellarSdk from "@stellar/stellar-sdk";
-import freighterApi from "@stellar/freighter-api";
+import * as StellarSdk from "@stellar/stellar-sdk";
+import * as freighterApiModule from "@stellar/freighter-api";
 
 const {
   Address,
@@ -10,8 +10,12 @@ const {
   nativeToScVal,
   scValToNative,
   rpc,
+  Horizon,
 } = StellarSdk;
 export { scValToNative };
+
+// Handle potential default export wrapping
+const freighterApi = freighterApiModule.default || freighterApiModule;
 const { getAddress, isConnected, requestAccess, signTransaction } =
   freighterApi;
 
@@ -286,20 +290,34 @@ function assertBrowser() {
 async function getConnectedAddress() {
   assertBrowser();
 
-  const connection = await isConnected();
-  if (!connection.isConnected) {
-    throw new Error("Freighter wallet is not installed or not connected");
+  try {
+    const connection = await isConnected();
+    console.log("Freighter connection status:", connection);
+    if (!connection || !connection.isConnected) {
+      throw new Error("Freighter wallet is not installed or not connected");
+    }
+
+    const access = await requestAccess();
+    console.log("Freighter access response:", access);
+    if (access.error) {
+      const errorMsg = typeof access.error === "string" ? access.error : (access.error.message || JSON.stringify(access.error));
+      throw new Error(errorMsg);
+    }
+    if (access.address) return access.address;
+
+    const currentAddress = await getAddress();
+    console.log("Freighter getAddress response:", currentAddress);
+    if (currentAddress.error) {
+      const errorMsg = typeof currentAddress.error === "string" ? currentAddress.error : (currentAddress.error.message || JSON.stringify(currentAddress.error));
+      throw new Error(errorMsg);
+    }
+    if (!currentAddress.address) throw new Error("No Freighter account selected");
+
+    return currentAddress.address;
+  } catch (error) {
+    console.error("Wallet connection error details:", error);
+    throw error;
   }
-
-  const access = await requestAccess();
-  if (access.error) throw new Error(access.error.message);
-  if (access.address) return access.address;
-
-  const currentAddress = await getAddress();
-  if (currentAddress.error) throw new Error(currentAddress.error.message);
-  if (!currentAddress.address) throw new Error("No Freighter account selected");
-
-  return currentAddress.address;
 }
 
 function buildReadTransaction(contractId, method, args = []) {
@@ -364,7 +382,10 @@ async function submitContractCall(
     networkPassphrase,
   });
 
-  if (signed.error) throw new Error(signed.error.message);
+  if (signed.error) {
+    const errorMsg = typeof signed.error === "string" ? signed.error : (signed.error.message || JSON.stringify(signed.error));
+    throw new Error(errorMsg);
+  }
   if (!signed.signedTxXdr)
     throw new Error("Freighter did not return a signed transaction.");
 
@@ -755,7 +776,10 @@ export async function submitSponsoredTransaction(txBuilder, userPublicKey) {
     networkPassphrase: NETWORK,
   });
 
-  if (signedXdr.error) throw new Error(signedXdr.error.message);
+  if (signedXdr.error) {
+    const errorMsg = typeof signedXdr.error === "string" ? signedXdr.error : (signedXdr.error.message || JSON.stringify(signedXdr.error));
+    throw new Error(errorMsg);
+  }
   if (!signedXdr.signedTxXdr) {
     throw new Error("Freighter did not return a signed transaction.");
   }

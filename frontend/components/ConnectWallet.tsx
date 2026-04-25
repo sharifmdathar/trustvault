@@ -35,9 +35,10 @@ export default function ConnectWallet({
       setAddress(publicKey);
       localStorage.setItem("walletAddress", publicKey);
       onConnect?.(publicKey);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to connect wallet:", error);
-      alert("Failed to connect wallet. Please ensure Freighter is installed.");
+      const message = error.message || "Unknown error";
+      alert(`Failed to connect wallet: ${message}\n\nPlease ensure Freighter is installed and unlocked.`);
     } finally {
       setIsConnecting(false);
     }

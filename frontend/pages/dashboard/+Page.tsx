@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import VaultCard from "../../components/vault/VaultCard";
 import ConnectWallet from "../../components/ConnectWallet";
+import { Link } from "../../components/Link";
 import { Vault } from "../../types";
 import {
   getUserVaults,

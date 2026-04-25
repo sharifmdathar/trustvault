@@ -93,7 +93,7 @@ export default function DisputePanel({
             <button
               onClick={() => handleVote("buyer")}
               disabled={voting}
-              className="px-4 py-3 bg-emerald-600 text-white rounded-xl font-bold text-sm hover:bg-emerald-700 transition-all active:scale-[0.98] disabled:opacity-50"
+              className="px-4 py-3 bg-teal-600 text-white rounded-xl font-bold text-sm hover:bg-teal-700 transition-all active:scale-[0.98] disabled:opacity-50"
             >
               {voting ? <LoadingSpinner size="sm" /> : "Buyer"}
             </button>
