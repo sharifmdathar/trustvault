@@ -1,40 +1,33 @@
 #![no_std]
-use soroban_sdk::{contract, contractimpl, contracttype, symbol_short, Address, Env, Vec};
+use soroban_sdk::{
+    contract, contractimpl, contracttype,
+    Address, Env, String, symbol_short,
+};
 
+#[derive(Clone, PartialEq, Debug)]
 #[contracttype]
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub struct ArbitrationDecision(u32);
-
-impl ArbitrationDecision {
-    pub const RELEASE_TO_BUYER: Self = Self(0);
-    pub const RELEASE_TO_SELLER: Self = Self(1);
-    pub const SPLIT_FIFTY_FIFTY: Self = Self(2);
-    pub const UNDECIDED: Self = Self(3);
-    
-    pub fn is_decided(&self) -> bool {
-        self.0 <= 2
-    }
+pub enum DisputeDecision {
+    ReleaseToBuyer,
+    ReleaseToSeller,
+    SplitFiftyFifty,
 }
 
+#[derive(Clone)]
 #[contracttype]
-#[derive(Clone, PartialEq, Eq, Debug)]
-pub struct ArbitrationCase {
+pub struct Resolution {
     pub vault_id: u64,
-    pub arbitrators: Vec<Address>,
-    pub votes_buyer: u32,
-    pub votes_seller: u32,
-    pub votes_split: u32,
-    pub total_votes: u32,
-    pub resolved: bool,
-    pub decision: ArbitrationDecision,
+    pub arbitrator: Address,
+    pub decision: DisputeDecision,
+    pub reason: String,
+    pub timestamp: u64,
 }
 
+#[derive(Clone)]
 #[contracttype]
-#[derive(Clone, PartialEq, Eq, Debug)]
 pub enum DataKey {
-    Case(u64),
-    Arbitrators,
-    EscrowContract,
+    Resolution(u64),
+    ResolutionCount,
+    Admin,
 }
 
 #[contract]
@@ -42,98 +35,70 @@ pub struct ArbitrationContract;
 
 #[contractimpl]
 impl ArbitrationContract {
-    pub fn initialize(env: Env, escrow_contract: Address, arbitrators: Vec<Address>) {
-        env.storage()
-            .instance()
-            .set(&DataKey::EscrowContract, &escrow_contract);
-        env.storage()
-            .instance()
-            .set(&DataKey::Arbitrators, &arbitrators);
+
+    pub fn initialize(env: Env, admin: Address) {
+        admin.require_auth();
+        env.storage().instance().set(&DataKey::Admin, &admin);
+        env.storage().instance().set(&DataKey::ResolutionCount, &0u64);
     }
 
-    pub fn open_case(env: Env, vault_id: u64, caller: Address) {
-        caller.require_auth();
-
-        let arbitrators: Vec<Address> =
-            env.storage().instance().get(&DataKey::Arbitrators).unwrap();
-
-        let case = ArbitrationCase {
-            vault_id,
-            arbitrators,
-            votes_buyer: 0,
-            votes_seller: 0,
-            votes_split: 0,
-            total_votes: 0,
-            resolved: false,
-            decision: ArbitrationDecision::UNDECIDED,
-        };
-
-        env.storage()
-            .instance()
-            .set(&DataKey::Case(vault_id), &case);
-
-        env.events()
-            .publish((symbol_short!("case"), caller), vault_id);
-    }
-
-    pub fn vote(env: Env, vault_id: u64, arbitrator: Address, decision: u32) {
+    /// Called by EscrowContract via inter-contract call
+    /// Validates and records the arbitrator's decision
+    pub fn resolve(
+        env: Env,
+        vault_id: u64,
+        arbitrator: Address,
+        expected_arbitrator: Address,
+        decision: DisputeDecision,
+        reason: String,
+    ) -> DisputeDecision {
         arbitrator.require_auth();
 
-        let mut case: ArbitrationCase = env
-            .storage()
-            .instance()
-            .get(&DataKey::Case(vault_id))
-            .expect("Case not found");
-
-        if case.resolved {
-            panic!("Case already resolved");
+        // Validate this is the correct arbitrator for the vault
+        if arbitrator != expected_arbitrator {
+            panic!("Not the assigned arbitrator for this vault");
         }
 
-        // Verify arbitrator is authorized
-        if !case.arbitrators.contains(&arbitrator) {
-            panic!("Not an authorized arbitrator");
-        }
+        // Record resolution
+        let resolution = Resolution {
+            vault_id,
+            arbitrator: arbitrator.clone(),
+            decision: decision.clone(),
+            reason,
+            timestamp: env.ledger().timestamp(),
+        };
 
-        // Record vote
-        match decision {
-            0 => case.votes_buyer += 1,
-            1 => case.votes_seller += 1,
-            2 => case.votes_split += 1,
-            _ => panic!("Invalid decision"),
-        }
-        case.total_votes += 1;
+        env.storage().instance().set(
+            &DataKey::Resolution(vault_id),
+            &resolution
+        );
 
-        // Check if majority reached (2 of 3)
-        let majority = case.arbitrators.len() / 2 + 1;
+        // Update count
+        let mut count: u64 = env.storage().instance()
+            .get(&DataKey::ResolutionCount).unwrap_or(0);
+        count += 1;
+        env.storage().instance().set(&DataKey::ResolutionCount, &count);
 
-        if case.votes_buyer >= majority as u32 {
-            case.resolved = true;
-            case.decision = ArbitrationDecision::RELEASE_TO_BUYER;
-        } else if case.votes_seller >= majority as u32 {
-            case.resolved = true;
-            case.decision = ArbitrationDecision::RELEASE_TO_SELLER;
-        } else if case.votes_split >= majority as u32 {
-            case.resolved = true;
-            case.decision = ArbitrationDecision::SPLIT_FIFTY_FIFTY;
-        }
+        // Emit event
+        env.events().publish(
+            (symbol_short!("resolved"),),
+            (vault_id, arbitrator, decision.clone())
+        );
 
-        env.storage()
-            .instance()
-            .set(&DataKey::Case(vault_id), &case);
-
-        if case.resolved {
-            env.events().publish(
-                (symbol_short!("resolved"), arbitrator),
-                (vault_id, case.total_votes),
-            );
-        }
+        // Return decision to EscrowContract
+        decision
     }
 
-    pub fn get_case(env: Env, vault_id: u64) -> ArbitrationCase {
-        env.storage()
-            .instance()
-            .get(&DataKey::Case(vault_id))
-            .expect("Case not found")
+    /// Get resolution details for a vault
+    pub fn get_resolution(env: Env, vault_id: u64) -> Option<Resolution> {
+        env.storage().instance()
+            .get(&DataKey::Resolution(vault_id))
+    }
+
+    /// Get total resolutions count
+    pub fn get_resolution_count(env: Env) -> u64 {
+        env.storage().instance()
+            .get(&DataKey::ResolutionCount).unwrap_or(0)
     }
 }
 

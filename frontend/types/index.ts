@@ -2,6 +2,7 @@ export interface Vault {
   id: string;
   buyer: string;
   seller: string;
+  arbitrator: string;
   amount: string;
   description: string;
   status:

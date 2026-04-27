@@ -8,6 +8,7 @@ export default function CreateVault({ onSubmit }) {
     amount: "",
     description: "",
     deadline: "7",
+    arbitrator: "",
   });
   const [loading, setLoading] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
@@ -39,11 +40,11 @@ export default function CreateVault({ onSubmit }) {
     <div className="max-w-3xl mx-auto">
       {!showPreview ? (
         <form
-          className="bg-white rounded-huge border border-slate-100 shadow-xl p-8 sm:p-12 space-y-8"
+          className="bg-surface-high rounded-huge border border-outline-variant shadow-xl p-8 sm:p-12 space-y-8"
           onSubmit={(e) => e.preventDefault()}
         >
           <div className="flex items-center gap-4 mb-8">
-            <div className="w-12 h-12 bg-teal-50 text-teal-600 rounded-2xl flex items-center justify-center">
+            <div className="w-12 h-12 bg-primary/10 text-primary rounded-2xl flex items-center justify-center">
               <span className="material-symbols-outlined text-2xl">
                 add_box
               </span>
@@ -81,7 +82,7 @@ export default function CreateVault({ onSubmit }) {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-tight">
+                <label className="block text-sm font-bold text-on-surface-variant mb-2 uppercase tracking-tight opacity-60">
                   Amount (XLM) *
                 </label>
                 <div className="relative">
@@ -94,7 +95,7 @@ export default function CreateVault({ onSubmit }) {
                     value={formData.amount}
                     onChange={handleInputChange}
                     placeholder="100"
-                    className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all text-slate-900"
+                    className="w-full pl-12 pr-4 py-4 bg-surface-low border border-outline-variant rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-on-surface"
                     required
                   />
                 </div>
@@ -115,7 +116,27 @@ export default function CreateVault({ onSubmit }) {
                     onChange={handleInputChange}
                     min="1"
                     max="30"
-                    className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all text-slate-900"
+                    className="w-full pl-12 pr-4 py-4 bg-surface-low border border-outline-variant rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-on-surface"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-on-surface-variant mb-2 uppercase tracking-tight opacity-60">
+                  Arbitrator Address *
+                </label>
+                <div className="relative">
+                  <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm opacity-40">
+                    gavel
+                  </span>
+                  <input
+                    type="text"
+                    name="arbitrator"
+                    value={formData.arbitrator}
+                    onChange={handleInputChange}
+                    placeholder="G..."
+                    className="w-full pl-12 pr-4 py-4 bg-surface-low border border-outline-variant rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-on-surface"
                     required
                   />
                 </div>
@@ -132,7 +153,7 @@ export default function CreateVault({ onSubmit }) {
                 onChange={handleInputChange}
                 rows={4}
                 placeholder="Describe the goods or services..."
-                className="w-full px-4 py-4 bg-slate-50 border border-slate-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all text-slate-900"
+                className="w-full px-4 py-4 bg-surface-low border border-outline-variant rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-on-surface"
                 required
               />
             </div>
@@ -143,9 +164,9 @@ export default function CreateVault({ onSubmit }) {
               type="button"
               onClick={() => setShowPreview(true)}
               disabled={
-                !formData.seller || !formData.amount || !formData.description
+                !formData.seller || !formData.amount || !formData.description || !formData.arbitrator
               }
-              className="flex-1 bg-teal-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-teal-700 transition-all shadow-lg shadow-teal-600/20 active:scale-[0.98] disabled:opacity-50 disabled:shadow-none disabled:active:scale-100"
+              className="flex-1 bg-primary text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-primary-dark transition-all shadow-lg shadow-primary/20 active:scale-[0.98] disabled:opacity-50 disabled:shadow-none disabled:active:scale-100"
             >
               Preview Vault
             </button>
@@ -159,55 +180,63 @@ export default function CreateVault({ onSubmit }) {
           </div>
         </form>
       ) : (
-        <div className="bg-white rounded-huge border border-slate-100 shadow-xl p-8 sm:p-12">
+        <div className="bg-surface-high rounded-huge border border-outline-variant shadow-xl p-8 sm:p-12">
           <div className="flex items-center gap-4 mb-8">
-            <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600">
+            <div className="w-12 h-12 bg-amber-500/10 rounded-2xl flex items-center justify-center text-amber-500">
               <span className="material-symbols-outlined text-2xl">
                 visibility
               </span>
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-slate-900">
+              <h2 className="text-2xl font-bold text-on-surface">
                 Review & Confirm
               </h2>
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-on-surface-variant opacity-60">
                 Please verify the escrow details before deployment.
               </p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-6 mb-10 bg-slate-50 p-8 rounded-2xl border border-slate-100">
+          <div className="grid grid-cols-1 gap-6 mb-10 bg-surface-low p-8 rounded-2xl border border-outline-variant">
             <div>
-              <p className="text-[10px] uppercase font-bold text-slate-400 mb-1 tracking-wider">
+              <p className="text-[10px] uppercase font-bold text-on-surface-variant mb-1 tracking-wider opacity-60">
                 Seller Address
               </p>
-              <p className="font-mono text-sm break-all text-slate-900 font-medium">
+              <p className="font-mono text-sm break-all text-on-surface font-medium">
                 {formData.seller}
+              </p>
+            </div>
+            <div>
+              <p className="text-[10px] uppercase font-bold text-on-surface-variant mb-1 tracking-wider opacity-60">
+                Arbitrator Address
+              </p>
+              <p className="font-mono text-sm break-all text-on-surface font-medium">
+                {formData.arbitrator}
               </p>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-[10px] uppercase font-bold text-slate-400 mb-1 tracking-wider">
+                <p className="text-[10px] uppercase font-bold text-on-surface-variant mb-1 tracking-wider opacity-60">
                   Locked Amount
                 </p>
-                <p className="text-2xl font-bold text-teal-600">
+                <p className="text-2xl font-bold text-primary">
                   {formData.amount} XLM
                 </p>
               </div>
               <div>
-                <p className="text-[10px] uppercase font-bold text-slate-400 mb-1 tracking-wider">
+                <p className="text-[10px] uppercase font-bold text-on-surface-variant mb-1 tracking-wider opacity-60">
                   Time Horizon
                 </p>
-                <p className="text-lg font-bold text-slate-900">
+                <p className="text-lg font-bold text-on-surface">
                   {formData.deadline} Days
                 </p>
               </div>
             </div>
             <div>
-              <p className="text-[10px] uppercase font-bold text-slate-400 mb-1 tracking-wider">
+              <p className="text-[10px] uppercase font-bold text-on-surface-variant mb-1 tracking-wider opacity-60">
                 Escrow Description
               </p>
-              <p className="text-slate-700 leading-relaxed">
+              <p className="text-on-surface-variant leading-relaxed italic">
                 {formData.description}
               </p>
             </div>
@@ -216,13 +245,13 @@ export default function CreateVault({ onSubmit }) {
           <div className="flex flex-col sm:flex-row gap-4">
             <button
               onClick={handleSubmit}
-              className="flex-1 bg-teal-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-teal-700 transition-all shadow-lg shadow-teal-600/20 active:scale-[0.98]"
+              className="flex-1 bg-primary text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-primary-dark transition-all shadow-lg shadow-primary/20 active:scale-[0.98]"
             >
               Confirm & Create
             </button>
             <button
               onClick={() => setShowPreview(false)}
-              className="px-8 py-4 bg-white border border-slate-200 text-slate-600 rounded-xl font-bold text-lg hover:bg-slate-50 transition-all active:scale-[0.98]"
+              className="px-8 py-4 bg-surface-high border border-outline-variant text-on-surface-variant rounded-xl font-bold text-lg hover:bg-surface-low transition-all active:scale-[0.98]"
             >
               Edit Details
             </button>

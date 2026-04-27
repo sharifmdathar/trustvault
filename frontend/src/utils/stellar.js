@@ -24,6 +24,18 @@ const VAULT_METADATA_KEY = "trustvault:vault-metadata";
 const READONLY_SOURCE_ACCOUNT =
   "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF";
 const STROOPS_PER_XLM = 10_000_000n;
+// Native XLM Stellar Asset Contract on Testnet
+// Compute with: new StellarSdk.Asset.native().contractId(Networks.TESTNET)
+export const NATIVE_XLM_CONTRACT_TESTNET = "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC";
+// Will be overridden per-env via helper below
+export function getNativeTokenAddress() {
+  const fromEnv = typeof import.meta !== "undefined" && import.meta.env?.VITE_NATIVE_TOKEN_ADDRESS;
+  return fromEnv || (
+    getNetworkPassphrase() === Networks.PUBLIC
+      ? StellarSdk.Asset.native().contractId(Networks.PUBLIC)
+      : StellarSdk.Asset.native().contractId(Networks.TESTNET)
+  );
+}
 const MAX_RPC_POLL_ATTEMPTS = 30;
 const RPC_POLL_INTERVAL_MS = 1_000;
 const ENV = {
@@ -162,10 +174,19 @@ function addressArg(address) {
   if (address.includes("friendbot") || address.includes("http")) {
     throw new Error(`Invalid address - looks like a URL: ${address}`);
   }
-  if (!address.startsWith("G")) {
-    throw new Error(`Invalid Stellar address - must start with G: ${address}`);
+  // Accept both G... (Stellar account) and C... (Soroban contract) addresses
+  if (!address.startsWith("G") && !address.startsWith("C")) {
+    throw new Error(`Invalid address - must start with G or C: ${address}`);
   }
   return new Address(address).toScVal();
+}
+
+function enumArg(variantName) {
+  // Soroban Rust contracttype enums without data are encoded as
+  // ScVec([ScvSymbol("VariantName")])
+  return StellarSdk.xdr.ScVal.scvVec(
+    [StellarSdk.xdr.ScVal.scvSymbol(variantName)]
+  );
 }
 
 function numberArg(value, type) {
@@ -253,6 +274,7 @@ function nativeVaultToUiVault(nativeVault) {
     id,
     buyer: String(nativeVault.buyer),
     seller: String(nativeVault.seller),
+    arbitrator: String(nativeVault.arbitrator),
     amount: contractAmountToXlm(nativeVault.amount),
     description: metadata.description || String(nativeVault.description || ""),
     status: mapVaultStatus(nativeVault.status),
@@ -268,13 +290,11 @@ function nativeCaseToUiCase(nativeCase, vaultId) {
 
   return {
     vaultId: String(nativeCase.vault_id ?? vaultId),
-    arbitrators: (nativeCase.arbitrators || []).map(String),
-    votesBuyer: toNumber(nativeCase.votes_buyer),
-    votesSeller: toNumber(nativeCase.votes_seller),
-    votesSplit: toNumber(nativeCase.votes_split),
-    totalVotes: toNumber(nativeCase.total_votes),
-    resolved: Boolean(nativeCase.resolved),
+    arbitrator: String(nativeCase.arbitrator),
     decision: mapDecision(nativeCase.decision),
+    reason: String(nativeCase.reason || ""),
+    timestamp: new Date(toNumber(nativeCase.timestamp) * 1000).toISOString(),
+    resolved: true,
   };
 }
 
@@ -368,8 +388,19 @@ export async function createVault(
   amount,
   description,
   deadlineDays,
+  arbitratorAddress,
 ) {
-  const normalizedDescription = normalizeDescriptionSymbol(description);
+  // Frontend validation to give clear errors instead of VM traps
+  if (buyerAddress === sellerAddress) {
+    throw new Error("Buyer and seller cannot be the same address.");
+  }
+  if (arbitratorAddress === buyerAddress) {
+    throw new Error("Arbitrator cannot be the same as the buyer.");
+  }
+  if (arbitratorAddress === sellerAddress) {
+    throw new Error("Arbitrator cannot be the same as the seller.");
+  }
+
   const rawAmount = xlmToContractAmount(amount);
 
   // Use sponsored transaction
@@ -379,8 +410,9 @@ export async function createVault(
     [
       addressArg(buyerAddress),
       addressArg(sellerAddress),
+      addressArg(arbitratorAddress),
       numberArg(rawAmount, "i128"),
-      symbolArg(normalizedDescription),
+      nativeToScVal(description, { type: "string" }),
       numberArg(BigInt(deadlineDays), "u64"),
     ],
   );
@@ -404,11 +436,15 @@ export async function createVault(
   return vaultId;
 }
 
-export async function depositToVault(vaultId, buyerAddress) {
+export async function depositToVault(vaultId, buyerAddress, tokenAddress) {
   await submitSponsoredContractCall(
     requireContractId("VITE_ESCROW_CONTRACT_ID"),
     "deposit",
-    [numberArg(BigInt(vaultId), "u64"), addressArg(buyerAddress)],
+    [
+      numberArg(BigInt(vaultId), "u64"),
+      addressArg(buyerAddress),
+      addressArg(tokenAddress),
+    ],
   );
 
   const vault = await getVault(vaultId);
@@ -423,11 +459,15 @@ export async function depositToVault(vaultId, buyerAddress) {
   return true;
 }
 
-export async function confirmVault(vaultId, callerAddress) {
+export async function confirmVault(vaultId, callerAddress, tokenAddress) {
   await submitSponsoredContractCall(
     requireContractId("VITE_ESCROW_CONTRACT_ID"),
     "confirm",
-    [numberArg(BigInt(vaultId), "u64"), addressArg(callerAddress)],
+    [
+      numberArg(BigInt(vaultId), "u64"),
+      addressArg(callerAddress),
+      addressArg(tokenAddress),
+    ],
   );
 
   const vault = await getVault(vaultId);
@@ -442,28 +482,60 @@ export async function confirmVault(vaultId, callerAddress) {
   return true;
 }
 
-export async function flagDispute(vaultId, callerAddress) {
+export async function flagDispute(vaultId, callerAddress, reason) {
   await submitSponsoredContractCall(
     requireContractId("VITE_ESCROW_CONTRACT_ID"),
     "flag_dispute",
-    [numberArg(BigInt(vaultId), "u64"), addressArg(callerAddress)],
+    [
+      numberArg(BigInt(vaultId), "u64"),
+      addressArg(callerAddress),
+      nativeToScVal(reason || "No reason provided", { type: "string" }),
+    ],
   );
-
-  const arbitrationContractId = getOptionalContractId(
-    "VITE_ARBITRATION_CONTRACT_ID",
-  );
-  if (arbitrationContractId) {
-    await submitSponsoredContractCall(
-      arbitrationContractId,
-      "open_case",
-      [numberArg(BigInt(vaultId), "u64"), addressArg(callerAddress)],
-    );
-  }
 
   recordTransaction({
     type: "dispute",
     vaultId,
     from: callerAddress,
+  });
+
+  return true;
+}
+
+export async function resolveDispute(
+  vaultId,
+  arbitratorAddress,
+  decision,
+  reason,
+  tokenAddress,
+) {
+  // Map decision to contract enum
+  const decisionMap = {
+    buyer: "ReleaseToBuyer",
+    seller: "ReleaseToSeller",
+    split: "SplitFiftyFifty",
+  };
+
+  const decisionKey = decisionMap[decision] || "SplitFiftyFifty";
+
+  // Contract signature: resolve_dispute(vault_id, arbitrator, decision, reason, token)
+  await submitSponsoredContractCall(
+    requireContractId("VITE_ESCROW_CONTRACT_ID"),
+    "resolve_dispute",
+    [
+      numberArg(BigInt(vaultId), "u64"),
+      addressArg(arbitratorAddress),
+      enumArg(decisionKey),
+      nativeToScVal(reason || "Dispute resolved by arbitrator", { type: "string" }),
+      addressArg(tokenAddress || getNativeTokenAddress()),
+    ],
+  );
+
+  recordTransaction({
+    type: "resolve",
+    vaultId,
+    from: arbitratorAddress,
+    decision,
   });
 
   return true;
@@ -484,6 +556,7 @@ export async function getVault(vaultId) {
       "get_vault",
       [numberArg(vaultIdBigInt, "u64")],
     );
+    if (!nativeVault) return null;
     return nativeVaultToUiVault(nativeVault);
   } catch (error) {
     console.error("Error getting vault:", error);
@@ -552,7 +625,7 @@ export async function getArbitrationCase(vaultId) {
   }
 
   try {
-    const nativeCase = await readContract(arbitrationContractId, "get_case", [
+    const nativeCase = await readContract(arbitrationContractId, "get_resolution", [
       numberArg(BigInt(String(vaultId)), "u64"),
     ]);
     return nativeCaseToUiCase(nativeCase, vaultId);

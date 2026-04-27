@@ -1,6 +1,6 @@
 #![cfg(test)]
 use super::*;
-use soroban_sdk::{symbol_short, testutils::Address as _, token::StellarAssetClient, Address, Env};
+use soroban_sdk::{symbol_short, testutils::Address as _, token::StellarAssetClient, Address, Env, String};
 
 #[test]
 fn test_create_vault() {
@@ -24,7 +24,7 @@ fn test_create_vault() {
 
     client.initialize(&arbitration, &token_address);
 
-    let vault_id = client.create_vault(&buyer, &seller, &1000i128, &symbol_short!("laptop"), &7u64);
+    let vault_id = client.create_vault(&buyer, &seller, &arbitration, &1000i128, &String::from_str(&env, "laptop"), &7u64);
 
     assert_eq!(vault_id, 1);
 
@@ -58,21 +58,21 @@ fn test_vault_confirmation_flow() {
     client.initialize(&arbitration, &token_address);
 
     let vault_id =
-        client.create_vault(&buyer, &seller, &1000i128, &symbol_short!("service"), &7u64);
+        client.create_vault(&buyer, &seller, &arbitration, &1000i128, &String::from_str(&env, "service"), &7u64);
 
     // Simulate deposit - now the token transfer will work
-    client.deposit(&vault_id, &buyer);
+    client.deposit(&vault_id, &buyer, &token_address);
     let vault = client.get_vault(&vault_id);
     assert_eq!(vault.status, VaultStatus::Active);
 
     // Buyer confirms
-    client.confirm(&vault_id, &buyer);
+    client.confirm(&vault_id, &buyer, &token_address);
     let vault = client.get_vault(&vault_id);
     assert!(vault.buyer_confirmed);
     assert!(!vault.seller_confirmed);
 
     // Seller confirms → auto-release
-    client.confirm(&vault_id, &seller);
+    client.confirm(&vault_id, &seller, &token_address);
     let vault = client.get_vault(&vault_id);
     assert_eq!(vault.status, VaultStatus::Confirmed);
 }
@@ -99,10 +99,10 @@ fn test_dispute_flagging() {
 
     client.initialize(&arbitration, &token_address);
 
-    let vault_id = client.create_vault(&buyer, &seller, &1000i128, &symbol_short!("item"), &7u64);
+    let vault_id = client.create_vault(&buyer, &seller, &arbitration, &1000i128, &String::from_str(&env, "item"), &7u64);
 
-    client.deposit(&vault_id, &buyer);
-    client.flag_dispute(&vault_id, &buyer);
+    client.deposit(&vault_id, &buyer, &token_address);
+    client.flag_dispute(&vault_id, &buyer, &String::from_str(&env, "reason"));
 
     let vault = client.get_vault(&vault_id);
     assert_eq!(vault.status, VaultStatus::Disputed);
@@ -131,8 +131,8 @@ fn test_invalid_dispute_on_pending() {
 
     client.initialize(&arbitration, &token_address);
 
-    let vault_id = client.create_vault(&buyer, &seller, &1000i128, &symbol_short!("item"), &7u64);
+    let vault_id = client.create_vault(&buyer, &seller, &arbitration, &1000i128, &String::from_str(&env, "item"), &7u64);
 
     // This should panic because vault is still Pending
-    client.flag_dispute(&vault_id, &buyer);
+    client.flag_dispute(&vault_id, &buyer, &String::from_str(&env, "reason"));
 }

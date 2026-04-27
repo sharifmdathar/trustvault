@@ -17,8 +17,8 @@ export default function VaultDetail({
 }) {
   const [actionLoading, setActionLoading] = useState(false);
 
-  const isBuyer = address === vault?.buyer;
-  const isSeller = address === vault?.seller;
+  const isBuyer = address?.toUpperCase() === vault?.buyer?.toUpperCase();
+  const isSeller = address?.toUpperCase() === vault?.seller?.toUpperCase();
   const canDeposit = vault?.status === "pending" && isBuyer;
   const canConfirm = vault?.status === "funded" && isBuyer;
   const canDispute = vault?.status === "funded";
@@ -36,10 +36,10 @@ export default function VaultDetail({
 
   return (
     <div className="max-w-6xl mx-auto py-12 px-4">
-      <div className="bg-white rounded-huge border border-slate-100 shadow-xl p-8 sm:p-10 mb-12 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative overflow-hidden">
+      <div className="bg-surface-high rounded-huge border border-outline-variant shadow-xl p-8 sm:p-10 mb-12 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative overflow-hidden">
         <div className="relative z-10">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 bg-teal-50 text-teal-600 rounded-2xl flex items-center justify-center shadow-sm">
+            <div className="w-12 h-12 bg-primary/10 text-primary rounded-2xl flex items-center justify-center shadow-sm">
               <span className="material-symbols-outlined text-2xl">
                 shield_lock
               </span>
@@ -79,7 +79,7 @@ export default function VaultDetail({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-8">
           {/* Main Info Card */}
-          <div className="bg-white rounded-huge border border-slate-100 shadow-xl p-8 sm:p-10">
+          <div className="bg-surface-high rounded-huge border border-outline-variant shadow-xl p-8 sm:p-10">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-10 mb-10">
               <div>
                 <p className="text-[10px] uppercase font-bold text-on-surface-variant mb-2 tracking-wider opacity-60">
@@ -105,7 +105,7 @@ export default function VaultDetail({
               </div>
             </div>
 
-            <div className="space-y-6 pt-10 border-t border-slate-50">
+            <div className="space-y-6 pt-10 border-t border-outline-variant">
               <div className="flex items-center justify-between">
                 <CopyableAddress
                   address={vault?.buyer}
@@ -122,6 +122,14 @@ export default function VaultDetail({
                   endChars={6}
                 />
               </div>
+              <div className="flex items-center justify-between">
+                <CopyableAddress
+                  address={vault?.arbitrator}
+                  label="Assigned Arbitrator"
+                  startChars={8}
+                  endChars={6}
+                />
+              </div>
             </div>
           </div>
 
@@ -130,9 +138,9 @@ export default function VaultDetail({
         <div className="lg:col-span-1 space-y-8 h-fit lg:sticky lg:top-24">
           {/* Actions Card */}
           {canDeposit || canConfirm || canDispute ? (
-            <div className="bg-white rounded-huge border border-slate-100 shadow-2xl p-8 sm:p-10 relative overflow-hidden">
+            <div className="bg-surface-high rounded-huge border border-outline-variant shadow-2xl p-8 sm:p-10 relative overflow-hidden">
               <div className="relative z-10">
-                <h2 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                <h2 className="text-xl font-bold text-on-surface mb-6 flex items-center gap-2">
                   <span className="material-symbols-outlined text-teal-600">
                     bolt
                   </span>
@@ -180,7 +188,7 @@ export default function VaultDetail({
                   )}
                 </div>
                 {txStatus?.status && (
-                  <div className="mt-6 p-4 bg-slate-50 rounded-xl border border-slate-100">
+                  <div className="mt-6 p-4 bg-surface-low rounded-xl border border-outline-variant">
                     <TransactionStatus
                       status={txStatus.status}
                       hash={txStatus.hash}
@@ -189,58 +197,54 @@ export default function VaultDetail({
                   </div>
                 )}
               </div>
-              <div className="absolute -right-10 -bottom-10 opacity-5">
-                <span className="material-symbols-outlined text-[12rem]">
-                  flash_on
-                </span>
-              </div>
             </div>
           ) : (
-            <div className="bg-slate-900 text-white rounded-huge p-8 sm:p-10 shadow-xl">
-              <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                <span className="material-symbols-outlined text-teal-400">
+            <div className="bg-surface-high rounded-huge p-8 sm:p-10 border border-outline-variant shadow-xl">
+              <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-on-surface">
+                <span className="material-symbols-outlined text-primary">
                   verified
                 </span>
                 Governance Active
               </h3>
-              <p className="text-slate-400 text-sm leading-relaxed mb-6">
+              <p className="text-on-surface-variant text-sm leading-relaxed mb-6">
                 This vault is currently being managed by the protocol logic. No
                 manual actions are available at this stage.
               </p>
-              <div className="p-4 bg-white/5 rounded-xl border border-white/10 text-xs font-mono text-teal-400 truncate">
+              <div className="p-4 bg-surface-low rounded-xl border border-outline-variant text-xs font-mono text-primary truncate">
                 Status: {vault?.status?.toUpperCase()}
               </div>
             </div>
           )}
 
           {/* Dispute Info */}
-          {vault?.status === "disputed" && vault?.arbitration && (
+          {vault?.status === "disputed" && (
             <DisputePanel
               arbitration={vault.arbitration}
               onVote={onArbitrationVote}
-              isArbitrator={vault.arbitration?.arbitrators?.includes(address)}
+              isArbitrator={address?.toUpperCase() === vault.arbitrator?.toUpperCase()}
               loading={loading}
+              fallbackArbitrator={vault.arbitrator}
             />
           )}
 
           {/* Timeline */}
-          <div className="bg-white rounded-huge border border-slate-100 shadow-xl p-8">
-            <h2 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
+          <div className="bg-surface-high rounded-huge border border-outline-variant shadow-xl p-8">
+            <h2 className="text-lg font-bold text-on-surface mb-6 flex items-center gap-2">
               <span className="material-symbols-outlined text-slate-400">
                 history
               </span>
               Lifecycle
             </h2>
-            <div className="space-y-6 relative before:absolute before:left-3 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-100">
+            <div className="space-y-6 relative before:absolute before:left-3 before:top-2 before:bottom-2 before:w-0.5 before:bg-outline">
               <div className="flex items-start relative z-10">
                 <div className="w-6 h-6 bg-teal-600 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0 shadow-lg shadow-teal-600/30">
                   1
                 </div>
                 <div className="ml-4 flex-1">
-                  <p className="font-bold text-slate-900 text-xs">
+                  <p className="font-bold text-on-surface text-xs">
                     Vault Deployed
                   </p>
-                  <p className="text-[10px] text-slate-500">
+                  <p className="text-[10px] text-on-surface-variant">
                     {new Date(vault?.createdAt).toLocaleDateString()}
                   </p>
                 </div>
@@ -248,13 +252,13 @@ export default function VaultDetail({
 
               <div className="flex items-start relative z-10">
                 <div
-                  className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${vault?.status !== "pending" ? "bg-teal-600 text-white shadow-lg shadow-teal-600/30" : "bg-slate-100 text-slate-400"}`}
+                  className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${vault?.status !== "pending" ? "bg-teal-600 text-white shadow-lg shadow-teal-600/30" : "bg-surface-low text-on-surface-variant"}`}
                 >
                   2
                 </div>
                 <div className="ml-4 flex-1">
                   <p
-                    className={`font-bold text-xs ${vault?.status !== "pending" ? "text-slate-900" : "text-slate-400"}`}
+                    className={`font-bold text-xs ${vault?.status !== "pending" ? "text-on-surface" : "text-on-surface-variant"}`}
                   >
                     Capital Secured
                   </p>
@@ -263,13 +267,13 @@ export default function VaultDetail({
 
               <div className="flex items-start relative z-10">
                 <div
-                  className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${vault?.status === "confirmed" ? "bg-teal-600 text-white shadow-lg shadow-teal-600/30" : "bg-slate-100 text-slate-400"}`}
+                  className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${vault?.status === "confirmed" ? "bg-teal-600 text-white shadow-lg shadow-teal-600/30" : "bg-surface-low text-on-surface-variant"}`}
                 >
                   3
                 </div>
                 <div className="ml-4 flex-1">
                   <p
-                    className={`font-bold text-xs ${vault?.status === "confirmed" ? "text-slate-900" : "text-slate-400"}`}
+                    className={`font-bold text-xs ${vault?.status === "confirmed" ? "text-on-surface" : "text-on-surface-variant"}`}
                   >
                     Finalized
                   </p>
@@ -279,14 +283,14 @@ export default function VaultDetail({
           </div>
 
           {/* Description */}
-          <div className="bg-white rounded-huge border border-slate-100 shadow-xl p-8">
-            <h2 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+          <div className="bg-surface-high rounded-huge border border-outline-variant shadow-xl p-8">
+            <h2 className="text-lg font-bold text-on-surface mb-4 flex items-center gap-2">
               <span className="material-symbols-outlined text-slate-400">
                 subject
               </span>
               Agreement Terms
             </h2>
-            <p className="text-slate-700 text-sm leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100 italic">
+            <p className="text-on-surface-variant text-sm leading-relaxed bg-surface-low p-4 rounded-xl border border-outline italic">
               "
               {vault?.description ||
                 "No specific terms provided."}
@@ -294,12 +298,12 @@ export default function VaultDetail({
             </p>
           </div>
 
-          <div className="bg-teal-50 border border-teal-100 rounded-2xl p-6">
-            <h4 className="text-teal-900 font-bold mb-2 flex items-center gap-2 text-sm">
+          <div className="bg-primary/10 border border-primary/20 rounded-2xl p-6">
+            <h4 className="text-primary font-bold mb-2 flex items-center gap-2 text-sm">
               <span className="material-symbols-outlined text-sm">info</span>
               Security Protocol
             </h4>
-            <p className="text-teal-700 text-[10px] leading-relaxed">
+            <p className="text-on-surface-variant text-[10px] leading-relaxed">
               Once funds are released, they cannot be clawed back by TrustVault.
               Ensure the delivery is verified before confirming.
             </p>

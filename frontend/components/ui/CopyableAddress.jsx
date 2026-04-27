@@ -46,21 +46,20 @@ export default function CopyableAddress({
 
   return (
     <div className="w-full">
-      <label className="text-sm text-gray-500">{label}</label>
+      <label className="text-sm text-on-surface-variant opacity-80">{label}</label>
       <div className="flex items-center gap-2 mt-1">
-        <code className="text-sm bg-gray-50 px-2 py-1 rounded flex-1 break-all">
+        <code className="text-sm bg-surface-low border border-outline-variant px-3 py-3 rounded-xl flex-1 break-all text-on-surface font-mono">
           {truncatedAddress}
         </code>
         <button
           onClick={handleCopy}
-          className="p-2 hover:bg-gray-100 rounded transition-colors flex-shrink-0"
+          className="p-3 bg-surface-low hover:bg-surface-high border border-outline-variant rounded-xl transition-all flex-shrink-0 active:scale-95"
           title="Copy full address"
-          style={{ minWidth: "44px", minHeight: "44px" }}
         >
           {copied ? (
-            <Check size={18} className="text-green-600" />
+            <Check size={18} className="text-primary" />
           ) : (
-            <Copy size={18} className="text-gray-500" />
+            <Copy size={18} className="text-on-surface-variant" />
           )}
         </button>
       </div>

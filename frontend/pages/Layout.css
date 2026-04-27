@@ -384,6 +384,18 @@ body.page-transition #page-content {
 .mt-4 {
   margin-top: 1rem;
 }
+.mt-6 {
+  margin-top: 1.5rem;
+}
+.mt-8 {
+  margin-top: 2rem;
+}
+.mt-10 {
+  margin-top: 2.5rem;
+}
+.mt-12 {
+  margin-top: 3rem;
+}
 .mb-2 {
   margin-bottom: 0.5rem;
 }
@@ -464,6 +476,15 @@ body.page-transition #page-content {
 }
 .space-y-6 > :not([hidden]) ~ :not([hidden]) {
   margin-top: 1.5rem;
+}
+.space-y-8 > :not([hidden]) ~ :not([hidden]) {
+  margin-top: 2rem;
+}
+.space-y-10 > :not([hidden]) ~ :not([hidden]) {
+  margin-top: 2.5rem;
+}
+.space-y-12 > :not([hidden]) ~ :not([hidden]) {
+  margin-top: 3rem;
 }
 
 /* Typography */
@@ -806,6 +827,25 @@ textarea {
     0 10px 15px -3px rgba(15, 23, 42, 0.1),
     0 4px 6px -4px rgba(15, 23, 42, 0.1);
 }
+.hover\:bg-teal-700:hover {
+  background-color: var(--color-primary-dark);
+}
+.hover\:bg-primary-dark:hover {
+  background-color: var(--color-primary-dark);
+}
+.hover\:bg-surface-high:hover {
+  background-color: var(--color-surface-high);
+}
+.hover\:bg-surface-low:hover {
+  background-color: var(--color-surface-low);
+}
+.bg-surface { background-color: var(--color-surface); }
+.bg-surface-low { background-color: var(--color-surface-low); }
+.bg-surface-high { background-color: var(--color-surface-high); }
+.text-on-surface { color: var(--color-on-surface); }
+.text-on-surface-variant { color: var(--color-on-surface-variant); }
+.border-outline { border-color: var(--color-outline); }
+.border-outline-variant { border-color: var(--color-outline-variant); }
 
 @media (min-width: 640px) {
   .sm\:px-6 {
@@ -874,4 +914,14 @@ textarea {
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #64748b;
+}
+
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.break-all {
+  word-break: break-all;
 }

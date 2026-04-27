@@ -8,6 +8,8 @@ import {
   depositToVault,
   confirmVault,
   flagDispute,
+  resolveDispute,
+  getNativeTokenAddress,
 } from "../../../src/utils/stellar.js";
 import { Vault } from "../../../types";
 
@@ -49,7 +51,7 @@ export default function VaultDetailPage() {
       alert("Please connect your wallet");
       return;
     }
-    await depositToVault(vaultId!, address);
+    await depositToVault(vaultId!, address, getNativeTokenAddress());
     await loadVaultData();
     alert("Deposit successful!");
   };
@@ -59,7 +61,7 @@ export default function VaultDetailPage() {
       alert("Please connect your wallet");
       return;
     }
-    await confirmVault(vaultId!, address);
+    await confirmVault(vaultId!, address, getNativeTokenAddress());
     await loadVaultData();
     alert("Vault confirmed! Funds released to seller.");
   };
@@ -79,14 +81,33 @@ export default function VaultDetailPage() {
     alert("Dispute filed! Arbitration process started.");
   };
 
+  const handleArbitrationVote = async (decision) => {
+    if (!address) {
+      alert("Please connect your wallet");
+      return;
+    }
+    const reason = prompt("Enter a reason for your decision:");
+    if (reason === null) return;
+
+    await resolveDispute(
+      vaultId!,
+      address,
+      getNativeTokenAddress(),
+      decision,
+      reason,
+    );
+    await loadVaultData();
+    alert("Resolution submitted successfully!");
+  };
+
   if (!vault && !loading) {
     return (
-      <div className="min-h-screen bg-gray-50 py-12">
+      <div className="min-h-screen bg-surface py-12">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">
+          <h1 className="text-2xl font-bold text-on-surface mb-4">
             Vault Not Found
           </h1>
-          <p className="text-gray-600">
+          <p className="text-on-surface-variant">
             The vault you're looking for doesn't exist.
           </p>
         </div>
@@ -95,10 +116,10 @@ export default function VaultDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-surface">
       {!address && (
-        <div className="bg-yellow-50 border border-yellow-200 p-4 text-center">
-          <p className="text-gray-700 mb-3">
+        <div className="bg-surface-low border border-outline p-4 text-center">
+          <p className="text-on-surface-variant mb-3">
             Connect your wallet to interact with this vault
           </p>
           <ConnectWallet onConnect={setAddress} />
@@ -110,6 +131,7 @@ export default function VaultDetailPage() {
         onDeposit={handleDeposit}
         onConfirm={handleConfirm}
         onDispute={handleDispute}
+        onArbitrationVote={handleArbitrationVote}
         loading={loading}
       />
     </div>

@@ -53,15 +53,15 @@ export default function ConnectWallet({
   if (address) {
     return (
       <div className={`flex items-center gap-4 ${className}`}>
-        <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 border border-slate-100 rounded-lg">
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-surface-low border border-outline-variant rounded-lg">
           <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-          <span className="text-xs font-bold text-slate-600 font-mono">
+          <span className="text-xs font-bold text-on-surface-variant font-mono">
             {address.slice(0, 6)}...{address.slice(-4)}
           </span>
         </div>
         <button
           onClick={handleDisconnect}
-          className="text-xs font-bold text-slate-400 hover:text-red-500 transition-colors uppercase tracking-tight"
+          className="text-xs font-bold text-on-surface-variant hover:text-red-500 transition-colors uppercase tracking-tight opacity-60"
         >
           Disconnect
         </button>
@@ -73,7 +73,7 @@ export default function ConnectWallet({
     <button
       onClick={handleConnect}
       disabled={isConnecting}
-      className={`px-8 py-3 bg-teal-600 text-white rounded-xl font-bold hover:bg-teal-700 transition-all shadow-lg shadow-teal-600/20 active:scale-[0.98] disabled:opacity-50 disabled:shadow-none ${className}`}
+      className={`px-8 py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary-dark transition-all shadow-lg shadow-primary/20 active:scale-[0.98] disabled:opacity-50 disabled:shadow-none ${className}`}
     >
       <div className="flex items-center justify-center gap-2">
         {isConnecting ? (

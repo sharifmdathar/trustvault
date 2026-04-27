@@ -65,24 +65,24 @@ export default function Page() {
     return (
       <div className="min-h-screen bg-surface py-20 px-4">
         <div className="max-w-xl mx-auto text-center space-y-8">
-          <div className="w-20 h-20 bg-teal-50 rounded-2xl flex items-center justify-center text-teal-600 mx-auto shadow-sm">
+          <div className="w-20 h-20 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mx-auto shadow-sm">
             <span className="material-symbols-outlined text-4xl">
               lock_person
             </span>
           </div>
           <div>
-            <h1 className="text-4xl font-bold text-slate-900 mb-4 tracking-tight">
+            <h1 className="text-4xl font-bold text-on-surface mb-4 tracking-tight">
               Access Your Dashboard
             </h1>
-            <p className="text-slate-500 text-lg">
+            <p className="text-on-surface-variant text-lg">
               Securely connect your Stellar wallet to manage your escrow vaults
               and track active transactions.
             </p>
           </div>
-          <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-xl">
+          <div className="bg-surface-high p-8 rounded-[2rem] border border-outline-variant shadow-xl">
             <ConnectWallet onConnect={setAddress} />
           </div>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-on-surface-variant/50">
             By connecting, you agree to our Terms of Service and Privacy Policy.
           </p>
         </div>
@@ -103,10 +103,10 @@ export default function Page() {
       {/* Welcome & Summary Section */}
       <section>
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-slate-900 mb-2 tracking-tight">
+          <h1 className="text-4xl font-bold text-on-surface mb-2 tracking-tight">
             Portfolio Overview
           </h1>
-          <p className="text-slate-500">
+          <p className="text-on-surface-variant">
             Real-time performance of your escrow assets on the Stellar network.
           </p>
         </div>
@@ -114,9 +114,9 @@ export default function Page() {
         {/* Summary Cards Bento Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* TVL Card */}
-          <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm group hover:border-teal-600/30 transition-all">
+          <div className="bg-surface-high p-8 rounded-2xl border border-outline-variant shadow-sm group hover:border-primary/30 transition-all">
             <div className="flex justify-between items-start mb-6">
-              <div className="p-3 bg-teal-50 text-teal-600 rounded-xl">
+              <div className="p-3 bg-primary/10 text-primary rounded-xl">
                 <span className="material-symbols-outlined">
                   account_balance_wallet
                 </span>
@@ -140,9 +140,9 @@ export default function Page() {
           </div>
 
           {/* Active Vaults Card */}
-          <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm group hover:border-teal-600/30 transition-all">
+          <div className="bg-surface-high p-8 rounded-2xl border border-outline-variant shadow-sm group hover:border-primary/30 transition-all">
             <div className="flex justify-between items-start mb-6">
-              <div className="p-3 bg-blue-50 text-teal-600 rounded-xl">
+              <div className="p-3 bg-surface-low text-primary rounded-xl">
                 <span className="material-symbols-outlined">shield_lock</span>
               </div>
               <span className="text-on-surface-variant text-xs font-medium opacity-60">
@@ -164,14 +164,14 @@ export default function Page() {
           </div>
 
           {/* Connected Account Card */}
-          <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm group hover:border-teal-600/30 transition-all">
+          <div className="bg-surface-high p-8 rounded-2xl border border-outline-variant shadow-sm group hover:border-primary/30 transition-all min-w-0">
             <div className="flex justify-between items-start mb-6">
               <div className="p-3 bg-surface-low text-on-surface-variant rounded-xl">
                 <span className="material-symbols-outlined">
                   account_circle
                 </span>
               </div>
-              <span className="text-teal-600 text-xs font-bold">
+              <span className="text-primary text-xs font-bold">
                 Stellar Network
               </span>
             </div>
@@ -200,29 +200,29 @@ export default function Page() {
           {/* Buyer Vaults */}
           <section className="space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-slate-900">
+              <h2 className="text-2xl font-bold text-on-surface">
                 Your Escrows (Buyer)
               </h2>
-              <div className="px-3 py-1 bg-slate-100 text-slate-600 text-xs font-bold rounded-full uppercase tracking-tight">
+              <div className="px-3 py-1 bg-surface-low text-on-surface-variant text-xs font-bold rounded-full uppercase tracking-tight">
                 {buyerVaults.length} Total
               </div>
             </div>
             {buyerVaults.length === 0 ? (
-              <div className="bg-white border border-slate-100 border-dashed rounded-2xl p-12 text-center">
-                <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center text-slate-300 mx-auto mb-4">
+              <div className="bg-surface-high border border-outline border-dashed rounded-2xl p-12 text-center">
+                <div className="w-16 h-16 bg-surface-low rounded-full flex items-center justify-center text-on-surface-variant/30 mx-auto mb-4">
                   <span className="material-symbols-outlined text-3xl">
                     shopping_cart
                   </span>
                 </div>
-                <h3 className="text-slate-900 font-bold mb-1">
+                <h3 className="text-on-surface font-bold mb-1">
                   No active purchases
                 </h3>
-                <p className="text-slate-500 text-sm mb-6">
+                <p className="text-on-surface-variant text-sm mb-6">
                   Create a new vault to start a secure transaction.
                 </p>
                 <Link
                   href="/create"
-                  className="inline-flex items-center gap-2 bg-teal-600 text-white px-6 py-3 rounded-xl font-bold text-sm shadow-lg shadow-teal-600/20 hover:bg-teal-700 transition-all"
+                  className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-xl font-bold text-sm shadow-lg shadow-primary/20 hover:bg-primary-dark transition-all"
                 >
                   <span className="material-symbols-outlined text-sm">add</span>
                   Create New Vault
@@ -246,24 +246,24 @@ export default function Page() {
           {/* Seller Vaults */}
           <section className="space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-slate-900">
+              <h2 className="text-2xl font-bold text-on-surface">
                 Your Sales (Seller)
               </h2>
-              <div className="px-3 py-1 bg-slate-100 text-slate-600 text-xs font-bold rounded-full uppercase tracking-tight">
+              <div className="px-3 py-1 bg-surface-low text-on-surface-variant text-xs font-bold rounded-full uppercase tracking-tight">
                 {sellerVaults.length} Total
               </div>
             </div>
             {sellerVaults.length === 0 ? (
-              <div className="bg-white border border-slate-100 border-dashed rounded-2xl p-12 text-center">
-                <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center text-slate-300 mx-auto mb-4">
+              <div className="bg-surface-high border border-outline border-dashed rounded-2xl p-12 text-center">
+                <div className="w-16 h-16 bg-surface-low rounded-full flex items-center justify-center text-on-surface-variant/30 mx-auto mb-4">
                   <span className="material-symbols-outlined text-3xl">
                     storefront
                   </span>
                 </div>
-                <h3 className="text-slate-900 font-bold mb-1">
+                <h3 className="text-on-surface font-bold mb-1">
                   No active sales
                 </h3>
-                <p className="text-slate-500 text-sm">
+                <p className="text-on-surface-variant text-sm">
                   Provide your wallet address to buyers to receive escrowed
                   funds.
                 </p>
