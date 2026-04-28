@@ -72,7 +72,7 @@ export default function MetricsPage() {
             Real-time network visibility and escrow efficiency metrics.
           </p>
         </div>
-        <div className="flex items-center gap-3 px-4 py-2 bg-surface-low rounded-xl border border-outline-variant shadow-sm">
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-surface-low rounded-xl border border-outline-variant shadow-sm self-start">
           <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
           <span className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">
             Last update: <span className="font-mono">{secondsAgo}s</span> ago

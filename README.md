@@ -8,12 +8,16 @@ TrustVault is a secure, decentralized escrow platform built on the Stellar netwo
 
 ---
 
-## 🚀 Live Demo | Demo Video | Contract Addresses
+## Demo Video
+[![Demo Video Youtube Link](https://markdown-videos-api.jorgenkh.no/youtube/GgBaDCy7JLM?width=1024&height=576&filetype=jpeg)](https://youtu.be/GgBaDCy7JLM)
+
+## 🚀 Live Demo 
 
 - **Live Demo**: [trustvault-ten.vercel.app](https://trustvault-ten.vercel.app/)
-- **Demo Video**: _Coming Soon_
-- **Escrow Contract**: `CARKHHAAGQI2DOYNMMCOYAYH3MOITIZSNMT46FQVFPMDT2FFRPHRMLDC`
-- **Arbitration Contract**: `CCZ3EPR7F3V6H5JF46XZ4TVQPFNQBE4WTT22EIMOQBLSQNLXVDP3WF2C`
+
+## Contact Addresses
+- **Escrow Contract**: `CAMPH4OVQKQWBBGA4F5VOL6UZJZMKXXGORRBJGWS4DHJRYBGRFKOXRNG`
+- **Arbitration Contract**: `CAZLZGITOGMTNO7WAAESD5WQUBPRFVZPVT7LLFEAJGUWHYHA2EO3U2F2`
 
 ---
 
@@ -108,17 +112,44 @@ See the full [User Guide](USER_GUIDE.md) for more details.
 - [x] Error messages don't expose internals
 - [x] All contract calls have error handling
 
+> **Artifact note:** The checklist above is the canonical security audit artifact for this project. It covers smart contract authorization, input validation, frontend key hygiene, and operational safeguards.
+
 ---
 
 ## 📱 Mobile Screenshot
 
-_Coming Soon_
+![Mobile View](docs/screenshots/mobile-view.png)
+---
+
+## 🔍 Monitoring & Observability
+
+TrustVault contract interactions and platform health can be monitored through Stellar's public infrastructure and optional self-hosted dashboards.
+
+- **Stellar Expert**: View on-chain transactions, contract invocations, and account activity in real time.
+- **Soroban RPC Logs**: Monitor contract call success/failure rates via the Soroban RPC endpoint.
+- **Application Logs**: The fee sponsor service logs all sponsored transactions with timestamps and status codes.
+
+![Monitoring Screenshot](docs/screenshots/monitoring.png)
 
 ---
 
-## 📊 Metrics Dashboard Screenshot
+## 📊 Metrics Dashboard
 
-_Coming Soon_
+[Metrics Dashboard Link](https://trustvault-ten.vercel.app/metrics)
+
+![Metrics Dashboard](docs/screenshots/metrics-dashboard.png)
+
+---
+
+## 🗂 Data Indexing
+
+TrustVault aggregates on-chain escrow data within the application to power the frontend dashboard and provide fast lookups.
+
+- **Vault Index**: Created vaults are tracked by ID, status (active / completed / disputed), and participant addresses.
+- **Transaction History**: Deposits, confirmations, and dispute events are recorded with timestamps for audit trails.
+- **Arbitration Records**: Case outcomes and voting history are stored for transparency and dispute analytics.
+
+Data is sourced from Soroban contract events and Stellar Horizon queries at read time — no external indexer is required.
 
 ---
 
@@ -129,6 +160,19 @@ TrustVault leverages Stellar's **Fee Bump Transactions** to provide a "gasless" 
 - A dedicated **Sponsor Account** covers the network fees for all contract interactions.
 - Users only need to sign the inner transaction; the platform wraps it in a fee-bump signed by the sponsor.
 - This removes the friction of maintaining XLM for gas, making the platform accessible to all.
+
+---
+
+## ⚙️ Advanced Features
+
+TrustVault goes beyond basic escrow with production-grade capabilities:
+
+| Feature | Description |
+|---|---|
+| **Fee Sponsorship** | Gasless UX via Stellar fee-bump transactions (see section above) |
+| **Multi-Party Arbitration** | Dispute resolution through authorized arbitrator voting |
+| **Deadline Enforcement** | Smart-contract-level timeout logic prevents funds from being locked indefinitely |
+| **Dual Confirmation Release** | Funds release only after both buyer and seller confirm |
 
 ---
 
@@ -168,6 +212,39 @@ TrustVault leverages Stellar's **Fee Bump Transactions** to provide a "gasless" 
     ```bash
     cd contracts/escrow && stellar contract build
     ```
+
+---
+
+## 👥 User Feedback
+
+**Onboarding Form:** [Respond Here](https://forms.gle/f6gUTLBtoPWkk3yX9)
+
+---
+
+## 🤝 Community & Contributions
+
+Contributions are welcome. To get started:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/your-feature`)
+3. Commit your changes and open a Pull Request
+
+- **Issue Tracker:** [GitHub Issues](https://github.com/sharifmdathar/trustvault/issues)
+- **Community Contribution (Twitter/X):** [TrustVault event post](https://x.com/the_md_athar/status/2049089335048409238)
+
+
+## 🚀 Next-Phase Improvement Plan
+
+Planned improvements for upcoming development cycles:
+
+| Priority | Improvement | Status |
+|---|---|---|
+| High | Mainnet deployment with production sponsor account | Planned |
+| High | Formal smart contract audit by third-party firm | Planned |
+| Medium | Multi-token escrow support (USDC, custom assets) | Planned |
+| Medium | Mobile-responsive UI overhaul | Planned |
+| Low | Notification system (email/webhook on vault events) | Backlog |
+| Low | Escrow templates for recurring agreements | Backlog |
 
 ---
 

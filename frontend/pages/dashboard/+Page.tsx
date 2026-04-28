@@ -1,19 +1,32 @@
 import React, { useState, useEffect } from "react";
 import VaultCard from "../../components/vault/VaultCard";
 import ConnectWallet from "../../components/ConnectWallet";
+import StatusBanner from "../../components/StatusBanner";
 import { Link } from "../../components/Link";
 import { Vault } from "../../types";
 import {
   getUserVaults,
   confirmVault,
   flagDispute,
+  getVault,
+  getNativeTokenAddress,
 } from "../../src/utils/stellar.js";
+
+type NotifType = "success" | "error" | "warning" | "info";
+interface Notification {
+  type: NotifType;
+  message: string;
+}
 
 export default function Page() {
   const [address, setAddress] = useState<string>("");
   const [buyerVaults, setBuyerVaults] = useState<Vault[]>([]);
   const [sellerVaults, setSellerVaults] = useState<Vault[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const [notification, setNotification] = useState<Notification | null>(null);
+  // Tracks which vault's dispute is awaiting confirmation (replaces `confirm()`)
+  const [disputePending, setDisputePending] = useState<string | null>(null);
 
   useEffect(() => {
     if (address) {
@@ -34,30 +47,43 @@ export default function Page() {
     }
   };
 
+  const notify = (type: NotifType, message: string) => {
+    setNotification({ type, message });
+  };
+
   const handleConfirm = async (vaultId: string) => {
     try {
-      await confirmVault(vaultId, address);
+      await confirmVault(vaultId, address, getNativeTokenAddress());
       await loadVaults();
-      alert("Vault confirmed! Funds released to seller.");
-    } catch (error) {
+      const fresh = await getVault(vaultId);
+      notify(
+        "success",
+        fresh?.status === "confirmed"
+          ? "Both parties confirmed. Funds released to seller."
+          : "Confirmation recorded. Waiting for the other party to confirm.",
+      );
+    } catch (error: any) {
       console.error("Error confirming vault:", error);
-      alert("Failed to confirm vault. Please try again.");
+      notify("error", error?.message || "Failed to confirm vault. Please try again.");
     }
   };
 
-  const handleDispute = async (vaultId: string) => {
-    const confirmed = confirm(
-      "Are you sure you want to dispute this transaction?",
-    );
-    if (!confirmed) return;
+  const handleDispute = (vaultId: string) => {
+    setDisputePending(vaultId);
+    setNotification(null);
+  };
 
+  const handleDisputeConfirmed = async () => {
+    if (!disputePending) return;
+    const vaultId = disputePending;
+    setDisputePending(null);
     try {
       await flagDispute(vaultId, address);
       await loadVaults();
-      alert("Dispute filed! Arbitration process started.");
-    } catch (error) {
+      notify("success", "Dispute filed! Arbitration process started.");
+    } catch (error: any) {
       console.error("Error filing dispute:", error);
-      alert("Failed to file dispute. Please try again.");
+      notify("error", error?.message || "Failed to file dispute. Please try again.");
     }
   };
 
@@ -79,7 +105,7 @@ export default function Page() {
               and track active transactions.
             </p>
           </div>
-          <div className="bg-surface-high p-8 rounded-[2rem] border border-outline-variant shadow-xl">
+          <div className="bg-surface-high p-8 rounded-huge border border-outline-variant shadow-xl">
             <ConnectWallet onConnect={setAddress} />
           </div>
           <p className="text-xs text-on-surface-variant/50">
@@ -110,6 +136,27 @@ export default function Page() {
             Real-time performance of your escrow assets on the Stellar network.
           </p>
         </div>
+
+        {/* Inline notifications — replaces browser alert/confirm popups */}
+        {notification && (
+          <StatusBanner
+            type={notification.type}
+            message={notification.message}
+            onDismiss={() => setNotification(null)}
+          />
+        )}
+
+        {disputePending && (
+          <StatusBanner
+            type="warning"
+            message="Are you sure you want to dispute this transaction? This will trigger arbitration."
+            onDismiss={() => setDisputePending(null)}
+            actions={[
+              { label: "Proceed with Dispute", onClick: handleDisputeConfirmed, primary: true },
+              { label: "Cancel", onClick: () => setDisputePending(null) },
+            ]}
+          />
+        )}
 
         {/* Summary Cards Bento Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -222,7 +269,7 @@ export default function Page() {
                 </p>
                 <Link
                   href="/create"
-                  className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-xl font-bold text-sm shadow-lg shadow-primary/20 hover:bg-primary-dark transition-all"
+                  className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-xl font-bold text-sm shadow-lg hover:bg-primary-dark transition-all"
                 >
                   <span className="material-symbols-outlined text-sm">add</span>
                   Create New Vault

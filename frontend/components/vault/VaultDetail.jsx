@@ -20,7 +20,10 @@ export default function VaultDetail({
   const isBuyer = address?.toUpperCase() === vault?.buyer?.toUpperCase();
   const isSeller = address?.toUpperCase() === vault?.seller?.toUpperCase();
   const canDeposit = vault?.status === "pending" && isBuyer;
-  const canConfirm = vault?.status === "funded" && isBuyer;
+  const canConfirm =
+    vault?.status === "funded" &&
+    ((isBuyer && !vault?.buyerConfirmed) ||
+      (isSeller && !vault?.sellerConfirmed));
   const canDispute = vault?.status === "funded";
 
   const handleAction = async (action, handler) => {
@@ -217,7 +220,7 @@ export default function VaultDetail({
           )}
 
           {/* Dispute Info */}
-          {vault?.status === "disputed" && (
+          {(vault?.status === "disputed" || vault?.status === "resolved") && (
             <DisputePanel
               arbitration={vault.arbitration}
               onVote={onArbitrationVote}
@@ -267,15 +270,15 @@ export default function VaultDetail({
 
               <div className="flex items-start relative z-10">
                 <div
-                  className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${vault?.status === "confirmed" ? "bg-teal-600 text-white shadow-lg shadow-teal-600/30" : "bg-surface-low text-on-surface-variant"}`}
+                  className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${vault?.status === "confirmed" || vault?.status === "resolved" ? "bg-teal-600 text-white shadow-lg shadow-teal-600/30" : "bg-surface-low text-on-surface-variant"}`}
                 >
                   3
                 </div>
                 <div className="ml-4 flex-1">
                   <p
-                    className={`font-bold text-xs ${vault?.status === "confirmed" ? "text-on-surface" : "text-on-surface-variant"}`}
+                    className={`font-bold text-xs ${vault?.status === "confirmed" || vault?.status === "resolved" ? "text-on-surface" : "text-on-surface-variant"}`}
                   >
-                    Finalized
+                    {vault?.status === "resolved" ? "Resolved via Arbitration" : "Finalized"}
                   </p>
                 </div>
               </div>

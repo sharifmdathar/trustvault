@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { connectWallet } from "../src/utils/stellar.js";
+import StatusBanner from "./StatusBanner";
 
 interface ConnectWalletProps {
   onConnect?: (address: string) => void;
@@ -12,6 +13,7 @@ export default function ConnectWallet({
 }: ConnectWalletProps) {
   const [address, setAddress] = useState<string | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
+  const [connectError, setConnectError] = useState<string | null>(null);
 
   useEffect(() => {
     const checkConnection = async () => {
@@ -30,6 +32,7 @@ export default function ConnectWallet({
 
   const handleConnect = async () => {
     setIsConnecting(true);
+    setConnectError(null);
     try {
       const publicKey = await connectWallet();
       setAddress(publicKey);
@@ -38,7 +41,9 @@ export default function ConnectWallet({
     } catch (error: any) {
       console.error("Failed to connect wallet:", error);
       const message = error.message || "Unknown error";
-      alert(`Failed to connect wallet: ${message}\n\nPlease ensure Freighter is installed and unlocked.`);
+      setConnectError(
+        `Failed to connect wallet: ${message}. Please ensure Freighter is installed and unlocked.`,
+      );
     } finally {
       setIsConnecting(false);
     }
@@ -70,26 +75,35 @@ export default function ConnectWallet({
   }
 
   return (
-    <button
-      onClick={handleConnect}
-      disabled={isConnecting}
-      className={`px-8 py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary-dark transition-all shadow-lg shadow-primary/20 active:scale-[0.98] disabled:opacity-50 disabled:shadow-none ${className}`}
-    >
-      <div className="flex items-center justify-center gap-2">
-        {isConnecting ? (
-          <>
-            <span className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
-            <span>Securing...</span>
-          </>
-        ) : (
-          <>
-            <span className="material-symbols-outlined text-sm">
-              account_balance_wallet
-            </span>
-            <span>Connect Wallet</span>
-          </>
-        )}
-      </div>
-    </button>
+    <div className={className}>
+      {connectError && (
+        <StatusBanner
+          type="error"
+          message={connectError}
+          onDismiss={() => setConnectError(null)}
+        />
+      )}
+      <button
+        onClick={handleConnect}
+        disabled={isConnecting}
+        className="px-8 py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary-dark transition-all shadow-lg active:scale-[0.98] disabled:opacity-50 disabled:shadow-none"
+      >
+        <div className="flex items-center justify-center gap-2">
+          {isConnecting ? (
+            <>
+              <span className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
+              <span>Securing...</span>
+            </>
+          ) : (
+            <>
+              <span className="material-symbols-outlined text-sm">
+                account_balance_wallet
+              </span>
+              <span>Connect Wallet</span>
+            </>
+          )}
+        </div>
+      </button>
+    </div>
   );
 }

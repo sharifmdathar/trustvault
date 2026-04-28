@@ -241,6 +241,7 @@ function mapVaultStatus(status) {
     active: "funded",
     confirmed: "confirmed",
     disputed: "disputed",
+    resolved: "resolved",
     cancelled: "cancelled",
     expired: "expired",
   };

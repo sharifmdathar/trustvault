@@ -58,11 +58,11 @@ export default function DisputePanel({
           </div>
 
           {isArbitrator && (
-            <div className="bg-slate-900 rounded-[1.5rem] p-8 text-white mt-8">
-              <h3 className="text-lg font-bold mb-6 uppercase tracking-widest text-teal-400">
+            <div className="bg-surface-low rounded-[1.5rem] p-8 text-on-surface mt-8 border border-outline-variant">
+              <h3 className="text-lg font-bold mb-6 uppercase tracking-widest text-primary">
                 Submit Official Verdict
               </h3>
-              <p className="text-slate-400 text-xs mb-8 leading-relaxed">
+              <p className="text-on-surface-variant text-xs mb-8 leading-relaxed">
                 As the assigned arbitrator, you must choose one of the following
                 settlement options. This action is final and will execute the
                 asset transfer on-chain.

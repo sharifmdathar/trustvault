@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { navigate } from "vike/client/router";
 import LoadingSpinner from "../ui/LoadingSpinner";
+import StatusBanner from "../StatusBanner";
 
-export default function CreateVault({ onSubmit }) {
+export default function CreateVault({ onSubmit, buyerAddress }) {
   const [formData, setFormData] = useState({
     seller: "",
     amount: "",
@@ -12,12 +13,29 @@ export default function CreateVault({ onSubmit }) {
   });
   const [loading, setLoading] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [formError, setFormError] = useState(null);
 
   const handleInputChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
+  };
+
+  const handlePreview = () => {
+    const seller = formData.seller.trim();
+    const arbitrator = formData.arbitrator.trim();
+    const buyer = (buyerAddress || "").trim();
+    if (seller && arbitrator && seller === arbitrator) {
+      setFormError("Seller and arbitrator cannot be the same address.");
+      return;
+    }
+    if (buyer && arbitrator && buyer === arbitrator) {
+      setFormError("Buyer and arbitrator cannot be the same address.");
+      return;
+    }
+    setFormError(null);
+    setShowPreview(true);
   };
 
   const handleSubmit = async () => {
@@ -158,11 +176,19 @@ export default function CreateVault({ onSubmit }) {
               />
             </div>
           </div>
+          {formError && (
+            <StatusBanner
+              type="error"
+              message={formError}
+              onDismiss={() => setFormError(null)}
+              autoDismiss={0}
+            />
+          )}
 
           <div className="flex flex-col sm:flex-row gap-4 pt-6">
             <button
               type="button"
-              onClick={() => setShowPreview(true)}
+              onClick={handlePreview}
               disabled={
                 !formData.seller || !formData.amount || !formData.description || !formData.arbitrator
               }
