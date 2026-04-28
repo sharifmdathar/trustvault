@@ -210,7 +210,8 @@ TrustVault goes beyond basic escrow with production-grade capabilities:
     ```
 5.  **Build Contracts** (Optional):
     ```bash
-    cd contracts/escrow && stellar contract build
+    cd contracts/arbitration && stellar contract build
+    cd ../escrow && stellar contract build
     ```
 
 ---
