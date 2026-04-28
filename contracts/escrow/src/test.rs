@@ -1,13 +1,13 @@
 #![cfg(test)]
 use super::*;
-use soroban_sdk::{symbol_short, testutils::Address as _, token::StellarAssetClient, Address, Env, String};
+use soroban_sdk::{testutils::Address as _, token::StellarAssetClient, Address, Env, String};
 
 #[test]
 fn test_create_vault() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let contract_id = env.register_contract(None, EscrowContract);
+    let contract_id = env.register(EscrowContract, ());
     let client = EscrowContractClient::new(&env, &contract_id);
 
     // Create and initialize a mock token
@@ -28,7 +28,7 @@ fn test_create_vault() {
 
     assert_eq!(vault_id, 1);
 
-    let vault = client.get_vault(&vault_id);
+    let vault = client.get_vault(&vault_id).expect("vault should exist");
     assert_eq!(vault.buyer, buyer);
     assert_eq!(vault.seller, seller);
     assert_eq!(vault.amount, 1000);
@@ -40,7 +40,7 @@ fn test_vault_confirmation_flow() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let contract_id = env.register_contract(None, EscrowContract);
+    let contract_id = env.register(EscrowContract, ());
     let client = EscrowContractClient::new(&env, &contract_id);
 
     // Create and initialize a mock token
@@ -62,18 +62,18 @@ fn test_vault_confirmation_flow() {
 
     // Simulate deposit - now the token transfer will work
     client.deposit(&vault_id, &buyer, &token_address);
-    let vault = client.get_vault(&vault_id);
+    let vault = client.get_vault(&vault_id).expect("vault should exist");
     assert_eq!(vault.status, VaultStatus::Active);
 
     // Buyer confirms
     client.confirm(&vault_id, &buyer, &token_address);
-    let vault = client.get_vault(&vault_id);
+    let vault = client.get_vault(&vault_id).expect("vault should exist");
     assert!(vault.buyer_confirmed);
     assert!(!vault.seller_confirmed);
 
     // Seller confirms → auto-release
     client.confirm(&vault_id, &seller, &token_address);
-    let vault = client.get_vault(&vault_id);
+    let vault = client.get_vault(&vault_id).expect("vault should exist");
     assert_eq!(vault.status, VaultStatus::Confirmed);
 }
 
@@ -82,7 +82,7 @@ fn test_dispute_flagging() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let contract_id = env.register_contract(None, EscrowContract);
+    let contract_id = env.register(EscrowContract, ());
     let client = EscrowContractClient::new(&env, &contract_id);
 
     // Create and initialize a mock token
@@ -104,7 +104,7 @@ fn test_dispute_flagging() {
     client.deposit(&vault_id, &buyer, &token_address);
     client.flag_dispute(&vault_id, &buyer, &String::from_str(&env, "reason"));
 
-    let vault = client.get_vault(&vault_id);
+    let vault = client.get_vault(&vault_id).expect("vault should exist");
     assert_eq!(vault.status, VaultStatus::Disputed);
 }
 
@@ -114,7 +114,7 @@ fn test_invalid_dispute_on_pending() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let contract_id = env.register_contract(None, EscrowContract);
+    let contract_id = env.register(EscrowContract, ());
     let client = EscrowContractClient::new(&env, &contract_id);
 
     // Create and initialize a mock token
