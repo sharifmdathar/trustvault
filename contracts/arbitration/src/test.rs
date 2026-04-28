@@ -12,7 +12,7 @@ fn test_resolve_dispute() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let contract_id = env.register_contract(None, ArbitrationContract);
+    let contract_id = env.register(ArbitrationContract, ());
     let client = ArbitrationContractClient::new(&env, &contract_id);
 
     let admin = Address::generate(&env);
@@ -30,7 +30,7 @@ fn test_resolve_dispute() {
 
     assert_eq!(decision, DisputeDecision::ReleaseToSeller);
 
-    let resolution = client.get_resolution(&1u64);
+    let resolution = client.get_resolution(&1u64).expect("resolution must exist");
     assert_eq!(resolution.vault_id, 1);
     assert_eq!(resolution.arbitrator, arbitrator);
     assert_eq!(resolution.decision, DisputeDecision::ReleaseToSeller);
@@ -42,7 +42,7 @@ fn test_wrong_arbitrator_rejected() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let contract_id = env.register_contract(None, ArbitrationContract);
+    let contract_id = env.register(ArbitrationContract, ());
     let client = ArbitrationContractClient::new(&env, &contract_id);
 
     let admin = Address::generate(&env);
@@ -66,7 +66,7 @@ fn test_resolution_count() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let contract_id = env.register_contract(None, ArbitrationContract);
+    let contract_id = env.register(ArbitrationContract, ());
     let client = ArbitrationContractClient::new(&env, &contract_id);
 
     let admin = Address::generate(&env);
@@ -97,7 +97,7 @@ fn test_split_decision() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let contract_id = env.register_contract(None, ArbitrationContract);
+    let contract_id = env.register(ArbitrationContract, ());
     let client = ArbitrationContractClient::new(&env, &contract_id);
 
     let admin = Address::generate(&env);
