@@ -25,6 +25,50 @@ export default function VaultDetail({
     ((isBuyer && !vault?.buyerConfirmed) ||
       (isSeller && !vault?.sellerConfirmed));
   const canDispute = vault?.status === "funded";
+  const hasParticipantConfirmation = Boolean(
+    vault?.buyerConfirmed || vault?.sellerConfirmed,
+  );
+
+  const currentStepKey =
+    vault?.status === "pending"
+      ? "created"
+      : vault?.status === "funded"
+        ? "delivered"
+        : vault?.status === "disputed"
+          ? "confirmedOrDisputed"
+          : vault?.status === "confirmed" || vault?.status === "resolved"
+            ? "released"
+            : "created";
+
+  const timelineSteps = [
+    { key: "created", label: "Created", description: "Vault initialized" },
+    { key: "funded", label: "Funded", description: "Buyer deposited escrow" },
+    {
+      key: "delivered",
+      label: "Delivered",
+      description: "Work delivery phase in progress",
+    },
+    {
+      key: "confirmedOrDisputed",
+      label: "Confirmed / Disputed",
+      description:
+        vault?.status === "disputed"
+          ? "Dispute opened for arbitration"
+          : "Parties confirm completion or raise dispute",
+    },
+    {
+      key: "released",
+      label: "Released",
+      description:
+        vault?.status === "resolved"
+          ? "Released after arbitration resolution"
+          : "Funds released to recipient",
+    },
+  ];
+
+  const currentStepIndex = timelineSteps.findIndex(
+    (step) => step.key === currentStepKey,
+  );
 
   const handleAction = async (action, handler) => {
     setActionLoading(true);
@@ -236,52 +280,55 @@ export default function VaultDetail({
               <span className="material-symbols-outlined text-slate-400">
                 history
               </span>
-              Lifecycle
+              Escrow Timeline
             </h2>
             <div className="space-y-6 relative before:absolute before:left-3 before:top-2 before:bottom-2 before:w-0.5 before:bg-outline">
-              <div className="flex items-start relative z-10">
-                <div className="w-6 h-6 bg-teal-600 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0 shadow-lg shadow-teal-600/30">
-                  1
-                </div>
-                <div className="ml-4 flex-1">
-                  <p className="font-bold text-on-surface text-xs">
-                    Vault Deployed
-                  </p>
-                  <p className="text-[10px] text-on-surface-variant">
-                    {new Date(vault?.createdAt).toLocaleDateString()}
-                  </p>
-                </div>
-              </div>
+              {timelineSteps.map((step, index) => {
+                const isCompleted =
+                  index < currentStepIndex ||
+                  (step.key === "delivered" && hasParticipantConfirmation);
+                const isCurrent = index === currentStepIndex;
 
-              <div className="flex items-start relative z-10">
-                <div
-                  className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${vault?.status !== "pending" ? "bg-teal-600 text-white shadow-lg shadow-teal-600/30" : "bg-surface-low text-on-surface-variant"}`}
-                >
-                  2
-                </div>
-                <div className="ml-4 flex-1">
-                  <p
-                    className={`font-bold text-xs ${vault?.status !== "pending" ? "text-on-surface" : "text-on-surface-variant"}`}
+                return (
+                  <div
+                    key={step.key}
+                    className="flex items-start relative z-10"
                   >
-                    Capital Secured
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start relative z-10">
-                <div
-                  className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${vault?.status === "confirmed" || vault?.status === "resolved" ? "bg-teal-600 text-white shadow-lg shadow-teal-600/30" : "bg-surface-low text-on-surface-variant"}`}
-                >
-                  3
-                </div>
-                <div className="ml-4 flex-1">
-                  <p
-                    className={`font-bold text-xs ${vault?.status === "confirmed" || vault?.status === "resolved" ? "text-on-surface" : "text-on-surface-variant"}`}
-                  >
-                    {vault?.status === "resolved" ? "Resolved via Arbitration" : "Finalized"}
-                  </p>
-                </div>
-              </div>
+                    <div
+                      className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${
+                        isCompleted
+                          ? "bg-teal-600 text-white shadow-lg shadow-teal-600/30"
+                          : isCurrent
+                            ? "bg-primary text-white shadow-lg shadow-primary/30"
+                            : "bg-surface-low text-on-surface-variant"
+                      }`}
+                    >
+                      {index + 1}
+                    </div>
+                    <div className="ml-4 flex-1">
+                      <p
+                        className={`font-bold text-xs ${
+                          isCompleted || isCurrent
+                            ? "text-on-surface"
+                            : "text-on-surface-variant"
+                        }`}
+                      >
+                        {step.label}
+                        {isCurrent && (
+                          <span className="ml-2 text-[10px] font-medium text-primary">
+                            (Current)
+                          </span>
+                        )}
+                      </p>
+                      <p className="text-[10px] text-on-surface-variant">
+                        {step.key === "created"
+                          ? new Date(vault?.createdAt).toLocaleDateString()
+                          : step.description}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
