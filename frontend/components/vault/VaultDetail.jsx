@@ -3,6 +3,7 @@ import StatusBadge from "../ui/StatusBadge";
 import LoadingSpinner from "../ui/LoadingSpinner";
 import CopyableAddress from "../ui/CopyableAddress";
 import TransactionStatus from "../ui/TransactionStatus";
+import FeeSummaryBox from "../ui/FeeSummaryBox";
 import DisputePanel from "./DisputePanel";
 
 export default function VaultDetail({
@@ -194,6 +195,7 @@ export default function VaultDetail({
                   Active Actions
                 </h2>
                 <div className="space-y-4">
+                  <FeeSummaryBox />
                   {canDeposit && (
                     <button
                       onClick={() => handleAction("deposit", onDeposit)}

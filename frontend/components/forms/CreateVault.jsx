@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { navigate } from "vike/client/router";
 import LoadingSpinner from "../ui/LoadingSpinner";
 import StatusBanner from "../StatusBanner";
+import FeeSummaryBox from "../ui/FeeSummaryBox";
 
 export default function CreateVault({ onSubmit, buyerAddress }) {
   const [formData, setFormData] = useState({
@@ -266,6 +267,10 @@ export default function CreateVault({ onSubmit, buyerAddress }) {
                 {formData.description}
               </p>
             </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-4">
+            <FeeSummaryBox className="mb-2" />
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4">
