@@ -11,6 +11,7 @@ import {
   flagDispute,
   resolveDispute,
   getNativeTokenAddress,
+  getWalletNetworkInfo,
 } from "../../../src/utils/stellar.js";
 import { Vault } from "../../../types";
 
@@ -22,6 +23,11 @@ interface Notification {
   explorerUrl?: string;
   autoDismiss?: number;
 }
+interface WalletNetworkState {
+  isMatch: boolean;
+  walletNetwork: string;
+  expectedNetwork: string;
+}
 
 export default function VaultDetailPage() {
   const pageContext = usePageContext();
@@ -32,6 +38,9 @@ export default function VaultDetailPage() {
   const [loading, setLoading] = useState(true);
 
   const [notification, setNotification] = useState<Notification | null>(null);
+  const [walletNetwork, setWalletNetwork] = useState<WalletNetworkState | null>(
+    null,
+  );
   // State for the dispute confirmation step (replaces `confirm()`)
   const [disputePending, setDisputePending] = useState(false);
   // State for the arbitration reason input step (replaces `prompt()`)
@@ -47,6 +56,14 @@ export default function VaultDetailPage() {
       loadVaultData();
     }
   }, [vaultId]);
+
+  useEffect(() => {
+    if (address) {
+      checkWalletNetwork();
+    } else {
+      setWalletNetwork(null);
+    }
+  }, [address]);
 
   useEffect(() => {
     if (arbitrationPending && arbitrationPanelRef.current) {
@@ -76,8 +93,38 @@ export default function VaultDetailPage() {
     }
   };
 
+  const checkWalletNetwork = async () => {
+    try {
+      const networkInfo = await getWalletNetworkInfo();
+      setWalletNetwork({
+        isMatch: networkInfo.isMatch,
+        walletNetwork: networkInfo.walletNetwork,
+        expectedNetwork: networkInfo.expectedNetwork,
+      });
+    } catch (error) {
+      console.error("Failed to detect wallet network:", error);
+      setWalletNetwork({
+        isMatch: false,
+        walletNetwork: "Unknown",
+        expectedNetwork: "Testnet",
+      });
+    }
+  };
+
   const getExplorerUrl = (hash?: string) =>
     hash ? `https://stellar.expert/explorer/testnet/tx/${hash}` : undefined;
+
+  const ensureCorrectNetwork = () => {
+    if (!walletNetwork?.isMatch) {
+      notify(
+        "warning",
+        `Wrong wallet network detected (${walletNetwork?.walletNetwork || "Unknown"}). Switch Freighter to ${walletNetwork?.expectedNetwork || "Testnet"} to continue.`,
+        { autoDismiss: 0 },
+      );
+      return false;
+    }
+    return true;
+  };
 
   const notify = (
     type: NotifType,
@@ -92,6 +139,7 @@ export default function VaultDetailPage() {
       notify("warning", "Please connect your wallet.");
       return;
     }
+    if (!ensureCorrectNetwork()) return;
     try {
       notify("info", "Transaction submitted. Waiting for Stellar confirmation...", {
         autoDismiss: 0,
@@ -113,6 +161,7 @@ export default function VaultDetailPage() {
       notify("warning", "Please connect your wallet.");
       return;
     }
+    if (!ensureCorrectNetwork()) return;
     try {
       notify("info", "Transaction submitted. Waiting for Stellar confirmation...", {
         autoDismiss: 0,
@@ -140,6 +189,7 @@ export default function VaultDetailPage() {
       notify("warning", "Please connect your wallet.");
       return;
     }
+    if (!ensureCorrectNetwork()) return;
     setDisputePending(true);
     setNotification(null);
   };
@@ -167,6 +217,7 @@ export default function VaultDetailPage() {
       notify("warning", "Please connect your wallet.");
       return;
     }
+    if (!ensureCorrectNetwork()) return;
     setArbitrationPending({ decision });
     setArbitrationReason("");
     setNotification(null);
@@ -240,6 +291,27 @@ export default function VaultDetailPage() {
             explorerUrl={notification.explorerUrl}
             autoDismiss={notification.autoDismiss}
             onDismiss={() => setNotification(null)}
+          />
+        )}
+
+        {address && walletNetwork && !walletNetwork.isMatch && (
+          <StatusBanner
+            type="warning"
+            message={`Wallet network mismatch: ${walletNetwork.walletNetwork}. Switch to ${walletNetwork.expectedNetwork} before submitting actions.`}
+            onDismiss={() => setWalletNetwork(null)}
+            autoDismiss={0}
+            actions={[
+              {
+                label: "Switch to Testnet Guide",
+                onClick: () =>
+                  window.open(
+                    "https://docs.freighter.app/docs/guide/using-freighter#switching-networks",
+                    "_blank",
+                    "noopener,noreferrer",
+                  ),
+                primary: true,
+              },
+            ]}
           />
         )}
 

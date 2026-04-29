@@ -4,6 +4,13 @@ export const NATIVE_XLM_CONTRACT_TESTNET: string;
 
 export function getNativeTokenAddress(): string;
 export function connectWallet(): Promise<string>;
+export function getWalletNetworkInfo(): Promise<{
+  walletPassphrase: string | null;
+  expectedPassphrase: string;
+  walletNetwork: string;
+  expectedNetwork: string;
+  isMatch: boolean;
+}>;
 export function createVault(
   buyerAddress: string,
   sellerAddress: string,

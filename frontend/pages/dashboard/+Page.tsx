@@ -10,6 +10,7 @@ import {
   flagDispute,
   getVault,
   getNativeTokenAddress,
+  getWalletNetworkInfo,
 } from "../../src/utils/stellar.js";
 
 type NotifType = "success" | "error" | "warning" | "info";
@@ -20,6 +21,11 @@ interface Notification {
   explorerUrl?: string;
   autoDismiss?: number;
 }
+interface WalletNetworkState {
+  isMatch: boolean;
+  walletNetwork: string;
+  expectedNetwork: string;
+}
 
 export default function Page() {
   const [address, setAddress] = useState<string>("");
@@ -28,14 +34,36 @@ export default function Page() {
   const [loading, setLoading] = useState(true);
 
   const [notification, setNotification] = useState<Notification | null>(null);
+  const [walletNetwork, setWalletNetwork] = useState<WalletNetworkState | null>(
+    null,
+  );
   // Tracks which vault's dispute is awaiting confirmation (replaces `confirm()`)
   const [disputePending, setDisputePending] = useState<string | null>(null);
 
   useEffect(() => {
     if (address) {
       loadVaults();
+      checkWalletNetwork();
     }
   }, [address]);
+
+  const checkWalletNetwork = async () => {
+    try {
+      const networkInfo = await getWalletNetworkInfo();
+      setWalletNetwork({
+        isMatch: networkInfo.isMatch,
+        walletNetwork: networkInfo.walletNetwork,
+        expectedNetwork: networkInfo.expectedNetwork,
+      });
+    } catch (error) {
+      console.error("Failed to detect wallet network:", error);
+      setWalletNetwork({
+        isMatch: false,
+        walletNetwork: "Unknown",
+        expectedNetwork: "Testnet",
+      });
+    }
+  };
 
   const loadVaults = async () => {
     setLoading(true);
@@ -53,6 +81,18 @@ export default function Page() {
   const getExplorerUrl = (hash?: string) =>
     hash ? `https://stellar.expert/explorer/testnet/tx/${hash}` : undefined;
 
+  const ensureCorrectNetwork = () => {
+    if (!walletNetwork?.isMatch) {
+      notify(
+        "warning",
+        `Wrong wallet network detected (${walletNetwork?.walletNetwork || "Unknown"}). Switch Freighter to ${walletNetwork?.expectedNetwork || "Testnet"} to continue.`,
+        { autoDismiss: 0 },
+      );
+      return false;
+    }
+    return true;
+  };
+
   const notify = (
     type: NotifType,
     message: string,
@@ -62,6 +102,7 @@ export default function Page() {
   };
 
   const handleConfirm = async (vaultId: string) => {
+    if (!ensureCorrectNetwork()) return;
     try {
       notify("info", "Transaction submitted. Waiting for Stellar confirmation...", {
         autoDismiss: 0,
@@ -86,6 +127,7 @@ export default function Page() {
   };
 
   const handleDispute = (vaultId: string) => {
+    if (!ensureCorrectNetwork()) return;
     setDisputePending(vaultId);
     setNotification(null);
   };
@@ -180,6 +222,27 @@ export default function Page() {
             actions={[
               { label: "Proceed with Dispute", onClick: handleDisputeConfirmed, primary: true },
               { label: "Cancel", onClick: () => setDisputePending(null) },
+            ]}
+          />
+        )}
+
+        {address && walletNetwork && !walletNetwork.isMatch && (
+          <StatusBanner
+            type="warning"
+            message={`Wallet network mismatch: ${walletNetwork.walletNetwork}. Switch to ${walletNetwork.expectedNetwork} before submitting actions.`}
+            onDismiss={() => setWalletNetwork(null)}
+            autoDismiss={0}
+            actions={[
+              {
+                label: "Switch to Testnet Guide",
+                onClick: () =>
+                  window.open(
+                    "https://docs.freighter.app/docs/guide/using-freighter#switching-networks",
+                    "_blank",
+                    "noopener,noreferrer",
+                  ),
+                primary: true,
+              },
             ]}
           />
         )}

@@ -16,7 +16,7 @@ export { scValToNative };
 
 // Handle potential default export wrapping
 const freighterApi = freighterApiModule.default || freighterApiModule;
-const { getAddress, isConnected, requestAccess, signTransaction } =
+const { getAddress, isConnected, requestAccess, signTransaction, getNetwork } =
   freighterApi;
 
 const TRANSACTIONS_KEY = "trustvault:transactions";
@@ -381,6 +381,43 @@ async function waitForTransaction(server, hash) {
 
 export async function connectWallet() {
   return getConnectedAddress();
+}
+
+function networkLabelFromPassphrase(passphrase) {
+  if (!passphrase) return "Unknown";
+  if (passphrase === Networks.TESTNET) return "Testnet";
+  if (passphrase === Networks.PUBLIC) return "Mainnet";
+  if (passphrase === Networks.FUTURENET) return "Futurenet";
+  return "Custom";
+}
+
+export async function getWalletNetworkInfo() {
+  const expectedPassphrase = getNetworkPassphrase();
+  let walletPassphrase = null;
+
+  try {
+    if (typeof getNetwork === "function") {
+      const network = await getNetwork();
+      walletPassphrase =
+        network?.networkPassphrase || network?.passphrase || network?.network || null;
+    }
+
+    if (!walletPassphrase) {
+      const connection = await isConnected();
+      walletPassphrase =
+        connection?.networkPassphrase || connection?.passphrase || connection?.network || null;
+    }
+  } catch (error) {
+    console.warn("Unable to read wallet network:", error);
+  }
+
+  return {
+    walletPassphrase,
+    expectedPassphrase,
+    walletNetwork: networkLabelFromPassphrase(walletPassphrase),
+    expectedNetwork: networkLabelFromPassphrase(expectedPassphrase),
+    isMatch: Boolean(walletPassphrase) && walletPassphrase === expectedPassphrase,
+  };
 }
 
 export async function createVault(
