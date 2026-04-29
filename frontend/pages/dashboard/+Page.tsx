@@ -16,6 +16,9 @@ type NotifType = "success" | "error" | "warning" | "info";
 interface Notification {
   type: NotifType;
   message: string;
+  txHash?: string;
+  explorerUrl?: string;
+  autoDismiss?: number;
 }
 
 export default function Page() {
@@ -47,13 +50,23 @@ export default function Page() {
     }
   };
 
-  const notify = (type: NotifType, message: string) => {
-    setNotification({ type, message });
+  const getExplorerUrl = (hash?: string) =>
+    hash ? `https://stellar.expert/explorer/testnet/tx/${hash}` : undefined;
+
+  const notify = (
+    type: NotifType,
+    message: string,
+    options: Pick<Notification, "txHash" | "explorerUrl" | "autoDismiss"> = {},
+  ) => {
+    setNotification({ type, message, ...options });
   };
 
   const handleConfirm = async (vaultId: string) => {
     try {
-      await confirmVault(vaultId, address, getNativeTokenAddress());
+      notify("info", "Transaction submitted. Waiting for Stellar confirmation...", {
+        autoDismiss: 0,
+      });
+      const tx = await confirmVault(vaultId, address, getNativeTokenAddress());
       await loadVaults();
       const fresh = await getVault(vaultId);
       notify(
@@ -61,6 +74,10 @@ export default function Page() {
         fresh?.status === "confirmed"
           ? "Both parties confirmed. Funds released to seller."
           : "Confirmation recorded. Waiting for the other party to confirm.",
+        {
+          txHash: tx?.txHash,
+          explorerUrl: getExplorerUrl(tx?.txHash),
+        },
       );
     } catch (error: any) {
       console.error("Error confirming vault:", error);
@@ -78,9 +95,15 @@ export default function Page() {
     const vaultId = disputePending;
     setDisputePending(null);
     try {
-      await flagDispute(vaultId, address);
+      notify("info", "Transaction submitted. Waiting for Stellar confirmation...", {
+        autoDismiss: 0,
+      });
+      const tx = await flagDispute(vaultId, address);
       await loadVaults();
-      notify("success", "Dispute filed! Arbitration process started.");
+      notify("success", "Dispute filed! Arbitration process started.", {
+        txHash: tx?.txHash,
+        explorerUrl: getExplorerUrl(tx?.txHash),
+      });
     } catch (error: any) {
       console.error("Error filing dispute:", error);
       notify("error", error?.message || "Failed to file dispute. Please try again.");
@@ -142,6 +165,9 @@ export default function Page() {
           <StatusBanner
             type={notification.type}
             message={notification.message}
+            txHash={notification.txHash}
+            explorerUrl={notification.explorerUrl}
+            autoDismiss={notification.autoDismiss}
             onDismiss={() => setNotification(null)}
           />
         )}

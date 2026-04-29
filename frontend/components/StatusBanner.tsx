@@ -13,6 +13,8 @@ interface StatusBannerProps {
   message: string;
   onDismiss: () => void;
   actions?: Action[];
+  txHash?: string;
+  explorerUrl?: string;
   /** Auto-dismiss delay in ms. Set to 0 to disable. Default: 4000. Ignored when `actions` are present. */
   autoDismiss?: number;
 }
@@ -29,6 +31,8 @@ export default function StatusBanner({
   message,
   onDismiss,
   actions,
+  txHash,
+  explorerUrl,
   autoDismiss = 4000,
 }: StatusBannerProps) {
   const { icon, statusKey } = TYPE_CFG[type];
@@ -59,6 +63,22 @@ export default function StatusBanner({
 
       <div className="flex-1">
         <p className="text-sm font-semibold">{message}</p>
+        {txHash && (
+          <p className="mt-1 text-xs opacity-80 font-mono break-all">
+            Tx: {txHash}
+          </p>
+        )}
+        {explorerUrl && (
+          <a
+            href={explorerUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 mt-2 text-xs underline underline-offset-2"
+          >
+            View on Stellar Explorer
+            <span className="material-symbols-outlined text-xs">open_in_new</span>
+          </a>
+        )}
         {actions && actions.length > 0 && (
           <div className="flex gap-2 mt-3">
             {actions.map((action, i) => (

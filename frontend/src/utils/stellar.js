@@ -438,7 +438,7 @@ export async function createVault(
 }
 
 export async function depositToVault(vaultId, buyerAddress, tokenAddress) {
-  await submitSponsoredContractCall(
+  const tx = await submitSponsoredContractCall(
     requireContractId("VITE_ESCROW_CONTRACT_ID"),
     "deposit",
     [
@@ -457,11 +457,11 @@ export async function depositToVault(vaultId, buyerAddress, tokenAddress) {
     amount: vault?.amount,
   });
 
-  return true;
+  return { txHash: tx.txHash };
 }
 
 export async function confirmVault(vaultId, callerAddress, tokenAddress) {
-  await submitSponsoredContractCall(
+  const tx = await submitSponsoredContractCall(
     requireContractId("VITE_ESCROW_CONTRACT_ID"),
     "confirm",
     [
@@ -480,11 +480,11 @@ export async function confirmVault(vaultId, callerAddress, tokenAddress) {
     amount: vault?.amount,
   });
 
-  return true;
+  return { txHash: tx.txHash };
 }
 
 export async function flagDispute(vaultId, callerAddress, reason) {
-  await submitSponsoredContractCall(
+  const tx = await submitSponsoredContractCall(
     requireContractId("VITE_ESCROW_CONTRACT_ID"),
     "flag_dispute",
     [
@@ -500,7 +500,7 @@ export async function flagDispute(vaultId, callerAddress, reason) {
     from: callerAddress,
   });
 
-  return true;
+  return { txHash: tx.txHash };
 }
 
 export async function resolveDispute(
@@ -520,7 +520,7 @@ export async function resolveDispute(
   const decisionKey = decisionMap[decision] || "SplitFiftyFifty";
 
   // Contract signature: resolve_dispute(vault_id, arbitrator, decision, reason, token)
-  await submitSponsoredContractCall(
+  const tx = await submitSponsoredContractCall(
     requireContractId("VITE_ESCROW_CONTRACT_ID"),
     "resolve_dispute",
     [
@@ -539,7 +539,7 @@ export async function resolveDispute(
     decision,
   });
 
-  return true;
+  return { txHash: tx.txHash };
 }
 
 export async function getVault(vaultId) {
@@ -836,5 +836,5 @@ export async function submitSponsoredContractCall(
     }
   }
 
-  return { ...result, returnValue };
+  return { ...result, returnValue, txHash: response.hash };
 }

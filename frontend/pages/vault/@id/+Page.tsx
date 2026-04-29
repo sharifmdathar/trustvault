@@ -18,6 +18,9 @@ type NotifType = "success" | "error" | "warning" | "info";
 interface Notification {
   type: NotifType;
   message: string;
+  txHash?: string;
+  explorerUrl?: string;
+  autoDismiss?: number;
 }
 
 export default function VaultDetailPage() {
@@ -73,8 +76,15 @@ export default function VaultDetailPage() {
     }
   };
 
-  const notify = (type: NotifType, message: string) => {
-    setNotification({ type, message });
+  const getExplorerUrl = (hash?: string) =>
+    hash ? `https://stellar.expert/explorer/testnet/tx/${hash}` : undefined;
+
+  const notify = (
+    type: NotifType,
+    message: string,
+    options: Pick<Notification, "txHash" | "explorerUrl" | "autoDismiss"> = {},
+  ) => {
+    setNotification({ type, message, ...options });
   };
 
   const handleDeposit = async () => {
@@ -83,9 +93,15 @@ export default function VaultDetailPage() {
       return;
     }
     try {
-      await depositToVault(vaultId!, address, getNativeTokenAddress());
+      notify("info", "Transaction submitted. Waiting for Stellar confirmation...", {
+        autoDismiss: 0,
+      });
+      const tx = await depositToVault(vaultId!, address, getNativeTokenAddress());
       await loadVaultData();
-      notify("success", "Deposit successful!");
+      notify("success", "Deposit successful!", {
+        txHash: tx?.txHash,
+        explorerUrl: getExplorerUrl(tx?.txHash),
+      });
     } catch (error: any) {
       console.error("Error depositing:", error);
       notify("error", error?.message || "Deposit failed. Please try again.");
@@ -98,13 +114,20 @@ export default function VaultDetailPage() {
       return;
     }
     try {
-      await confirmVault(vaultId!, address, getNativeTokenAddress());
+      notify("info", "Transaction submitted. Waiting for Stellar confirmation...", {
+        autoDismiss: 0,
+      });
+      const tx = await confirmVault(vaultId!, address, getNativeTokenAddress());
       const updatedVault = await loadVaultData();
       notify(
         "success",
         updatedVault?.status === "confirmed"
           ? "Both parties confirmed. Funds released to seller."
           : "Confirmation recorded. Waiting for the other party to confirm.",
+        {
+          txHash: tx?.txHash,
+          explorerUrl: getExplorerUrl(tx?.txHash),
+        },
       );
     } catch (error: any) {
       console.error("Error confirming vault:", error);
@@ -124,9 +147,15 @@ export default function VaultDetailPage() {
   const handleDisputeConfirmed = async () => {
     setDisputePending(false);
     try {
-      await flagDispute(vaultId!, address);
+      notify("info", "Transaction submitted. Waiting for Stellar confirmation...", {
+        autoDismiss: 0,
+      });
+      const tx = await flagDispute(vaultId!, address);
       await loadVaultData();
-      notify("success", "Dispute filed! Arbitration process started.");
+      notify("success", "Dispute filed! Arbitration process started.", {
+        txHash: tx?.txHash,
+        explorerUrl: getExplorerUrl(tx?.txHash),
+      });
     } catch (error: any) {
       console.error("Error filing dispute:", error);
       notify("error", error?.message || "Failed to file dispute. Please try again.");
@@ -154,7 +183,10 @@ export default function VaultDetailPage() {
     setArbitrationPending(null);
     setArbitrationReason("");
     try {
-      await resolveDispute(
+      notify("info", "Transaction submitted. Waiting for Stellar confirmation...", {
+        autoDismiss: 0,
+      });
+      const tx = await resolveDispute(
         vaultId!,
         address,
         decision,
@@ -162,7 +194,10 @@ export default function VaultDetailPage() {
         getNativeTokenAddress(),
       );
       await loadVaultData();
-      notify("success", "Resolution submitted successfully!");
+      notify("success", "Resolution submitted successfully!", {
+        txHash: tx?.txHash,
+        explorerUrl: getExplorerUrl(tx?.txHash),
+      });
     } catch (error: any) {
       console.error("Error submitting resolution:", error);
       notify("error", error?.message || "Failed to submit resolution. Please try again.");
@@ -201,6 +236,9 @@ export default function VaultDetailPage() {
           <StatusBanner
             type={notification.type}
             message={notification.message}
+            txHash={notification.txHash}
+            explorerUrl={notification.explorerUrl}
+            autoDismiss={notification.autoDismiss}
             onDismiss={() => setNotification(null)}
           />
         )}

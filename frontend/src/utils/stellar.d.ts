@@ -16,24 +16,24 @@ export function depositToVault(
   vaultId: string,
   buyerAddress: string,
   tokenAddress: string,
-): Promise<boolean>;
+): Promise<{ txHash?: string }>;
 export function confirmVault(
   vaultId: string,
   callerAddress: string,
   tokenAddress: string,
-): Promise<boolean>;
+): Promise<{ txHash?: string }>;
 export function flagDispute(
   vaultId: string,
   callerAddress: string,
   reason?: string,
-): Promise<boolean>;
+): Promise<{ txHash?: string }>;
 export function resolveDispute(
   vaultId: string,
   arbitratorAddress: string,
   decision: string,
   reason: string,
   tokenAddress: string,
-): Promise<boolean>;
+): Promise<{ txHash?: string }>;
 export function getVault(vaultId: string): Promise<Vault | null>;
 export function getUserVaults(address: string): Promise<Vault[]>;
 export function getAllVaults(): Promise<Vault[]>;
