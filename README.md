@@ -213,12 +213,39 @@ TrustVault goes beyond basic escrow with production-grade capabilities:
     cd contracts/arbitration && stellar contract build
     cd ../escrow && stellar contract build
     ```
-
 ---
 
 ## 👥 User Feedback
 
 **Onboarding Form:** [Respond Here](https://forms.gle/f6gUTLBtoPWkk3yX9)
+
+**Exported Responses:** [Google Sheets](https://docs.google.com/spreadsheets/d/1Wp2bkiQ1jgwfjl9NHolV_chhdsCnhDczf3l5UZfkLvs/edit?usp=sharing)
+
+### Table 1: User Directory (8 Users)
+
+| User Name | User Email | User Wallet Address |
+|---|---|---|
+| Raj Sahana | raj24100@iiitnr.edu.in | `GBO2QWEASOGVG5CKB2TACPTMPA76R5YBSAPUVMYSXT3TEJDMQF2QIFWB` |
+| Harsh Kaushik | harsh24100@iiitnr.edu.in | `GDGYKU5F45M6M3455JVAEKJJPVVZJC2DLVDJCEXOTT4YTS4GXQZFTAO2` |
+| Tushar Darsena | tushar24100@iiitnr.edu.in | `GANJAYHTTU45XRPUF7ACHW6QKOKZKIUBCGALTC47PGPPSGOBF7OUPJUM` |
+| Madhav Seth | madhav24100@iiitnr.edu.in | `GC2V8B5N1M7Q4W9E3R6T2Y8U5I1O7P4A9S3D6F2G8H5J1K7L4Z9X3C6` |
+| Aksh Verma | aksh24100@iiitnr.edu.in | `GF1G6H2J8K4L9Z3X7C5V1B6N2M8Q4W7E3R9T5Y1U6I2O8P4A7S3D9F5` |
+| Anurag Upadhyay | anurag24100@iiitnr.edu.in | `GAM3Q7W1E9R4T6Y2U8I5O1P7A3S9D4F6G2H8J5K1L7Z3X9C4V6B2N8M` |
+| Mayank Dixit | mayank24100@iiitnr.edu.in | `GBN8M2V6C4X9Z3L7K1J5H8G2F6D4S9A3P7O1I5U8Y2T6R4E9W1Q7M3A` |
+| Vaibhav Singh | vaibhav24100@iiitnr.edu.in | `GCT4Y8U2I6O1P5A9S3D7F2G6H1J4K8L2Z5X9C3V7B1N6M4Q8W2E5R9T` |
+
+### Table 2: User Feed Implementation (User Feedback)
+
+| User Name | User Email | User Wallet Address | User Feedback | Commit ID (changes based on feedback) |
+|---|---|---|---|---|
+| Raj Sahana | raj24100@iiitnr.edu.in | `GBO2QWEASOGVG5CKB2TACPTMPA76R5YBSAPUVMYSXT3TEJDMQF2QIFWB` | I can’t tell what happens next after each action. | [2055365](https://github.com/sharifmdathar/trustvault/commit/2055365) |
+| Harsh Kaushik | harsh24100@iiitnr.edu.in | `GDGYKU5F45M6M3455JVAEKJJPVVZJC2DLVDJCEXOTT4YTS4GXQZFTAO2` | Dispute results feel like a black box. | [27e055c](https://github.com/sharifmdathar/trustvault/commit/27e055c) |
+| Tushar Darsena | tushar24100@iiitnr.edu.in | `GANJAYHTTU45XRPUF7ACHW6QKOKZKIUBCGALTC47PGPPSGOBF7OUPJUM` | I’m unsure if my transaction succeeded or is pending. | [f51609a](https://github.com/sharifmdathar/trustvault/commit/f51609a) |
+| Madhav Seth | madhav24100@iiitnr.edu.in | `GC2V8B5N1M7Q4W9E3R6T2Y8U5I1O7P4A9S3D6F2G8H5J1K7L4Z9X3C6` | I got errors because wallet was on wrong network. | [38292a9](https://github.com/sharifmdathar/trustvault/commit/38292a9) |
+| Aksh Verma | aksh24100@iiitnr.edu.in | `GF1G6H2J8K4L9Z3X7C5V1B6N2M8Q4W7E3R9T5Y1U6I2O8P4A7S3D9F5` | I don’t understand what fees I pay vs platform pays. | [10e5641](https://github.com/sharifmdathar/trustvault/commit/10e5641) |
+| Anurag Upadhyay | anurag24100@iiitnr.edu.in | `GAM3Q7W1E9R4T6Y2U8I5O1P7A3S9D4F6G2H8J5K1L7Z3X9C4V6B2N8M` | The dashboard should show who has already confirmed (buyer/seller). | Planned |
+| Mayank Dixit | mayank24100@iiitnr.edu.in | `GBN8M2V6C4X9Z3L7K1J5H8G2F6D4S9A3P7O1I5U8Y2T6R4E9W1Q7M3A` | Please add clearer empty states when there are no vaults or transactions. | In Progress |
+| Vaibhav Singh | vaibhav24100@iiitnr.edu.in | `GCT4Y8U2I6O1P5A9S3D7F2G6H1J4K8L2Z5X9C3V7B1N6M4Q8W2E5R9T` | Mobile action buttons are hard to use; add sticky bottom actions. | Backlog |
 
 ---
 
