@@ -112,7 +112,7 @@ See the full [User Guide](USER_GUIDE.md) for more details.
 - [x] Error messages don't expose internals
 - [x] All contract calls have error handling
 
-> **Artifact note:** The checklist above is the canonical security audit artifact for this project. It covers smart contract authorization, input validation, frontend key hygiene, and operational safeguards.
+> **Artifact note:** For the full security audit artifact, see [SECURITY.md](./docs/SECURITY.md). The checklist above summarizes the key controls covering smart contract authorization, input validation, frontend key hygiene, and operational safeguards.
 
 ---
 
