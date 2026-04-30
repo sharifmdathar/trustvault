@@ -51,7 +51,7 @@ export default function StatusBanner({
     <div
       role="alert"
       style={{ backgroundColor: bg, color: text, borderColor: border }}
-      className="flex items-start gap-3 p-4 rounded-xl border mb-4"
+      className="flex items-start gap-3 p-4 rounded-xl border mb-4 animate-slide-down"
     >
       <span
         className="material-symbols-outlined text-xl"

@@ -160,7 +160,11 @@ impl EscrowContract {
         env.storage().instance().set(&DataKey::Vault(count), &vault);
         env.storage().instance().set(&DataKey::VaultCount, &count);
 
-        VaultCreatedEvent { vault_id: count, buyer }.publish(&env);
+        VaultCreatedEvent {
+            vault_id: count,
+            buyer,
+        }
+        .publish(&env);
 
         count
     }
@@ -185,7 +189,11 @@ impl EscrowContract {
             .instance()
             .set(&DataKey::Vault(vault_id), &vault);
 
-        DepositEvent { vault_id, amount: vault.amount }.publish(&env);
+        DepositEvent {
+            vault_id,
+            amount: vault.amount,
+        }
+        .publish(&env);
     }
 
     pub fn confirm(env: Env, vault_id: u64, caller: Address, token: Address) {
@@ -215,7 +223,11 @@ impl EscrowContract {
                 &vault.amount,
             );
 
-            ReleasedEvent { vault_id, amount: vault.amount }.publish(&env);
+            ReleasedEvent {
+                vault_id,
+                amount: vault.amount,
+            }
+            .publish(&env);
         }
 
         env.storage()
@@ -322,7 +334,11 @@ impl EscrowContract {
             .instance()
             .set(&DataKey::Vault(vault_id), &vault);
 
-        VaultResolvedEvent { vault_id, arbitrator }.publish(&env);
+        VaultResolvedEvent {
+            vault_id,
+            arbitrator,
+        }
+        .publish(&env);
     }
 
     pub fn cancel(env: Env, vault_id: u64, caller: Address) {

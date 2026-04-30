@@ -20,11 +20,12 @@ export interface Vault {
   confirmedAt?: string;
   resolvedAt?: string;
   decision?: "buyer" | "seller" | "split";
+  arbitration?: ArbitrationCase | null;
 }
 
 export interface Transaction {
   id: string;
-  type: "create" | "deposit" | "confirm" | "dispute" | "resolve";
+  type: "create" | "deposit" | "fund" | "confirm" | "dispute" | "resolve";
   vaultId: string;
   from: string;
   to?: string;

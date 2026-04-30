@@ -6,7 +6,7 @@ import { Shield, Clock, Scale } from "lucide-react";
 
 export default function HomePage() {
   return (
-    <div className="bg-surface text-on-surface antialiased">
+    <div className="bg-surface text-on-surface antialiased animate-fade-in-up">
       {/* Hero Section */}
       <section className="relative overflow-hidden pt-32 pb-32 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
@@ -35,7 +35,7 @@ export default function HomePage() {
               </Link>
               <Link
                 href="/dashboard"
-                className="bg-white border border-slate-200 text-slate-600 px-8 py-4 rounded-xl font-bold text-lg hover:bg-slate-50 transition-all active:scale-[0.98]"
+                className="bg-white border border-slate-200 text-slate-600 px-8 py-4 rounded-xl font-bold text-lg hover:bg-slate-50 hover:shadow-md hover:-translate-y-0.5 transition-all active:scale-[0.98]"
               >
                 Launch Dashboard
               </Link>
@@ -222,7 +222,7 @@ export default function HomePage() {
   );
 }
 
-function WorkflowCard({ step, icon, title, description }) {
+function WorkflowCard({ step, icon, title, description }: { step: string; icon: string; title: string; description: string }) {
   return (
     <div className="group bg-white p-10 rounded-huge border border-slate-100 transition-all hover:shadow-2xl hover:-translate-y-1 shadow-sm">
       <div className="flex justify-between items-start mb-8">
@@ -239,9 +239,9 @@ function WorkflowCard({ step, icon, title, description }) {
   );
 }
 
-function FeatureItem({ icon, title, description }) {
+function FeatureItem({ icon, title, description }: { icon: string; title: string; description: string }) {
   return (
-    <div className="bg-white/5 border border-white/10 p-8 rounded-huge hover:bg-white/10 transition-colors">
+    <div className="bg-white/5 border border-white/10 p-8 rounded-huge hover:bg-white/10 hover:-translate-y-0.5 transition-all duration-300">
       <span className="material-symbols-outlined text-teal-400 mb-4 text-3xl">
         {icon}
       </span>

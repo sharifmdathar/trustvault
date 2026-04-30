@@ -93,7 +93,7 @@ export default function CreateVault({ onSubmit, buyerAddress }) {
                   value={formData.seller}
                   onChange={handleInputChange}
                   placeholder="G..."
-                  className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all text-on-surface"
+                  className="w-full pl-12 pr-4 py-4 bg-surface-low border border-outline-variant rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-on-surface"
                   required
                 />
               </div>
@@ -121,7 +121,7 @@ export default function CreateVault({ onSubmit, buyerAddress }) {
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-tight">
+                <label className="block text-sm font-bold text-on-surface-variant mb-2 uppercase tracking-tight opacity-60">
                   Deadline (days) *
                 </label>
                 <div className="relative">
@@ -163,7 +163,7 @@ export default function CreateVault({ onSubmit, buyerAddress }) {
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-tight">
+              <label className="block text-sm font-bold text-on-surface-variant mb-2 uppercase tracking-tight opacity-60">
                 Description *
               </label>
               <textarea

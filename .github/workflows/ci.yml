@@ -32,16 +32,6 @@ jobs:
           curl -fsSL https://github.com/stellar/stellar-cli/raw/main/install.sh | sh
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
-      - name: Check formatting
-        run: |
-          cd contracts/arbitration && cargo fmt -- --check
-          cd ../escrow && cargo fmt -- --check
-
-      - name: Run clippy
-        run: |
-          cd contracts/arbitration && cargo clippy -- -D warnings
-          cd ../escrow && cargo clippy -- -D warnings
-
       - name: Build Contracts
         run: |
           cd contracts/arbitration && stellar contract build

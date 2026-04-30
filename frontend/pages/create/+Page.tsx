@@ -59,7 +59,7 @@ export default function Page() {
 
   if (!address) {
     return (
-      <div className="min-h-screen bg-surface py-12">
+      <div className="min-h-screen bg-surface py-12 animate-fade-in-up">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-3xl font-bold mb-8 text-on-surface">Create New Vault</h1>
           <p className="text-on-surface-variant mb-6">
@@ -79,9 +79,9 @@ export default function Page() {
   }
 
   return (
-    <div className="min-h-screen bg-surface py-12">
+    <div className="min-h-screen bg-surface py-12 animate-fade-in-up">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-3xl font-bold mb-8 text-on-surface">Create New Vault</h1>
+        <h1 className="text-3xl font-bold mb-8 text-on-surface animate-fade-in">Create New Vault</h1>
         {notification && (
           <StatusBanner
             type={notification.type}

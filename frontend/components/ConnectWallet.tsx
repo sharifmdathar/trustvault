@@ -66,7 +66,7 @@ export default function ConnectWallet({
         </div>
         <button
           onClick={handleDisconnect}
-          className="text-xs font-bold text-on-surface-variant hover:text-red-500 transition-colors uppercase tracking-tight opacity-60"
+          className="text-xs font-bold text-on-surface-variant hover:text-red-500 transition-colors uppercase tracking-tight"
         >
           Disconnect
         </button>

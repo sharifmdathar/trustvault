@@ -271,7 +271,7 @@ export default function VaultDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-surface">
+    <div className="min-h-screen bg-surface animate-fade-in-up">
       {!address && (
         <div className="bg-surface-low border border-outline p-4 text-center">
           <p className="text-on-surface-variant mb-3">

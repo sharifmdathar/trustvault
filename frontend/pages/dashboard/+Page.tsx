@@ -154,7 +154,7 @@ export default function Page() {
 
   if (!address) {
     return (
-      <div className="min-h-screen bg-surface py-20 px-4">
+      <div className="min-h-screen bg-surface py-20 px-4 animate-fade-in-up">
         <div className="max-w-xl mx-auto text-center space-y-8">
           <div className="w-20 h-20 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mx-auto shadow-sm">
             <span className="material-symbols-outlined text-4xl">
@@ -190,10 +190,10 @@ export default function Page() {
   ).length;
 
   return (
-    <div className="space-y-12 pb-20">
+    <div className="space-y-12 pb-20 animate-fade-in-up">
       {/* Welcome & Summary Section */}
       <section>
-        <div className="mb-8">
+        <div className="mb-8 animate-fade-in">
           <h1 className="text-4xl font-bold text-on-surface mb-2 tracking-tight">
             Portfolio Overview
           </h1>
@@ -248,9 +248,9 @@ export default function Page() {
         )}
 
         {/* Summary Cards Bento Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-slide-up">
           {/* TVL Card */}
-          <div className="bg-surface-high p-8 rounded-2xl border border-outline-variant shadow-sm group hover:border-primary/30 transition-all">
+          <div className="bg-surface-high p-8 rounded-2xl border border-outline-variant shadow-sm group hover:border-primary/30 hover:shadow-md hover:-translate-y-0.5 transition-all">
             <div className="flex justify-between items-start mb-6">
               <div className="p-3 bg-primary/10 text-primary rounded-xl">
                 <span className="material-symbols-outlined">
@@ -276,7 +276,7 @@ export default function Page() {
           </div>
 
           {/* Active Vaults Card */}
-          <div className="bg-surface-high p-8 rounded-2xl border border-outline-variant shadow-sm group hover:border-primary/30 transition-all">
+          <div className="bg-surface-high p-8 rounded-2xl border border-outline-variant shadow-sm group hover:border-primary/30 hover:shadow-md hover:-translate-y-0.5 transition-all">
             <div className="flex justify-between items-start mb-6">
               <div className="p-3 bg-surface-low text-primary rounded-xl">
                 <span className="material-symbols-outlined">shield_lock</span>
@@ -300,7 +300,7 @@ export default function Page() {
           </div>
 
           {/* Connected Account Card */}
-          <div className="bg-surface-high p-8 rounded-2xl border border-outline-variant shadow-sm group hover:border-primary/30 transition-all min-w-0">
+          <div className="bg-surface-high p-8 rounded-2xl border border-outline-variant shadow-sm group hover:border-primary/30 hover:shadow-md hover:-translate-y-0.5 transition-all min-w-0">
             <div className="flex justify-between items-start mb-6">
               <div className="p-3 bg-surface-low text-on-surface-variant rounded-xl">
                 <span className="material-symbols-outlined">

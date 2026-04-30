@@ -62,7 +62,7 @@ export default function MetricsPage() {
     totalVaults > 0 ? (confirmedVaults / totalVaults) * 100 : 0;
 
   return (
-    <div className="space-y-12 pb-20">
+    <div className="space-y-12 pb-20 animate-fade-in-up">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <h1 className="text-4xl font-bold text-on-surface mb-2 tracking-tight">
@@ -111,13 +111,13 @@ export default function MetricsPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Live Activity Feed */}
-        <div className="lg:col-span-4 bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+        <div className="lg:col-span-4 bg-surface-high rounded-2xl border border-outline-variant shadow-sm overflow-hidden">
           <div className="p-6 border-b border-outline-variant bg-surface-low/50 flex justify-between items-center">
             <h2 className="text-lg font-bold text-on-surface flex items-center">
               <span className="w-2 h-2 bg-red-500 rounded-full mr-3 animate-pulse"></span>
               Live Ledger Activity
             </h2>
-            <div className="px-2 py-0.5 bg-red-50 text-red-600 text-[10px] font-bold rounded uppercase">
+            <div className="px-2 py-0.5 bg-surface-low text-red-600 text-[10px] font-bold rounded uppercase border border-outline-variant">
               Live
             </div>
           </div>
@@ -141,7 +141,7 @@ export default function MetricsPage() {
                 </p>
               </div>
             ) : (
-              liveEvents.map((event: any, i) => (
+              liveEvents.map((event: any, i: number) => (
                 <EventItem key={event.id || i} event={event} isLive />
               ))
             )}
@@ -149,7 +149,7 @@ export default function MetricsPage() {
         </div>
 
         {/* Historical Events */}
-        <div className="lg:col-span-5 bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+        <div className="lg:col-span-5 bg-surface-high rounded-2xl border border-outline-variant shadow-sm overflow-hidden">
           <div className="p-6 border-b border-outline-variant bg-surface-low/50 flex justify-between items-center">
             <h2 className="text-lg font-bold text-on-surface flex items-center">
               <span className="material-symbols-outlined text-on-surface-variant mr-2">
@@ -157,7 +157,7 @@ export default function MetricsPage() {
               </span>
               Event History
             </h2>
-            <div className="px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-bold rounded uppercase">
+            <div className="px-2 py-0.5 bg-surface-low text-on-surface-variant text-[10px] font-bold rounded uppercase border border-outline-variant">
               Sync
             </div>
           </div>
@@ -176,7 +176,7 @@ export default function MetricsPage() {
                   No historical data found for this session.
                 </p>
               ) : (
-                historicalEvents.map((event: any, i) => (
+                historicalEvents.map((event: any, i: number) => (
                   <EventItem key={event.id || i} event={event} />
                 ))
               )}
@@ -273,7 +273,7 @@ function formatDetails(details: string) {
     .join(" ");
 }
 
-function EventItem({ event, isLive = false }) {
+function EventItem({ event, isLive = false }: { event: { type: string; ledger: number; details: string; hash: string }; isLive?: boolean }) {
   return (
     <div
       className={`border-l-4 ${isLive ? "border-teal-500 bg-teal-50/30" : "border-outline bg-surface-low/50"} pl-4 py-4 rounded-r-xl transition-all mb-3 hover:shadow-sm`}
@@ -308,14 +308,14 @@ function EventItem({ event, isLive = false }) {
   );
 }
 
-function StatCard({ title, value, highlight = false, icon, subtitle }) {
+function StatCard({ title, value, highlight = false, icon, subtitle }: { title: string; value: string | number; highlight?: boolean; icon: string; subtitle?: string }) {
   return (
     <div
-      className={`bg-white p-8 rounded-2xl border ${highlight ? "border-teal-600/30 shadow-md" : "border-slate-100 shadow-sm"} flex flex-col gap-4 group hover:border-teal-600/30 transition-all`}
+      className={`bg-surface-high p-8 rounded-2xl border ${highlight ? "border-teal-600/30 shadow-md" : "border-outline-variant shadow-sm"} flex flex-col gap-4 group hover:border-teal-600/30 hover:shadow-md hover:-translate-y-0.5 transition-all`}
     >
       <div className="flex justify-between items-start">
         <div
-          className={`p-3 rounded-xl ${highlight ? "bg-teal-600 text-white" : "bg-teal-50 text-teal-600"}`}
+          className={`p-3 rounded-xl ${highlight ? "bg-teal-600 text-white" : "bg-primary/10 text-primary"}`}
         >
           <span className="material-symbols-outlined">{icon}</span>
         </div>
