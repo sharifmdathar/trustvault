@@ -261,7 +261,7 @@ export default function Page() {
                 <span className="material-symbols-outlined text-sm">
                   trending_up
                 </span>
-                +100%
+                Active
               </span>
             </div>
             <p className="text-[10px] font-bold text-on-surface-variant mb-1 uppercase tracking-wider opacity-60">

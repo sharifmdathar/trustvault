@@ -221,7 +221,9 @@ TrustVault goes beyond basic escrow with production-grade capabilities:
 
 **Exported Responses:** [Google Sheets](https://docs.google.com/spreadsheets/d/1Wp2bkiQ1jgwfjl9NHolV_chhdsCnhDczf3l5UZfkLvs/edit?usp=sharing)
 
-### Table 1: User Directory (8 Users)
+### Table 1: User Directory (First 8 Users)
+
+*See the Exported Responses for the full list of users*
 
 | User Name | User Email | User Wallet Address |
 |---|---|---|
@@ -234,7 +236,9 @@ TrustVault goes beyond basic escrow with production-grade capabilities:
 | Mayank Dixit | mayank24100@iiitnr.edu.in | `GBN8M2V6C4X9Z3L7K1J5H8G2F6D4S9A3P7O1I5U8Y2T6R4E9W1Q7M3A` |
 | Vaibhav Singh | vaibhav24100@iiitnr.edu.in | `GCT4Y8U2I6O1P5A9S3D7F2G6H1J4K8L2Z5X9C3V7B1N6M4Q8W2E5R9T` |
 
-### Table 2: User Feed Implementation (User Feedback)
+### Table 2: User Feed Implementation (First 8 Feedbacks)
+
+*See the Exported Responses for the full list of feedbacks*
 
 | User Name | User Email | User Wallet Address | User Feedback | Commit ID (changes based on feedback) |
 |---|---|---|---|---|
@@ -251,12 +255,13 @@ TrustVault goes beyond basic escrow with production-grade capabilities:
 
 ## 🤝 Community & Contributions
 
-Contributions are welcome. To get started:
+Contributions are welcome. Read the full [Contributing Guide](./CONTRIBUTING.md) for setup instructions, coding standards, and PR workflow. To get started quickly:
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/your-feature`)
 3. Commit your changes and open a Pull Request
 
+- **Contributing Guide:** [CONTRIBUTING.md](./CONTRIBUTING.md)
 - **Issue Tracker:** [GitHub Issues](https://github.com/sharifmdathar/trustvault/issues)
 - **Community Contribution (Twitter/X):** [TrustVault event post](https://x.com/the_md_athar/status/2049089335048409238)
 

@@ -123,25 +123,25 @@ export default function LayoutDefault({
         <div className="flex flex-col items-center md:items-start gap-1">
           <div className="text-md font-bold text-on-surface">TrustVault</div>
           <p className="text-xs text-on-surface-variant">
-            © 2024 TrustVault. Institutional Grade Escrow on Stellar.
+            © 2024 TrustVault. Secure Escrow on Stellar.
           </p>
         </div>
         <div className="flex gap-6">
           <a
             className="text-xs text-on-surface-variant hover:text-on-surface underline decoration-teal-500/30 transition-colors"
-            href="#"
+            href="https://github.com/sharifmdathar/trustvault"
           >
             Documentation
           </a>
           <a
             className="text-xs text-on-surface-variant hover:text-on-surface underline decoration-teal-500/30 transition-colors"
-            href="#"
+            href="https://github.com/sharifmdathar/trustvault"
           >
             Privacy Policy
           </a>
           <a
             className="text-xs text-on-surface-variant hover:text-on-surface underline decoration-teal-500/30 transition-colors"
-            href="#"
+            href="https://github.com/sharifmdathar/trustvault"
           >
             Security Audit
           </a>

@@ -15,7 +15,7 @@ export default function HomePage() {
               Powered by Stellar Network
             </span>
             <h1 className="text-5xl md:text-6xl font-bold text-slate-900 mb-6 leading-tight tracking-tight">
-              Institutional Grade{" "}
+              Enterprise-Ready{" "}
               <span className="text-teal-600">Secure Escrow</span>
             </h1>
             <p className="text-lg text-slate-500 mb-10 max-w-lg leading-relaxed">
@@ -83,27 +83,27 @@ export default function HomePage() {
       <section className="bg-slate-50 py-20 border-y border-slate-100 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-12 text-center">
           <div>
-            <h2 className="text-4xl font-bold text-slate-900 mb-1">$250M+</h2>
+            <h2 className="text-4xl font-bold text-slate-900 mb-1">Growing</h2>
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-              Volume Secured
+              Ecosystem Volume
             </p>
           </div>
           <div>
-            <h2 className="text-4xl font-bold text-slate-900 mb-1">0.01%</h2>
+            <h2 className="text-4xl font-bold text-slate-900 mb-1">Minimal</h2>
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
               Dispute Rate
             </p>
           </div>
           <div>
-            <h2 className="text-4xl font-bold text-slate-900 mb-1">15k+</h2>
+            <h2 className="text-4xl font-bold text-slate-900 mb-1">Stellar</h2>
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-              Active Vaults
+              Network Backbone
             </p>
           </div>
           <div>
-            <h2 className="text-4xl font-bold text-slate-900 mb-1">&lt;2s</h2>
+            <h2 className="text-4xl font-bold text-slate-900 mb-1">&lt;5s</h2>
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-              Finality Speed
+              Avg. Finality Speed
             </p>
           </div>
         </div>
@@ -150,7 +150,7 @@ export default function HomePage() {
               <h2 className="text-4xl font-bold mb-6 leading-tight">
                 Built for Institutional Resilience
               </h2>
-              <p className="text-slate-400 text-lg mb-8 leading-relaxed">
+              <p className="text-slate-on-dark text-lg mb-8 leading-relaxed">
                 TrustVault leverages the speed and low cost of the Stellar
                 network with the safety and compliance of traditional finance.
               </p>
@@ -160,7 +160,7 @@ export default function HomePage() {
                     check_circle
                   </span>
                   <span className="font-bold">
-                    SOC2 Type II Compliant Infrastructure
+                    Security-First Architecture
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
@@ -189,8 +189,8 @@ export default function HomePage() {
               />
               <FeatureItem
                 icon="bolt"
-                title="Gasless UX"
-                description="We abstract network fees. Experience seamless transactions without managing native tokens."
+                title="Low-Cost Transactions"
+                description="Stellar's minimal network fees mean settlements cost fractions of a cent — no gas management required."
               />
             </div>
           </div>
@@ -205,19 +205,16 @@ export default function HomePage() {
             Ready to secure your next transaction?
           </h2>
           <p className="text-teal-50 text-xl mb-12 max-w-xl mx-auto relative z-10 opacity-90">
-            Join thousands of businesses already using TrustVault for
-            high-stakes settlements.
+            Built for high-stakes settlements on the Stellar network — fast,
+            transparent, and fully on-chain.
           </p>
           <div className="flex flex-wrap justify-center gap-4 relative z-10">
             <Link
               href="/create"
-              className="bg-white text-teal-600 px-10 py-5 rounded-2xl font-bold text-lg hover:bg-teal-50 transition-all shadow-xl active:scale-[0.98]"
+              className="bg-white-static text-teal-600 px-10 py-5 rounded-2xl font-bold text-lg hover:bg-teal-50-static transition-all shadow-xl active:scale-[0.98]"
             >
               Open Your First Vault
             </Link>
-            <button className="bg-teal-700/50 text-white border border-teal-400/30 px-10 py-5 rounded-2xl font-bold text-lg hover:bg-teal-700 transition-all active:scale-[0.98]">
-              Contact Sales
-            </button>
           </div>
         </div>
       </section>
@@ -249,7 +246,7 @@ function FeatureItem({ icon, title, description }) {
         {icon}
       </span>
       <h4 className="text-lg font-bold mb-2 text-white">{title}</h4>
-      <p className="text-slate-400 text-sm leading-relaxed">{description}</p>
+      <p className="text-slate-on-dark text-sm leading-relaxed">{description}</p>
     </div>
   );
 }

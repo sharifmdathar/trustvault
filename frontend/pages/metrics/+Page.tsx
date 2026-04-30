@@ -231,8 +231,8 @@ export default function MetricsPage() {
                 </button>
               </div>
             </div>
-            <div className="absolute -right-4 -bottom-4 opacity-[0.03] dark:opacity-[0.07] group-hover:scale-110 transition-transform duration-700">
-              <span className="material-symbols-outlined text-[10rem] text-on-surface">
+            <div className="absolute -right-10 -bottom-10 opacity-[0.05] dark:opacity-[0.08] group-hover:scale-110 transition-transform duration-700 pointer-events-none">
+              <span className="material-symbols-outlined text-[7rem] text-on-surface">
                 settings_input_antenna
               </span>
             </div>
