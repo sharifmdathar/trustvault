@@ -29,17 +29,18 @@ export interface Transaction {
   from: string;
   to?: string;
   amount?: string;
+  /** Arbitration decision recorded for resolve-type transactions. */
+  decision?: string;
   timestamp: string;
   status: "pending" | "success" | "failed";
 }
 
 export interface ArbitrationCase {
   vaultId: string;
-  arbitrators: string[];
-  votesBuyer: number;
-  votesSeller: number;
-  votesSplit: number;
-  totalVotes: number;
-  resolved: boolean;
+  /** The arbitrator who submitted the resolution on-chain. */
+  arbitrator: string;
   decision: "buyer" | "seller" | "split" | null;
+  reason: string;
+  timestamp: string;
+  resolved: boolean;
 }

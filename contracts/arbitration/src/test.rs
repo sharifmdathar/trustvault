@@ -2,10 +2,7 @@
 
 #![cfg(test)]
 use super::*;
-use soroban_sdk::{
-    testutils::Address as _,
-    Address, Env, String
-};
+use soroban_sdk::{Address, Env, String, testutils::Address as _};
 
 #[test]
 fn test_resolve_dispute() {
@@ -78,13 +75,17 @@ fn test_resolution_count() {
     assert_eq!(client.get_resolution_count(), 0);
 
     client.resolve(
-        &1u64, &arb1, &arb1,
+        &1u64,
+        &arb1,
+        &arb1,
         &DisputeDecision::ReleaseToSeller,
         &String::from_str(&env, "Resolved"),
     );
 
     client.resolve(
-        &2u64, &arb2, &arb2,
+        &2u64,
+        &arb2,
+        &arb2,
         &DisputeDecision::SplitFiftyFifty,
         &String::from_str(&env, "Resolved"),
     );

@@ -31,12 +31,22 @@ jobs:
         run: |
           curl -fsSL https://github.com/stellar/stellar-cli/raw/main/install.sh | sh
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-      
+
+      - name: Check formatting
+        run: |
+          cd contracts/arbitration && cargo fmt -- --check
+          cd ../escrow && cargo fmt -- --check
+
+      - name: Run clippy
+        run: |
+          cd contracts/arbitration && cargo clippy -- -D warnings
+          cd ../escrow && cargo clippy -- -D warnings
+
       - name: Build Contracts
         run: |
           cd contracts/arbitration && stellar contract build
           cd ../escrow && stellar contract build
-      
+
       - name: Run Tests
         run: |
           cd contracts/arbitration && cargo test
@@ -47,8 +57,15 @@ jobs:
       - uses: actions/checkout@v6.0.2
       - name: Install bun
         run: curl -fsSL https://bun.com/install | bash
-      - name: Install & Build
+      - name: Install dependencies
         run: |
           cd frontend
           ~/.bun/bin/bun install
+      - name: TypeScript typecheck
+        run: |
+          cd frontend
+          ~/.bun/bin/bunx tsc --noEmit
+      - name: Build
+        run: |
+          cd frontend
           ~/.bun/bin/bun run build

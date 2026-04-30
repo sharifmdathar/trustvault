@@ -1,8 +1,5 @@
 #![no_std]
-use soroban_sdk::{
-    contract, contractimpl, contracttype,
-    Address, Env, String, symbol_short,
-};
+use soroban_sdk::{Address, Env, String, contract, contractevent, contractimpl, contracttype};
 
 #[derive(Clone, PartialEq, Debug)]
 #[contracttype]
@@ -30,16 +27,25 @@ pub enum DataKey {
     Admin,
 }
 
+#[contractevent(topics = ["resolved"])]
+#[derive(Clone)]
+pub struct DisputeResolvedEvent {
+    pub vault_id: u64,
+    pub arbitrator: Address,
+    pub decision: DisputeDecision,
+}
+
 #[contract]
 pub struct ArbitrationContract;
 
 #[contractimpl]
 impl ArbitrationContract {
-
     pub fn initialize(env: Env, admin: Address) {
         admin.require_auth();
         env.storage().instance().set(&DataKey::Admin, &admin);
-        env.storage().instance().set(&DataKey::ResolutionCount, &0u64);
+        env.storage()
+            .instance()
+            .set(&DataKey::ResolutionCount, &0u64);
     }
 
     /// Called by EscrowContract via inter-contract call
@@ -68,22 +74,28 @@ impl ArbitrationContract {
             timestamp: env.ledger().timestamp(),
         };
 
-        env.storage().instance().set(
-            &DataKey::Resolution(vault_id),
-            &resolution
-        );
+        env.storage()
+            .instance()
+            .set(&DataKey::Resolution(vault_id), &resolution);
 
         // Update count
-        let mut count: u64 = env.storage().instance()
-            .get(&DataKey::ResolutionCount).unwrap_or(0);
+        let mut count: u64 = env
+            .storage()
+            .instance()
+            .get(&DataKey::ResolutionCount)
+            .unwrap_or(0);
         count += 1;
-        env.storage().instance().set(&DataKey::ResolutionCount, &count);
+        env.storage()
+            .instance()
+            .set(&DataKey::ResolutionCount, &count);
 
         // Emit event
-        env.events().publish(
-            (symbol_short!("resolved"),),
-            (vault_id, arbitrator, decision.clone())
-        );
+        DisputeResolvedEvent {
+            vault_id,
+            arbitrator,
+            decision: decision.clone(),
+        }
+        .publish(&env);
 
         // Return decision to EscrowContract
         decision
@@ -91,14 +103,15 @@ impl ArbitrationContract {
 
     /// Get resolution details for a vault
     pub fn get_resolution(env: Env, vault_id: u64) -> Option<Resolution> {
-        env.storage().instance()
-            .get(&DataKey::Resolution(vault_id))
+        env.storage().instance().get(&DataKey::Resolution(vault_id))
     }
 
     /// Get total resolutions count
     pub fn get_resolution_count(env: Env) -> u64 {
-        env.storage().instance()
-            .get(&DataKey::ResolutionCount).unwrap_or(0)
+        env.storage()
+            .instance()
+            .get(&DataKey::ResolutionCount)
+            .unwrap_or(0)
     }
 }
 

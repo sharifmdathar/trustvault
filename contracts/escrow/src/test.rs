@@ -1,6 +1,6 @@
 #![cfg(test)]
 use super::*;
-use soroban_sdk::{testutils::Address as _, token::StellarAssetClient, Address, Env, String};
+use soroban_sdk::{Address, Env, String, testutils::Address as _, token::StellarAssetClient};
 
 #[test]
 fn test_create_vault() {
@@ -24,7 +24,14 @@ fn test_create_vault() {
 
     client.initialize(&arbitration, &token_address);
 
-    let vault_id = client.create_vault(&buyer, &seller, &arbitration, &1000i128, &String::from_str(&env, "laptop"), &7u64);
+    let vault_id = client.create_vault(
+        &buyer,
+        &seller,
+        &arbitration,
+        &1000i128,
+        &String::from_str(&env, "laptop"),
+        &7u64,
+    );
 
     assert_eq!(vault_id, 1);
 
@@ -57,8 +64,14 @@ fn test_vault_confirmation_flow() {
 
     client.initialize(&arbitration, &token_address);
 
-    let vault_id =
-        client.create_vault(&buyer, &seller, &arbitration, &1000i128, &String::from_str(&env, "service"), &7u64);
+    let vault_id = client.create_vault(
+        &buyer,
+        &seller,
+        &arbitration,
+        &1000i128,
+        &String::from_str(&env, "service"),
+        &7u64,
+    );
 
     // Simulate deposit - now the token transfer will work
     client.deposit(&vault_id, &buyer, &token_address);
@@ -99,7 +112,14 @@ fn test_dispute_flagging() {
 
     client.initialize(&arbitration, &token_address);
 
-    let vault_id = client.create_vault(&buyer, &seller, &arbitration, &1000i128, &String::from_str(&env, "item"), &7u64);
+    let vault_id = client.create_vault(
+        &buyer,
+        &seller,
+        &arbitration,
+        &1000i128,
+        &String::from_str(&env, "item"),
+        &7u64,
+    );
 
     client.deposit(&vault_id, &buyer, &token_address);
     client.flag_dispute(&vault_id, &buyer, &String::from_str(&env, "reason"));
@@ -123,7 +143,14 @@ fn test_create_vault_zero_amount_rejected() {
     let buyer = Address::generate(&env);
     let seller = Address::generate(&env);
     client.initialize(&arbitration, &token_address);
-    client.create_vault(&buyer, &seller, &arbitration, &0i128, &String::from_str(&env, "item"), &7u64);
+    client.create_vault(
+        &buyer,
+        &seller,
+        &arbitration,
+        &0i128,
+        &String::from_str(&env, "item"),
+        &7u64,
+    );
 }
 
 #[test]
@@ -139,7 +166,14 @@ fn test_create_vault_negative_amount_rejected() {
     let buyer = Address::generate(&env);
     let seller = Address::generate(&env);
     client.initialize(&arbitration, &token_address);
-    client.create_vault(&buyer, &seller, &arbitration, &-500i128, &String::from_str(&env, "item"), &7u64);
+    client.create_vault(
+        &buyer,
+        &seller,
+        &arbitration,
+        &-500i128,
+        &String::from_str(&env, "item"),
+        &7u64,
+    );
 }
 
 #[test]
@@ -154,7 +188,14 @@ fn test_create_vault_buyer_equals_seller_rejected() {
     let arbitration = Address::generate(&env);
     let same_party = Address::generate(&env);
     client.initialize(&arbitration, &token_address);
-    client.create_vault(&same_party, &same_party, &arbitration, &1000i128, &String::from_str(&env, "item"), &7u64);
+    client.create_vault(
+        &same_party,
+        &same_party,
+        &arbitration,
+        &1000i128,
+        &String::from_str(&env, "item"),
+        &7u64,
+    );
 }
 
 #[test]
@@ -171,7 +212,14 @@ fn test_create_vault_arbitrator_is_buyer_rejected() {
     let seller = Address::generate(&env);
     client.initialize(&arbitration, &token_address);
     // Buyer doubles as arbitrator
-    client.create_vault(&buyer, &seller, &buyer, &1000i128, &String::from_str(&env, "item"), &7u64);
+    client.create_vault(
+        &buyer,
+        &seller,
+        &buyer,
+        &1000i128,
+        &String::from_str(&env, "item"),
+        &7u64,
+    );
 }
 
 #[test]
@@ -188,7 +236,14 @@ fn test_create_vault_arbitrator_is_seller_rejected() {
     let seller = Address::generate(&env);
     client.initialize(&arbitration, &token_address);
     // Seller doubles as arbitrator
-    client.create_vault(&buyer, &seller, &seller, &1000i128, &String::from_str(&env, "item"), &7u64);
+    client.create_vault(
+        &buyer,
+        &seller,
+        &seller,
+        &1000i128,
+        &String::from_str(&env, "item"),
+        &7u64,
+    );
 }
 
 // ─── deposit access control ───────────────────────────────────────────────────
@@ -209,7 +264,14 @@ fn test_deposit_by_non_buyer_rejected() {
     let stranger = Address::generate(&env);
     token_client.mint(&stranger, &1000i128);
     client.initialize(&arbitration, &token_address);
-    let vault_id = client.create_vault(&buyer, &seller, &arbitration, &1000i128, &String::from_str(&env, "item"), &7u64);
+    let vault_id = client.create_vault(
+        &buyer,
+        &seller,
+        &arbitration,
+        &1000i128,
+        &String::from_str(&env, "item"),
+        &7u64,
+    );
     // Stranger is not the vault's buyer
     client.deposit(&vault_id, &stranger, &token_address);
 }
@@ -229,7 +291,14 @@ fn test_double_deposit_rejected() {
     let seller = Address::generate(&env);
     token_client.mint(&buyer, &2000i128);
     client.initialize(&arbitration, &token_address);
-    let vault_id = client.create_vault(&buyer, &seller, &arbitration, &1000i128, &String::from_str(&env, "item"), &7u64);
+    let vault_id = client.create_vault(
+        &buyer,
+        &seller,
+        &arbitration,
+        &1000i128,
+        &String::from_str(&env, "item"),
+        &7u64,
+    );
     client.deposit(&vault_id, &buyer, &token_address);
     // Vault is now Active — second deposit must be rejected
     client.deposit(&vault_id, &buyer, &token_address);
@@ -250,7 +319,14 @@ fn test_confirm_on_pending_vault_rejected() {
     let buyer = Address::generate(&env);
     let seller = Address::generate(&env);
     client.initialize(&arbitration, &token_address);
-    let vault_id = client.create_vault(&buyer, &seller, &arbitration, &1000i128, &String::from_str(&env, "item"), &7u64);
+    let vault_id = client.create_vault(
+        &buyer,
+        &seller,
+        &arbitration,
+        &1000i128,
+        &String::from_str(&env, "item"),
+        &7u64,
+    );
     // No deposit yet — vault is Pending, confirm must be rejected
     client.confirm(&vault_id, &buyer, &token_address);
 }
@@ -271,7 +347,14 @@ fn test_confirm_by_outsider_rejected() {
     let stranger = Address::generate(&env);
     token_client.mint(&buyer, &1000i128);
     client.initialize(&arbitration, &token_address);
-    let vault_id = client.create_vault(&buyer, &seller, &arbitration, &1000i128, &String::from_str(&env, "item"), &7u64);
+    let vault_id = client.create_vault(
+        &buyer,
+        &seller,
+        &arbitration,
+        &1000i128,
+        &String::from_str(&env, "item"),
+        &7u64,
+    );
     client.deposit(&vault_id, &buyer, &token_address);
     // Stranger is neither buyer nor seller
     client.confirm(&vault_id, &stranger, &token_address);
@@ -292,7 +375,14 @@ fn test_confirm_on_disputed_vault_rejected() {
     let seller = Address::generate(&env);
     token_client.mint(&buyer, &1000i128);
     client.initialize(&arbitration, &token_address);
-    let vault_id = client.create_vault(&buyer, &seller, &arbitration, &1000i128, &String::from_str(&env, "item"), &7u64);
+    let vault_id = client.create_vault(
+        &buyer,
+        &seller,
+        &arbitration,
+        &1000i128,
+        &String::from_str(&env, "item"),
+        &7u64,
+    );
     client.deposit(&vault_id, &buyer, &token_address);
     client.flag_dispute(&vault_id, &buyer, &String::from_str(&env, "issue"));
     // Vault is Disputed — confirm must be rejected
@@ -317,7 +407,14 @@ fn test_dispute_by_outsider_rejected() {
     let stranger = Address::generate(&env);
     token_client.mint(&buyer, &1000i128);
     client.initialize(&arbitration, &token_address);
-    let vault_id = client.create_vault(&buyer, &seller, &arbitration, &1000i128, &String::from_str(&env, "item"), &7u64);
+    let vault_id = client.create_vault(
+        &buyer,
+        &seller,
+        &arbitration,
+        &1000i128,
+        &String::from_str(&env, "item"),
+        &7u64,
+    );
     client.deposit(&vault_id, &buyer, &token_address);
     client.flag_dispute(&vault_id, &stranger, &String::from_str(&env, "fraud"));
 }
@@ -337,7 +434,14 @@ fn test_double_dispute_rejected() {
     let seller = Address::generate(&env);
     token_client.mint(&buyer, &1000i128);
     client.initialize(&arbitration, &token_address);
-    let vault_id = client.create_vault(&buyer, &seller, &arbitration, &1000i128, &String::from_str(&env, "item"), &7u64);
+    let vault_id = client.create_vault(
+        &buyer,
+        &seller,
+        &arbitration,
+        &1000i128,
+        &String::from_str(&env, "item"),
+        &7u64,
+    );
     client.deposit(&vault_id, &buyer, &token_address);
     client.flag_dispute(&vault_id, &buyer, &String::from_str(&env, "first"));
     // Already Disputed — second flag must be rejected
@@ -359,7 +463,14 @@ fn test_dispute_after_settlement_rejected() {
     let seller = Address::generate(&env);
     token_client.mint(&buyer, &1000i128);
     client.initialize(&arbitration, &token_address);
-    let vault_id = client.create_vault(&buyer, &seller, &arbitration, &1000i128, &String::from_str(&env, "item"), &7u64);
+    let vault_id = client.create_vault(
+        &buyer,
+        &seller,
+        &arbitration,
+        &1000i128,
+        &String::from_str(&env, "item"),
+        &7u64,
+    );
     client.deposit(&vault_id, &buyer, &token_address);
     client.confirm(&vault_id, &buyer, &token_address);
     client.confirm(&vault_id, &seller, &token_address);
@@ -382,7 +493,14 @@ fn test_cancel_by_non_buyer_rejected() {
     let buyer = Address::generate(&env);
     let seller = Address::generate(&env);
     client.initialize(&arbitration, &token_address);
-    let vault_id = client.create_vault(&buyer, &seller, &arbitration, &1000i128, &String::from_str(&env, "item"), &7u64);
+    let vault_id = client.create_vault(
+        &buyer,
+        &seller,
+        &arbitration,
+        &1000i128,
+        &String::from_str(&env, "item"),
+        &7u64,
+    );
     // Seller cannot cancel a pending vault
     client.cancel(&vault_id, &seller);
 }
@@ -402,7 +520,14 @@ fn test_cancel_active_vault_rejected() {
     let seller = Address::generate(&env);
     token_client.mint(&buyer, &1000i128);
     client.initialize(&arbitration, &token_address);
-    let vault_id = client.create_vault(&buyer, &seller, &arbitration, &1000i128, &String::from_str(&env, "item"), &7u64);
+    let vault_id = client.create_vault(
+        &buyer,
+        &seller,
+        &arbitration,
+        &1000i128,
+        &String::from_str(&env, "item"),
+        &7u64,
+    );
     client.deposit(&vault_id, &buyer, &token_address);
     // Vault is Active — cancel must be rejected
     client.cancel(&vault_id, &buyer);
@@ -423,7 +548,14 @@ fn test_cancel_disputed_vault_rejected() {
     let seller = Address::generate(&env);
     token_client.mint(&buyer, &1000i128);
     client.initialize(&arbitration, &token_address);
-    let vault_id = client.create_vault(&buyer, &seller, &arbitration, &1000i128, &String::from_str(&env, "item"), &7u64);
+    let vault_id = client.create_vault(
+        &buyer,
+        &seller,
+        &arbitration,
+        &1000i128,
+        &String::from_str(&env, "item"),
+        &7u64,
+    );
     client.deposit(&vault_id, &buyer, &token_address);
     client.flag_dispute(&vault_id, &buyer, &String::from_str(&env, "fraud"));
     // Vault is Disputed — cancel must be rejected
@@ -461,7 +593,14 @@ fn test_buyer_double_confirm_no_double_release() {
     let seller = Address::generate(&env);
     token_client.mint(&buyer, &1000i128);
     client.initialize(&arbitration, &token_address);
-    let vault_id = client.create_vault(&buyer, &seller, &arbitration, &1000i128, &String::from_str(&env, "item"), &7u64);
+    let vault_id = client.create_vault(
+        &buyer,
+        &seller,
+        &arbitration,
+        &1000i128,
+        &String::from_str(&env, "item"),
+        &7u64,
+    );
     client.deposit(&vault_id, &buyer, &token_address);
     // Buyer confirms twice — must not trigger release or panic
     client.confirm(&vault_id, &buyer, &token_address);
@@ -496,7 +635,14 @@ fn test_invalid_dispute_on_pending() {
 
     client.initialize(&arbitration, &token_address);
 
-    let vault_id = client.create_vault(&buyer, &seller, &arbitration, &1000i128, &String::from_str(&env, "item"), &7u64);
+    let vault_id = client.create_vault(
+        &buyer,
+        &seller,
+        &arbitration,
+        &1000i128,
+        &String::from_str(&env, "item"),
+        &7u64,
+    );
 
     // This should panic because vault is still Pending
     client.flag_dispute(&vault_id, &buyer, &String::from_str(&env, "reason"));
